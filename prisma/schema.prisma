@@ -1,0 +1,47 @@
+datasource db {
+    provider  = "mongodb"
+    url       = env("mongoURI")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Course {
+    id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+    title              String
+    level              String
+    description        String
+    images             String[]
+    chapters           Chapter[]
+    totalVideosTimeing String?
+    isDeleted          Boolean   @default(false)
+}
+
+model Chapter {
+    id       String     @id @default(auto()) @map("_id") @db.ObjectId
+    title    String?
+    videoUri VideoUri[]
+    courseId String     @db.ObjectId
+    Course   Course     @relation(fields: [courseId], references: [id])
+}
+
+model VideoUri {
+    id          String  @id @default(auto()) @map("_id") @db.ObjectId
+    title       String
+    description String
+    uri         String
+    uriTimeing  String?
+    chapterId   String  @db.ObjectId
+    Chapter     Chapter @relation(fields: [chapterId], references: [id])
+}
+
+model User {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    name      String
+    email     String   @unique
+    password  String
+    isAdmin   Boolean  @default(false)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
