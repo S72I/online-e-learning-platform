@@ -1,12 +1,10 @@
 import DBConnection from "@/backend/dbConfig/dbConfig";
 import Course from "@/backend/models/course.mode";
 import { NextRequest, NextResponse } from "next/server";
-import { validWebToken } from "@/backend/middlewares/validateTokenHandler"
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         DBConnection();
-        validWebToken
         const id = params.id;
 
         const findId = await Course.findById(id);
