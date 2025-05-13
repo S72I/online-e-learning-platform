@@ -1,6 +1,7 @@
 import {
     Box,
     Button,
+    Checkbox,
     Container,
     Stack,
     TextField,
@@ -10,21 +11,24 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+import TestimonialsCard from '../UI/TestimonialsCard';
 
 function Login() {
     return (
         <Container
             maxWidth={false}
             sx={{
+                overflow: 'hidden',
                 display: 'flex',
                 flexDirection: { xs: 'column-reverse', md: 'row' },
-                height: '100vh',
-                padding: 0
+                height: 'auto',
+                padding: 0,
+                marginTop: { xs: 2, sm: 2, md: 2 },
             }}
         >
             <Container
                 sx={{
-                    width: { xs: '100%', md: '60%' },
+                    width: { xs: '100%', md: '100%' },
                     backgroundColor: '#f9f9f9',
                     display: 'flex',
                     flexDirection: 'column',
@@ -83,20 +87,23 @@ function Login() {
                         </Button>
                     </Box>
                 </Box>
+                {/* <TestimonialsCard /> */}
 
-                <Box marginLeft={"350px"} sx={{ color: "black", fontWeight: "bold", display: 'flex', gap: 1, mt: 2 }}>
-                    <Button sx={{ width: "40px", backgroundColor: "#FFFFFF", height: "40px" }}>←</Button>
-                    <Button sx={{ width: "40px", backgroundColor: "#FFFFFF", height: "40px" }}>→</Button>
+                <Box sx={{ color: "black", fontWeight: "bold", display: 'flex', gap: 1, mt: 2 }}>
+                    <Button sx={{ width: "40px", color: "black", backgroundColor: "#FFFFFF", height: "40px" }}>←</Button>
+                    <Button sx={{ width: "40px", color: "black", backgroundColor: "#FFFFFF", height: "40px" }}>→</Button>
                 </Box>
             </Container>
 
             <Container
                 sx={{
-                    width: { xs: '100%', md: '40%' },
+                    width: { xs: '100%', md: '100%' },
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
                     padding: 4,
+                    height: 'auto',
+                    marginTop: { md: 10 }
                 }}
             >
                 <Box
@@ -155,15 +162,30 @@ function Login() {
                                 />
                             </Box>
 
+                            <Box
+                                sx={{
+                                    width: "100%", color: "#4C4C4D",
+                                    fontSize: 12, textAlign: "end"
+                                }}>
+                                <Link href={""}>Forgot Password?</Link>
+                            </Box>
+                            <Stack direction={'row'} sx={{ alignItems: 'center' }}>
+                                <Checkbox sx={{ color: "#c9c9c9", borderColor: "transparent" }} />
+                                <Typography sx={{ fontSize: 13, color: "#4C4C4D", }}>Remember Me</Typography>
+                            </Stack>
                             <Button
                                 type="submit"
-                                variant="contained"
-                                sx={{ backgroundColor: '#FF9500' }}
+
+                                sx={{ color: 'white', backgroundColor: '#FF9500' }}
                             >
                                 Login
                             </Button>
 
-                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+                            <Box sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                mt: 2,
+                            }}>
                                 <Box sx={{ flexGrow: 1, height: '1px', backgroundColor: '#c0c0c4' }} />
                                 <Typography sx={{ mx: 2, color: '#c0c0c4' }}>OR</Typography>
                                 <Box sx={{ flexGrow: 1, height: '1px', backgroundColor: '#c0c0c4' }} />
@@ -205,7 +227,7 @@ function Login() {
                     </Box>
                 </Box>
             </Container>
-        </Container>
+        </Container >
     );
 }
 

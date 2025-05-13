@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import Image from 'next/image';
 
-const pages = ['Home', 'Courses', 'About Us', 'Pricing', 'Contact'];
+const pages = ['Home', 'Courses', 'AboutUs', 'Pricing', 'Contact'];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
@@ -31,17 +31,18 @@ function ResponsiveAppBar() {
       <Box
         sx={{
           mt: 2,
-          mx: 2,
+          justifySelf: 'center',
           borderRadius: 2,
           height: 40,
           backgroundColor: '#FF9500',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          width: "98%"
         }}
       >
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography sx={{ color: 'white' }}>
+          <Typography sx={{ color: 'white', px: { xs: 2 }, fontSize: { xs: 12 } }}>
             Free Courses 🌟 Sale Ends Soon, Get It Now
           </Typography>
           <IconButton size="small">
@@ -55,8 +56,18 @@ function ResponsiveAppBar() {
         </Stack>
       </Box>
 
-      <Box sx={{ mt: 2, px: 4 }}>
-        <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
+      <Box sx={{
+        mt: 2, px: 2,
+
+      }}>
+        <Toolbar disableGutters sx={{
+          width: '97%',
+          justifySelf: "center",
+          overflow: 'hidden',
+          display: { sm: 'flex', md: 'flex' },
+          justifyContent: { sm: 'space-between', md: 'space-between', xs: 'space-between' }
+        }}>
+
           <Image
             src="/images/Logo.png"
             width={30}
@@ -64,7 +75,7 @@ function ResponsiveAppBar() {
             alt="Skillbridge Logo"
           />
 
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, ml: 4 }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: { sm: 20, md: 35, lg: 80, xl: 220 } }}>
             {pages.map((page) => (
               <Button
                 key={page}
@@ -76,13 +87,16 @@ function ResponsiveAppBar() {
             ))}
           </Box>
 
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
-            <Button sx={{ color: 'black' }}>Sign Up</Button>
-            <Button sx={{ color: 'black', ml: 1 }}>Login</Button>
-          </Box>
 
-          <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+
+
+          <Box sx={{
+            display: { xs: 'flex', md: 'none' },
+            mr: { xs: "0" },
+          }}>
+
             <IconButton
+              sx={{ ml: { sm: 64, xs: 8 } }}
               size="large"
               aria-label="navigation menu"
               onClick={handleOpenNavMenu}
@@ -109,16 +123,21 @@ function ResponsiveAppBar() {
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
               ))}
-              <MenuItem onClick={handleCloseNavMenu}>
-                <Typography textAlign="center">Sign Up</Typography>
-              </MenuItem>
-              <MenuItem onClick={handleCloseNavMenu}>
-                <Typography textAlign="center">Login</Typography>
-              </MenuItem>
             </Menu>
           </Box>
-        </Toolbar>
-      </Box>
+
+          <Box sx={{
+            width: 'auto',
+            display: { md: 'flex', xs: 'flex' },
+            // ml: { xs: 11, sm: 45 },
+            mr: { sm: 0 }
+          }}>
+
+            <Button sx={{ color: 'black', fontSize: { md: 12, xs: 11, lg: 12, xl: 12 } }}>SignUp</Button>
+            <Button sx={{ color: 'black', fontSize: { md: 12, xs: 11, lg: 12, xl: 12 } }}>Login</Button>
+          </Box>
+        </Toolbar >
+      </Box >
     </>
   );
 }

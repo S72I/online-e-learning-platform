@@ -1,6 +1,7 @@
 import {
     Box,
     Button,
+    Checkbox,
     Container,
     Stack,
     TextField,
@@ -16,15 +17,17 @@ function SignUp() {
         <Container
             maxWidth={false}
             sx={{
+                overflow: 'hidden',
                 display: 'flex',
                 flexDirection: { xs: 'column-reverse', md: 'row' },
-                height: '100vh',
-                padding: 0
+                height: 'auto',
+                padding: 0,
+                marginTop: { xs: 2, sm: 2, md: 2 },
             }}
         >
             <Container
                 sx={{
-                    width: { xs: '100%', md: '60%' },
+                    width: { xs: '100%', md: '100%' },
                     backgroundColor: '#f9f9f9',
                     display: 'flex',
                     flexDirection: 'column',
@@ -84,19 +87,21 @@ function SignUp() {
                     </Box>
                 </Box>
 
-                <Box marginLeft={"350px"} sx={{ color: "black", fontWeight: "bold", display: 'flex', gap: 1, mt: 2 }}>
-                    <Button sx={{ width: "40px", backgroundColor: "#FFFFFF", height: "40px" }}>←</Button>
-                    <Button sx={{ width: "40px", backgroundColor: "#FFFFFF", height: "40px" }}>→</Button>
+                <Box sx={{ color: "black", fontWeight: "bold", display: 'flex', gap: 1, mt: 2 }}>
+                    <Button sx={{ color: "black", width: "40px", backgroundColor: "#FFFFFF", height: "40px" }}>←</Button>
+                    <Button sx={{ color: "black", width: "40px", backgroundColor: "#FFFFFF", height: "40px" }}>→</Button>
                 </Box>
             </Container>
 
             <Container
                 sx={{
-                    width: { xs: '100%', md: '40%' },
+                    width: { xs: '100%', md: '100%' },
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
                     padding: 4,
+                    height: 'auto',
+                    marginTop: { md: 10 }
                 }}
             >
                 <Box
@@ -117,7 +122,7 @@ function SignUp() {
                             fontWeight: 600,
                         }}
                     >
-                        Login
+                        Sign Up
                     </Typography>
 
                     <Typography
@@ -128,42 +133,61 @@ function SignUp() {
                             textAlign: 'center',
                         }}
                     >
-                        Welcome back! Please log in to access your account.
+                        Create an account to unlock exclusive features.
                     </Typography>
 
                     <Box component="form">
                         <Stack spacing={2}>
                             <Box>
-                                <Typography sx={{ mb: 1 }}>Email</Typography>
+                                <Typography sx={{ mb: 1, color: "#262626" }}>Full Name</Typography>
                                 <TextField
                                     variant="outlined"
-                                    placeholder="Email"
+                                    placeholder="Enter your Name"
+                                    fullWidth
+                                    autoComplete="name"
+                                    sx={{ backgroundColor: '#FCFCFD' }}
+                                />
+                            </Box>
+                            <Box>
+                                <Typography sx={{ mb: 1, color: "#262626" }}>Email</Typography>
+                                <TextField
+                                    variant="outlined"
+                                    placeholder="Enter your Email"
                                     fullWidth
                                     autoComplete="email"
                                     sx={{ backgroundColor: '#FCFCFD' }}
                                 />
                             </Box>
                             <Box>
-                                <Typography sx={{ mb: 1 }}>Password</Typography>
+                                <Typography sx={{ mb: 1, color: "#262626" }}>Password</Typography>
                                 <TextField
                                     variant="outlined"
-                                    placeholder="Password"
+                                    placeholder="Enter your Password"
                                     type="password"
                                     fullWidth
                                     autoComplete="current-password"
                                     sx={{ backgroundColor: '#FCFCFD' }}
                                 />
                             </Box>
+                            <Stack direction={'row'} sx={{ alignItems: 'center' }}>
+                                <Checkbox sx={{ color: "#c9c9c9", borderColor: "transparent" }} />
+                                <Typography sx={{ fontSize: 13 }}>I agree with <Link style={{ textDecoration: 'underline' }} href={""}>Terms of Use</Link> and <Link style={{ textDecoration: 'underline' }} href={""}>Privacy Policy</Link></Typography>
+                            </Stack>
 
                             <Button
                                 type="submit"
-                                variant="contained"
-                                sx={{ backgroundColor: '#FF9500' }}
+                                sx={{ color: 'white', backgroundColor: '#FF9500' }}
                             >
-                                Login
+                                Sign Up
                             </Button>
 
-                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+                            <Box sx={{
+
+                                display: 'flex',
+                                alignItems: 'center',
+                                mt: 2,
+
+                            }}>
                                 <Box sx={{ flexGrow: 1, height: '1px', backgroundColor: '#c0c0c4' }} />
                                 <Typography sx={{ mx: 2, color: '#c0c0c4' }}>OR</Typography>
                                 <Box sx={{ flexGrow: 1, height: '1px', backgroundColor: '#c0c0c4' }} />
@@ -188,16 +212,16 @@ function SignUp() {
                             </Button>
 
                             <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                                Don’t have an account?
+                                Already have an account?
                                 <Link
-                                    href="/register"
+                                    href="/login"
                                     style={{
                                         textDecoration: 'underline',
                                         fontSize: '13px',
                                         marginLeft: '5px',
                                     }}
                                 >
-                                    Sign Up
+                                    Login
                                 </Link>
                                 <ArrowOutwardIcon sx={{ fontSize: 16, verticalAlign: 'middle', ml: 0.5 }} />
                             </Typography>
