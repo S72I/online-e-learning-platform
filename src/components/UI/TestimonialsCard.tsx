@@ -178,25 +178,25 @@ const testimonials = [
     {
         id: 1,
         name: 'Sarah L',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam...',
+        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
         image: '/images/profile.png',
     },
     {
         id: 2,
         name: 'Bruce H',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam...',
+        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
         image: '/images/profile.png',
     },
     {
         id: 3,
         name: 'Peter P',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam...',
+        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
         image: '/images/profile.png',
     },
     {
         id: 4,
         name: 'Tony S',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam...',
+        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
         image: '/images/profile.png',
     },
 ];
