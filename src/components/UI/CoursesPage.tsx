@@ -1,67 +1,53 @@
-import { Box, Button, Container, Grid, Stack, Typography } from '@mui/material'
+import { Box, Container, Grid, Stack, Typography } from '@mui/material'
 import React from 'react'
 import SectionHeader from './SectionHeader'
 import Image from 'next/image'
 
 
-
-
 const courses = [
     {
+        "header": "Web Design Fundamentals",
         "thumbnail": ["/images/thumbnails/Image1.png", "/images/thumbnails/Image2.png", "/images/thumbnails/Image3.png"],
         "level": "beginner",
-        "title": "Introduction to Python",
-        "description": "Learn the basics of Python programming, including syntax, variables, and simple data structures.",
         "time": "4 weeks",
         "name": "By John Smith",
         "subtitle": ["Introduction to HTML", 'Styling with CSS', "Introduction to Responsive Design", "Design Principles for Web", "Building a Basic Website"]
     },
     {
+        "header": "UI/UX Design",
         "thumbnail": ["/images/thumbnails/Image2.png", "/images/thumbnails/Image3.png", "/images/thumbnails/Image4.png"],
         "level": "beginner",
-        "title": "HTML & CSS Fundamentals",
-        "description": "Build your first web pages by mastering HTML tags and CSS styling techniques.",
         "time": "3 weeks",
         "name": "By Emily Johnson",
         "subtitle": ["Introduction to HTML", "Introduction to UI/UX Design", "Wireframing and Prototyping", "Visual Design and Branding", "Usability Testing and Iteration"]
     },
     {
+
+        "header": "Mobile App Development",
         "thumbnail": ["/images/thumbnails/Image3.png", "/images/thumbnails/Image4.png", "/images/thumbnails/Image5.png"],
         "level": "intermediate",
-        "title": "JavaScript Essentials",
-        "description": "Deepen your web development skills with JavaScript functions, DOM manipulation, and events.",
         "time": "2 weeks",
         "name": "By David Brown",
         "subtitle": ["Introduction to Mobile App Development", "Fundamentals of Swift Programming (iOS)", "Fundamentals of Kotlin Programming (Android)", "Building User Interfaces", "App Deployment and Testing"]
 
     },
     {
+        "header": "Graphic Design for Beginners",
         "thumbnail": ["/images/thumbnails/Image4.png", "/images/thumbnails/Image5.png", "/images/thumbnails/Image6.png"],
         "level": "intermediate",
-        "title": "Data Analysis with Pandas",
-        "description": "Analyze and visualize data efficiently using the Pandas library in Python.",
         "time": "1 week",
         "name": "By Sarah Thompson",
         "subtitle": ["Introduction to Graphic Design", "Typography and Color Theory", "Layout Design and Composition", "Image Editing and Manipulation", "Designing for Print and Digital Media"]
 
     },
     {
+        "header": "Front-End Web Development",
         "thumbnail": ["/images/thumbnails/Image5.png", "/images/thumbnails/Image6.png", "/images/thumbnails/Image1.png"],
         "level": "advanced",
-        "title": "Machine Learning Foundations",
-        "description": "Explore core machine learning concepts, algorithms, and model evaluation techniques.",
+
         "time": "6 days",
         "name": "By Michael Adams",
         "subtitle": ["HTML Fundamentals", "CSS Styling and Layouts", "JavaScript Basics", "Building Responsive Websites", "Introduction to Bootstrap and React"]
-
-    },
-    {
-        "thumbnail": ["/images/thumbnails/Image6.png", "/images/thumbnails/Image2.png", "/images/thumbnails/Image4.png"],
-        "level": "advanced",
-        "title": "Full-Stack Web Development",
-        "description": "Master both front-end and back-end technologies to build complete web applications.",
-        "time": "2 days",
-        "name": "By Jennifer Wilson"
 
     }
 ]
@@ -70,68 +56,97 @@ const courses = [
 
 const CoursesPage = () => {
     return (
-        <Container maxWidth={false}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mt: 10, width: '92%', justifySelf: 'center' }}>
+        <Container maxWidth={false} >
+            <Box sx={{ display: 'flex', alignItems: 'center', mt: 8, width: '92%', justifySelf: 'center' }}>
                 <Typography sx={{ width: '50%', fontWeight: 'bold', fontSize: 30 }}>Online Courses on Design and Development</Typography>
-                <Typography sx={{ width: '50%', color: '#59595A', fontSize: 12 }}>Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of 10 courses designed to provide you with comprehensive knowledge and practical experience. Explore the courses below and find the perfect fit for your learning journey.</Typography>
+                <Typography sx={{ width: '50%', color: '#59595A', fontSize: 12 }}>Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of 10 courses designed to provide you with comprehensive knowledge and practical experience. Explore the courses below and find the perfect fit for your learning journey.Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of 10 courses designed to provide you with comprehensive knowledge and practical experience. Explore the courses below and find the perfect fit for your learning journey.</Typography>
             </Box>
-            <Box sx={{ bgcolor: 'white', height: "auto" }}>
-                <SectionHeader
-                    title="Benefits"
-                    description="Lorem ipsum dolor sit amet consectetur. Tempus tincidunt etiam eget elit id imperdiet et. Cras eu sit dignissim lorem nibh et. Ac cum eget habitasse in velit fringilla feugiat senectus in."
-                    action={
-                        <Typography sx={{ border: "0.2px solid", px: 3, bgcolor: "#FCFCFD", borderColor: "transparent", fontSize: 13, py: 1 }}>
-                            View All
-                        </Typography>
-                    }
-                />
-
-                <Grid container spacing={1} sx={{ px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
+            <Box >
+                <Grid container spacing={2} mt={12} sx={{ px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
                     {
+
                         courses.map((course, index) => (
-                            <Grid key={index}
-                                size={{ xs: 16, md: 6, sm: 6, lg: 3 }}
+
+
+                            <Grid
+                                key={index}
                                 sx={{
                                     bgcolor: "white",
+                                    borderRadius: 2,
+                                    boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
                                     height: "auto", overflow: "hidden", width: "100%",
                                 }}>
-
-                                <Image
-                                    src={""}
-                                    alt="Sarah L"
-                                    width={400}
-                                    height={200}
-                                    style={{
-                                        margin: "auto",
-                                        marginTop: "50px"
-                                    }}
+                                <SectionHeader
+                                    title={course.header}
+                                    description="Lorem ipsum dolor sit amet consectetur. Tempus tincidunt etiam eget elit id imperdiet et. Cras eu sit dignissim lorem nibh et. Ac cum eget habitasse in velit fringilla feugiat senectus in."
+                                    action={
+                                        <Typography sx={{ border: "0.2px solid", px: 3, bgcolor: "#FCFCFD", borderColor: "transparent", fontSize: 13, }}>
+                                            View All
+                                        </Typography>
+                                    }
                                 />
-
-
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", px: 4, mt: 2 }}>
+                                <Stack direction={'row'} sx={{ width: "100%", px: 6, overflow: 'hidden' }}>
+                                    {
+                                        course.thumbnail.map((data, i) => (
+                                            <Image
+                                                key={i}
+                                                src={data}
+                                                alt="Sarah L"
+                                                width={385}
+                                                height={200}
+                                                style={{
+                                                    margin: "auto",
+                                                }}
+                                            />
+                                        ))
+                                    }
+                                </Stack>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", px: 6, mt: 2 }}>
                                     <Stack direction={'row'} >
-                                        <Typography sx={{ mr: 1, color: "#4C4C4D", borderRadius: 2, px: 2, py: 1, bgcolor: "#F1F1F3", fontSize: 12 }} >{"course.time"}</Typography>
-                                        <Typography sx={{ borderRadius: 2, color: "#4C4C4D", textAlign: 'center', px: 2, py: 1, bgcolor: "#F1F1F3", fontSize: 12 }}>{"course.level"}</Typography>
+                                        <Typography sx={{ mr: 1, color: "#4C4C4D", borderRadius: 2, px: 2, py: 1, bgcolor: "#FCFCFD", fontSize: 12 }} >{course.time}</Typography>
+                                        <Typography sx={{ borderRadius: 2, color: "#4C4C4D", textAlign: 'center', px: 2, py: 1, bgcolor: "#FCFCFD", fontSize: 12 }}>{course.level}</Typography>
                                     </Stack>
                                     <Box>
-                                        <Typography sx={{ bgcolor: "#F1F1F3", px: 3, py: 0.5, borderRadius: 2, fontSize: 12 }}>{"course.name"}</Typography>
+                                        <Typography sx={{ bgcolor: "#FCFCFD", px: 3, py: 0.5, borderRadius: 2, fontSize: 12 }}>{course.name}</Typography>
                                     </Box>
                                 </Box>
-                                <Typography sx={{ mt: 4, px: 4 }}>{"course.title"}</Typography>
-                                <Typography sx={{ mt: 3, px: 4, color: "#4C4C4D", fontSize: 14 }}>{"course.description"}</Typography>
-                                <Box width={"100%"} sx={{
+
+                                <Box width={"92%"} sx={{
                                     mt: 3,
+                                    justifySelf: 'center',
                                     mb: 3,
-                                    display: "flex",
                                     justifyContent: "center"
                                 }}>
-                                    <Button sx={{ bgcolor: "#F1F1F3", fontSize: 12, width: "80%", color: "#262626" }}>Get it Now</Button>
+                                    <Typography sx={{ py: 1, fontSize: 14, fontWeight: 600, borderRadius: 2, pl: 1, border: "0.5px solid", borderColor: "#F2F0EF" }}>Curriculum</Typography>
+                                    <Stack direction={'row'}
+                                        sx={{
+                                            border: '0.5px solid',
+                                            borderColor: '#F2F0EF',
+                                            borderRadius: 2,
+                                            justifyContent: 'space-between'
+                                        }}>
+                                        {
+                                            course.subtitle.map((data, i) => (
+
+                                                <Box key={i} sx={{
+                                                    borderRight: '0.5px solid',
+                                                    borderRightColor: '#F2F0EF',
+                                                    py: 1, px: 4
+                                                }}>
+                                                    <Typography key={i} sx={{ fontSize: 40, fontWeight: 700 }}>0{i + 1}</Typography>
+                                                    <Typography sx={{ fontSize: 15, fontWeight: 'bold-500', color: '#333333' }}>{data}</Typography>
+                                                </Box>
+
+                                            ))
+                                        }
+                                    </Stack>
                                 </Box>
                             </Grid>
+
                         ))
                     }
 
-                </Grid>
+                </Grid >
             </Box>
         </Container>
     )
