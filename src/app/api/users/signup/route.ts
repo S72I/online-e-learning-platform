@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import DBConnection from "@/backend/dbConfig/dbConfig";
+import DBConnection from "@/server/dbConfig/dbConfig";
 import { signUp } from "@/lib/auth";
 
 
@@ -8,9 +8,11 @@ export async function POST(request: NextRequest) {
     try {
         await DBConnection();
         const body = await request.json();
+        console.log('body', body);
+
         const { name, email, password, isAdmin } = body;
 
-        if (!name || !email || !password || isAdmin === undefined) {
+        if (!name || !email || !password) {
             return NextResponse.json(
                 { error: "All fields (name, email, password, isAdmin) are mandatory" },
                 { status: 400 }
@@ -18,7 +20,12 @@ export async function POST(request: NextRequest) {
         }
 
         const result = await signUp(body);
-        return NextResponse.json(result, { status: result.status });
+        if (result) {
+            return NextResponse.json(result, { status: 200 });
+        } else {
+            return NextResponse.json({ error: result });
+        }
+
     } catch (error: any) {
         return NextResponse.json(
             { error: "An unexpected error occurred" },

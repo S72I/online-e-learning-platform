@@ -1,5 +1,3 @@
-import DBConnection from "@/backend/dbConfig/dbConfig";
-import Course from "@/backend/models/course.mode";
 import { updateCourseById } from "@/lib/course";
 import { NextRequest, NextResponse } from "next/server";
 

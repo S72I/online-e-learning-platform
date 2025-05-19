@@ -5,11 +5,17 @@ import CoursesPage from '../UI/CoursesPage'
 import CourseDetailPage from '../UI/CourseDetailPage'
 import ContactPage from '../UI/ContactPage'
 import AboutUsPage from '../UI/AboutUsPage'
+import SignUp from '@/components/Auth/signup'
+import Navbar from "@/components/Navbar/index"
+import Footer from "@/components/Footer/index"
+import AddCourse from './AddCourse'
 
 const Dashboard = () => {
     return (
         <main>
-            <AboutUsPage />
+            <Navbar />
+            < AddCourse />
+            <Footer />
         </main>
     )
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import DBConnection from "@/backend/dbConfig/dbConfig";
+import DBConnection from "@/server/dbConfig/dbConfig";
 import { login } from "@/lib/auth";
 
 

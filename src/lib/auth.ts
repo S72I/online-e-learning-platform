@@ -35,7 +35,7 @@
 // }
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import User from "@/backend/models/user.model";
+import User from "@/server/models/user.model";
 
 const secretKey = process.env.ACCESS_TOKEN_SECRET as string;
 

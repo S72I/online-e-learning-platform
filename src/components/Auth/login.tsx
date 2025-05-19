@@ -1,19 +1,75 @@
+'use client'
+
 import {
     Box,
     Button,
     Checkbox,
     Container,
+    IconButton,
+    InputAdornment,
     Stack,
     TextField,
     Typography
 } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
-import TestimonialsCard from '../UI/TestimonialsCard';
+import { useRouter } from 'next/navigation';
+import { useLoginUserMutation } from '@/services/authAPI';
+import { useForm } from "react-hook-form";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 function Login() {
+    const [loginUser, { isLoading, error }] = useLoginUserMutation();
+    const [checkerror, setCheckError] = useState("");
+    const [rememberMe, setRememberMe] = useState(false);
+
+    const router = useRouter();
+
+    const handleRememberMeChange = (event: any) => {
+        setRememberMe(event.target.checked);
+        console.log('Remember me:', event.target.checked);
+    };
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
+
+    const onSubmit = async (data: any) => {
+        try {
+            const response = await loginUser(data).unwrap();
+            console.log(response);
+
+            if (response.status === 404) {
+                return setCheckError(response.error)
+            }
+            if (rememberMe) {
+                localStorage.setItem("authToken", response.token);
+                localStorage.setItem("rememberMe", new Boolean(rememberMe).toString());
+                router.push("/");
+            } else {
+                sessionStorage.setItem("rememberMe", new Boolean(rememberMe).toString());
+            }
+        } catch (err: any) {
+            console.error("Login Failed:", err.data.message);
+            router.push("/login");
+        }
+    };
+
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleClickShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const handleMouseDownPassword = (event: any) => {
+        event.preventDefault();
+    };
+
     return (
         <Container
             maxWidth={false}
@@ -87,7 +143,6 @@ function Login() {
                         </Button>
                     </Box>
                 </Box>
-                {/* <TestimonialsCard /> */}
 
                 <Box sx={{ color: "black", fontWeight: "bold", display: 'flex', gap: 1, mt: 2 }}>
                     <Button sx={{ width: "40px", color: "black", backgroundColor: "#FFFFFF", height: "40px" }}>←</Button>
@@ -138,7 +193,7 @@ function Login() {
                         Welcome back! Please log in to access your account.
                     </Typography>
 
-                    <Box component="form">
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <Stack spacing={2}>
                             <Box>
                                 <Typography sx={{ mb: 1 }}>Email</Typography>
@@ -148,6 +203,15 @@ function Login() {
                                     fullWidth
                                     autoComplete="email"
                                     sx={{ backgroundColor: '#FCFCFD' }}
+                                    {...register("email", {
+                                        required: "Email is required",
+                                        pattern: {
+                                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                            message: "Invalid email format",
+                                        },
+                                    })}
+                                    error={!!errors.email}
+                                    helperText={errors.email?.message as string}
                                 />
                             </Box>
                             <Box>
@@ -155,12 +219,42 @@ function Login() {
                                 <TextField
                                     variant="outlined"
                                     placeholder="Password"
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     fullWidth
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label="toggle password visibility"
+                                                    onClick={handleClickShowPassword}
+                                                    onMouseDown={handleMouseDownPassword}
+                                                    edge="end"
+                                                >
+                                                    {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                     autoComplete="current-password"
                                     sx={{ backgroundColor: '#FCFCFD' }}
+                                    {...register("password", {
+                                        required: "Password is required",
+                                        minLength: {
+                                            value: 4,
+                                            message: "Password must be at least 4 characters",
+                                        },
+                                    })}
+                                    error={!!errors.password}
+                                    helperText={errors.password?.message as string}
                                 />
                             </Box>
+
+                            {checkerror && (
+                                <Typography color="error" variant="body2">
+                                    {
+                                        "Email or password not matching try again"}
+                                </Typography>
+                            )}
 
                             <Box
                                 sx={{
@@ -170,15 +264,18 @@ function Login() {
                                 <Link href={""}>Forgot Password?</Link>
                             </Box>
                             <Stack direction={'row'} sx={{ alignItems: 'center' }}>
-                                <Checkbox sx={{ color: "#c9c9c9", borderColor: "transparent" }} />
+                                <Checkbox
+                                    checked={rememberMe}
+                                    onChange={handleRememberMeChange}
+                                    sx={{ color: "#c9c9c9", borderColor: "transparent" }} />
                                 <Typography sx={{ fontSize: 13, color: "#4C4C4D", }}>Remember Me</Typography>
                             </Stack>
                             <Button
                                 type="submit"
-
+                                disabled={isLoading}
                                 sx={{ color: 'white', backgroundColor: '#FF9500' }}
                             >
-                                Login
+                                {isLoading ? "Logging in..." : "Login"}
                             </Button>
 
                             <Box sx={{
@@ -212,7 +309,7 @@ function Login() {
                             <Typography variant="body2" align="center" sx={{ mt: 2 }}>
                                 Don’t have an account?
                                 <Link
-                                    href="/register"
+                                    href="/signup"
                                     style={{
                                         textDecoration: 'underline',
                                         fontSize: '13px',
@@ -224,7 +321,7 @@ function Login() {
                                 <ArrowOutwardIcon sx={{ fontSize: 16, verticalAlign: 'middle', ml: 0.5 }} />
                             </Typography>
                         </Stack>
-                    </Box>
+                    </form>
                 </Box>
             </Container>
         </Container >
