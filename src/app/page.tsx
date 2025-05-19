@@ -13,9 +13,8 @@ export default function Home() {
 
   return (
     <main>
-      <Navbar />
+      
       <Dashboard />
-      <Footer />
     </main>
   );
 }

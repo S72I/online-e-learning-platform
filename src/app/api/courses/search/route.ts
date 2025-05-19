@@ -1,4 +1,4 @@
-import Course from "@/backend/models/course.mode";
+import Course from "@/server/models/course.mode";
 import { getCourses } from "@/lib/course";
 import { NextRequest, NextResponse } from "next/server";
 

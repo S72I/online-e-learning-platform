@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import EmailIcon from "@mui/icons-material/Email";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
-import LocationOnIcon from "@mui/icons-material/LocationOn"; // Corrected icon name
+import LocationOnIcon from "@mui/icons-material/LocationOn"; 
 import FacebookIcon from "@mui/icons-material/Facebook";
 import XIcon from "@mui/icons-material/X";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";

@@ -1,18 +1,80 @@
+'use client'
 import {
     Box,
     Button,
     Checkbox,
     Container,
+    IconButton,
+    InputAdornment,
     Stack,
     TextField,
     Typography
 } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+import { useRegisterUserMutation } from '@/services/authAPI';
+import { useForm } from "react-hook-form";
+import { useRouter } from 'next/navigation';
+
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 function SignUp() {
+
+    const [registerUser, { isLoading }] = useRegisterUserMutation();
+    const [successMsg, setSuccessMsg] = useState("");
+    const router = useRouter();
+    const [error, setError] = useState("")
+    const [isChecked, setIsChecked] = useState(false);
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        clearErrors,
+        reset,
+    } = useForm();
+
+    const onSubmit = async (data: any) => {
+
+        try {
+            if (!isChecked) {
+                return setError("Please agree the terms and Privacy Policy")
+            }
+            const response = await registerUser(data).unwrap();
+            console.log("response", response);
+            if (response.status === 409) {
+                return setError(response.error);
+            }
+
+            reset();
+            localStorage.setItem("authToken", response.token);
+            clearErrors("apiError");
+            router.push("/");
+
+
+        } catch (err: any) {
+            setSuccessMsg("");
+            throw new Error(err)
+        }
+    };
+
+
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleClickShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const handleMouseDownPassword = (event: any) => {
+        event.preventDefault();
+    };
+
+    const handleRememberMeChange = (event: any) => {
+        setIsChecked(event.target.checked);
+        console.log('Remember me:', event.target.checked);
+    };
     return (
         <Container
             maxWidth={false}
@@ -136,7 +198,7 @@ function SignUp() {
                         Create an account to unlock exclusive features.
                     </Typography>
 
-                    <Box component="form">
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <Stack spacing={2}>
                             <Box>
                                 <Typography sx={{ mb: 1, color: "#262626" }}>Full Name</Typography>
@@ -146,6 +208,9 @@ function SignUp() {
                                     fullWidth
                                     autoComplete="name"
                                     sx={{ backgroundColor: '#FCFCFD' }}
+                                    {...register("name", { required: "Name is required" })}
+                                    error={!!errors.name}
+                                    helperText={errors.name?.message as string}
                                 />
                             </Box>
                             <Box>
@@ -156,6 +221,15 @@ function SignUp() {
                                     fullWidth
                                     autoComplete="email"
                                     sx={{ backgroundColor: '#FCFCFD' }}
+                                    {...register("email", {
+                                        required: "Email is required",
+                                        pattern: {
+                                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                            message: "Invalid email format",
+                                        },
+                                    })}
+                                    error={!!errors.email}
+                                    helperText={errors.email?.message as string}
                                 />
                             </Box>
                             <Box>
@@ -163,23 +237,63 @@ function SignUp() {
                                 <TextField
                                     variant="outlined"
                                     placeholder="Enter your Password"
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     fullWidth
                                     autoComplete="current-password"
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label="toggle password visibility"
+                                                    onClick={handleClickShowPassword}
+                                                    onMouseDown={handleMouseDownPassword}
+                                                    edge="end"
+                                                >
+                                                    {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                     sx={{ backgroundColor: '#FCFCFD' }}
+                                    {...register("password", {
+                                        required: "Password is required",
+                                        minLength: {
+                                            value: 6,
+                                            message: "Password must be at least 6 characters",
+                                        },
+                                    })}
+                                    error={!!errors.password}
+                                    helperText={errors.password?.message as string}
                                 />
+
+                                {error && (
+                                    <Typography color="error" variant="body2">
+                                        {error}
+                                    </Typography>
+                                )}
+
+                                {successMsg && (
+                                    <Typography color="success.main" variant="body2">
+                                        {successMsg}
+                                    </Typography>
+                                )}
                             </Box>
                             <Stack direction={'row'} sx={{ alignItems: 'center' }}>
-                                <Checkbox sx={{ color: "#c9c9c9", borderColor: "transparent" }} />
+                                <Checkbox
+                                    checked={isChecked}
+                                    onChange={handleRememberMeChange}
+                                    sx={{ color: "#c9c9c9", borderColor: "transparent" }} />
                                 <Typography sx={{ fontSize: 13 }}>I agree with <Link style={{ textDecoration: 'underline' }} href={""}>Terms of Use</Link> and <Link style={{ textDecoration: 'underline' }} href={""}>Privacy Policy</Link></Typography>
                             </Stack>
 
                             <Button
                                 type="submit"
                                 sx={{ color: 'white', backgroundColor: '#FF9500' }}
+                                variant="contained" disabled={isLoading}
                             >
-                                Sign Up
+                                {isLoading ? "Registering..." : "Register"}
                             </Button>
+
 
                             <Box sx={{
 
@@ -226,7 +340,7 @@ function SignUp() {
                                 <ArrowOutwardIcon sx={{ fontSize: 16, verticalAlign: 'middle', ml: 0.5 }} />
                             </Typography>
                         </Stack>
-                    </Box>
+                    </form>
                 </Box>
             </Container>
         </Container>

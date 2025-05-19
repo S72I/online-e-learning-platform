@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
-import DBConnection from "@/backend/dbConfig/dbConfig";
-import Course from "@/backend/models/course.mode";
-import { validateUser } from "@/backend/middlewares/validateTokenHandler";
+import DBConnection from "@/server/dbConfig/dbConfig";
+import Course from "@/server/models/course.mode";
+import { validateUser } from "@/server/middlewares/validateTokenHandler";
 
 export async function createCourse(req: NextRequest, courseData: any) {
     try {
