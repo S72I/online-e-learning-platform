@@ -27,6 +27,10 @@ import { createCourse } from "@/lib/course";
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
+
+        console.log("body",body);
+
+
         const result = await createCourse(request, body);
         return NextResponse.json(result, { status: result.status });
     } catch (error: any) {

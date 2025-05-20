@@ -3,6 +3,7 @@ import DBConnection from "@/server/dbConfig/dbConfig";
 import Course from "@/server/models/course.mode";
 import { validateUser } from "@/server/middlewares/validateTokenHandler";
 
+
 export async function createCourse(req: NextRequest, courseData: any) {
     try {
         const authHeader = req.headers.get("authorization");
@@ -14,11 +15,17 @@ export async function createCourse(req: NextRequest, courseData: any) {
 
         const { title, description, level, images, chapters } = courseData;
 
-        if (!title || !description || !level || !images || !chapters) {
-            return { error: "All fields are mandatory", status: 400 };
-        }
+        console.log("images", images);
+
+
+        // if (!title || !description || !level || !images || !chapters) {
+        //     return { error: "All fields are mandatory", status: 400 };
+        // }
 
         let user = validateUser(req);
+        if (!user.id) {
+            return { error: "JWT expired", status: 498 };
+        }
 
         const course = await Course.create({
             user_id: user.id,
@@ -43,11 +50,11 @@ export async function deleteCourseById(req: NextRequest, id: string) {
 
         const findId = await Course.findById(id);
 
-        if (findId.isDeleted) {
+        if (findId?.isDeleted) {
             return { message: "course not exist try again", status: 400 };
         }
 
-        if (String(findId.user_id) == user.id) {
+        if (String(findId?.user_id) == user.id) {
 
             if (user.role == "admin") {
 
@@ -165,7 +172,7 @@ export async function getAllCourses(req: NextRequest) {
         if (!courses.length) {
             return { err: "No courses found", status: 404 };
         }
-        
+
         return { courses: courses };
 
     } catch (error: any) {

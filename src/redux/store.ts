@@ -23,14 +23,17 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import authApi from "@/services/authAPI";
+import courseApi from "@/services/courseAPI";
 
 const store = configureStore({
   reducer: {
     [authApi.reducerPath]: authApi.reducer,
+    [courseApi.reducerPath]: courseApi.reducer
   },
 
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authApi.middleware),
+    getDefaultMiddleware().concat(authApi.middleware, courseApi.middleware),
+
 
 });
 
