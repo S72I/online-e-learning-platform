@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const courseSchema = new mongoose.Schema(
+const courseSchema = mongoose.Schema(
   {
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -51,6 +51,5 @@ const courseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Course =
-  mongoose.model.course || mongoose.model("course", courseSchema);
+const Course = mongoose.model.course || mongoose.model("course", courseSchema);
 export default Course;

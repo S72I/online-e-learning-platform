@@ -30,7 +30,6 @@ function Login() {
 
     const handleRememberMeChange = (event: any) => {
         setRememberMe(event.target.checked);
-        console.log('Remember me:', event.target.checked);
     };
 
     const {
@@ -42,7 +41,6 @@ function Login() {
     const onSubmit = async (data: any) => {
         try {
             const response = await loginUser(data).unwrap();
-            console.log(response);
 
             if (response.status === 404) {
                 return setCheckError(response.error)

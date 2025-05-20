@@ -11,6 +11,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { levelOptions } from '@/lib/utils/constants';
 import CustomDropDown from '../UI/CustomDropDown';
 import { useCreateCourseMutation } from '@/services/courseAPI';
+import { CldUploadWidget } from 'next-cloudinary';
 
 const MAX_IMAGES = 3;
 
@@ -27,6 +28,7 @@ const defaultChapter: Chapter = {
 };
 
 export default function AddCoursePage() {
+    const [hostedUrl, setHostedUrl] = useState("")
     const {
         control,
         handleSubmit,
@@ -53,26 +55,8 @@ export default function AddCoursePage() {
 
     const [createCourse] = useCreateCourseMutation();
 
-    const handleChange = (field: keyof Course, value: string | string[]) => {
-        setCourseData(prev => ({ ...prev, [field]: value }));
-    };
 
-    // const handleImageChange = (index: number, value: string) => {
-    //     const updatedImages = [...courseData.images];
-    //     updatedImages[index] = value;
-    //     handleChange('images', updatedImages);
-    // };
-    const handleImageChange = (index: number, value: string) => {
-        const updatedImages = [...courseData.images];
-        updatedImages[index] = value;
-        handleChange('images', updatedImages);
-    };
 
-    const handleRemoveImage = (index: number) => {
-        const updatedImages = [...courseData.images];
-        updatedImages.splice(index, 1);
-        handleChange('images', updatedImages);
-    };
 
     const handleChapterChange = (index: number, value: string) => {
         const updatedChapters = [...courseData.chapters];
@@ -103,13 +87,7 @@ export default function AddCoursePage() {
         setCourseData(prev => ({ ...prev, chapters: updatedChapters }));
     };
 
-    const addImage = () => {
-        if (courseData.images.length < MAX_IMAGES) {
-            handleChange('images', [...courseData.images, '']);
-        } else {
-            alert('You can only upload a maximum of 3 images.');
-        }
-    };
+
     const addChapter = () => {
         setCourseData(prev => ({
             ...prev,
@@ -123,18 +101,45 @@ export default function AddCoursePage() {
         setCourseData(prev => ({ ...prev, chapters: updatedChapters }));
     };
 
+
+
+
+    const handleChange = (field: keyof Course, value: string | string[]) => {
+        setCourseData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleImageChange = (index: number, value: string) => {
+        const updatedImages = [...courseData.images];
+        updatedImages[index] = value;
+        handleChange('images', updatedImages);
+    };
+
+    const handleRemoveImage = (index: number) => {
+        handleChange('images', courseData.images.filter((_, idx) => idx !== index));
+    };
+
+    const addImage = () => {
+        if (courseData.images.length < MAX_IMAGES) {
+            handleChange('images', [...courseData.images, '']);
+        } else {
+            alert('You can only upload a maximum of 3 images.');
+        }
+    };
+
     const onSubmit = async () => {
         try {
             const res = await createCourse(courseData).unwrap();
             console.log('Course created successfully:', res);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error creating course:', err);
         }
     };
 
+
+
     return (
         <Container maxWidth="md" sx={{ py: 6 }}>
-            <Typography color='#FF9500' variant="h4" fontWeight={700} mb={4}>
+            <Typography color="#FF9500" variant="h4" fontWeight={700} mb={4}>
                 Add Course
             </Typography>
 
@@ -204,24 +209,25 @@ export default function AddCoursePage() {
 
             {courseData.images.map((img, idx) => (
                 <Box display="flex" alignItems="center" mb={2} key={idx}>
-                    <Button variant="contained" component="label" sx={{ mr: 2 }}>
-                        Upload Image
-                        <input
-                            type="file"
-                            accept="image/*"
-                            hidden
-                            onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                    const fileUrl = URL.createObjectURL(file);
-                                    handleImageChange(idx, fileUrl);
-                                }
-                            }}
-                        />
-                    </Button>
+                    <CldUploadWidget uploadPreset="cloudinaryDemo"
+                        onSuccess={(result: any) => {
+                            const imageUrl = result?.info?.url;
+                            if (imageUrl) {
+                                handleImageChange(idx, imageUrl);
+                            }
+                        }}>
+                        {({ open }) => (
+
+                            <button onClick={() => open()}>
+                                Upload an Image
+                            </button>
+                        )}
+                    </CldUploadWidget>
+
                     {img && (
-                        <Box component="img" src={img} alt={`Image ${idx}`} width={100} height="auto" />
+                        <Box component="img" src={img} alt={`Uploaded Image ${idx}`} width={100} height="auto" />
                     )}
+
                     <IconButton color="error" onClick={() => handleRemoveImage(idx)}>
                         <DeleteIcon />
                     </IconButton>
@@ -232,74 +238,77 @@ export default function AddCoursePage() {
                 Add Image
             </Button>
 
+
             <Typography variant="h5" mt={4} mb={2}>
                 Chapters
             </Typography>
 
-            {courseData.chapters.map((chapter, chapterIdx) => (
-                <Box key={chapterIdx} sx={{ border: '1px solid #ccc', p: 2, mb: 3, borderRadius: 2, position: 'relative' }}>
-                    <TextField
-                        label={`Chapter Title ${chapterIdx + 1}`}
-                        fullWidth
-                        sx={{ mb: 2 }}
-                        value={chapter.title}
-                        onChange={e => handleChapterChange(chapterIdx, e.target.value)}
-                    />
+            {
+                courseData.chapters.map((chapter, chapterIdx) => (
+                    <Box key={chapterIdx} sx={{ border: '1px solid #ccc', p: 2, mb: 3, borderRadius: 2, position: 'relative' }}>
+                        <TextField
+                            label={`Chapter Title ${chapterIdx + 1}`}
+                            fullWidth
+                            sx={{ mb: 2 }}
+                            value={chapter.title}
+                            onChange={e => handleChapterChange(chapterIdx, e.target.value)}
+                        />
 
-                    <IconButton
-                        color="error"
-                        onClick={() => handleRemoveChapter(chapterIdx)}
-                        sx={{ position: 'absolute', top: 8, right: 8 }}
-                    >
-                        <DeleteIcon />
-                    </IconButton>
+                        <IconButton
+                            color="error"
+                            onClick={() => handleRemoveChapter(chapterIdx)}
+                            sx={{ position: 'absolute', top: 8, right: 8 }}
+                        >
+                            <DeleteIcon />
+                        </IconButton>
 
-                    {chapter.videoUri.map((video, videoIdx) => (
-                        <Box key={videoIdx} sx={{ mb: 2 }}>
-                            <TextField
-                                label="Video Title"
-                                fullWidth
-                                sx={{ mb: 1 }}
-                                value={video.title}
-                                onChange={e => handleVideoChange(chapterIdx, videoIdx, 'title', e.target.value)}
-                            />
-
-                            <Button variant="contained" component="label" sx={{ mb: 2, mr: 2 }}>
-                                Upload Video
-                                <input
-                                    type="file"
-                                    accept="video/*"
-                                    hidden
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            const fileUrl = URL.createObjectURL(file);
-                                            handleVideoChange(chapterIdx, videoIdx, 'uri', fileUrl);
-                                        }
-                                    }}
+                        {chapter.videoUri.map((video, videoIdx) => (
+                            <Box key={videoIdx} sx={{ mb: 2 }}>
+                                <TextField
+                                    label="Video Title"
+                                    fullWidth
+                                    sx={{ mb: 1 }}
+                                    value={video.title}
+                                    onChange={e => handleVideoChange(chapterIdx, videoIdx, 'title', e.target.value)}
                                 />
-                            </Button>
-                            {video.uri && (
-                                <video width="100%" height="auto" controls>
-                                    <source src={video.uri} type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                </video>
-                            )}
 
-                            <IconButton
-                                color="error"
-                                onClick={() => handleRemoveVideo(chapterIdx, videoIdx)}
-                                sx={{ mt: 2 }}
-                            >
-                                <DeleteIcon />
-                            </IconButton>
-                        </Box>
-                    ))}
-                    <Button onClick={() => addVideo(chapterIdx)} size="small">
-                        + Add Video
-                    </Button>
-                </Box>
-            ))}
+                                <Button variant="contained" component="label" sx={{ mb: 2, mr: 2 }}>
+                                    Select Video
+                                    <input
+                                        type="file"
+                                        accept="video/*"
+                                        hidden
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                const fileUrl = URL.createObjectURL(file);
+                                                handleVideoChange(chapterIdx, videoIdx, 'uri', fileUrl);
+                                            }
+                                        }}
+                                    />
+                                </Button>
+                                {video.uri && (
+                                    <video width="80%" height="auto" controls>
+                                        <source src={video.uri} type="video/mp4" />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                )}
+
+                                <IconButton
+                                    color="error"
+                                    onClick={() => handleRemoveVideo(chapterIdx, videoIdx)}
+                                    sx={{ mt: 2 }}
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            </Box>
+                        ))}
+                        <Button onClick={() => addVideo(chapterIdx)} size="small">
+                            + Add Video
+                        </Button>
+                    </Box>
+                ))
+            }
 
             <Button onClick={addChapter} startIcon={<AddIcon />} sx={{ mt: 2 }}>
                 Add Chapter
@@ -310,6 +319,16 @@ export default function AddCoursePage() {
                     Submit Course
                 </Button>
             </Box>
-        </Container>
+        </Container >
     );
 }
+
+
+
+
+
+
+
+
+
+

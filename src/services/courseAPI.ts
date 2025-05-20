@@ -4,38 +4,40 @@ import baseQueryWithReauth from "./baseQueryWithReauth";
 const courseApi = createApi({
     reducerPath: "courseApi",
     tagTypes: ["Courses"],
+
     baseQuery: baseQueryWithReauth,
+    // baseQuery: fetchBaseQuery({ baseUrl: process.env.DOMAIN }),
     endpoints: (builder) => ({
         getCourses: builder.query({
-            query: () => "/api/courses",
+            query: () => "/api/courses/getCourses",
             providesTags: ["Courses"],
         }),
 
         createCourse: builder.mutation({
             query: (newCourse) => ({
-                url: "/api/course/addCourse",
+                url: "/api/courses/addCourse",
                 method: "POST",
                 body: newCourse,
             }),
             invalidatesTags: ["Courses"],
         }),
 
-        updateTask: builder.mutation({
-            query: ({ id, updatedTask }) => ({
-                url: `/api/course/update/${id}`,
+        updateCourse: builder.mutation({
+            query: ({ id, updatedCourse }) => ({
+                url: `/api/courses/updateCourse/${id}`,
                 method: "PUT",
-                body: updatedTask,
+                body: updatedCourse,
             }),
             invalidatesTags: ["Courses"],
         }),
 
-        getTask: builder.query({
-            query: (taskId) => `/api/course/${taskId}`,
+        getCourse: builder.query({
+            query: (courseId) => `/api/courses/${courseId}`,
         }),
 
-        deleteTask: builder.mutation({
-            query: (taskId) => ({
-                url: `/api/course/delete/${taskId}`,
+        deleteCourse: builder.mutation({
+            query: (courseId) => ({
+                url: `/api/courses/delete/${courseId}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Courses"],
@@ -45,10 +47,14 @@ const courseApi = createApi({
 
 export const {
     useGetCoursesQuery,
-    useGetTaskQuery,
+    useGetCourseQuery,
     useCreateCourseMutation,
-    useUpdateTaskMutation,
-    useDeleteTaskMutation,
+    useUpdateCourseMutation,
+    useDeleteCourseMutation,
 } = courseApi;
 
 export default courseApi;
+
+
+
+
