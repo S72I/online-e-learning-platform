@@ -17,6 +17,7 @@ import { levelOptions } from '@/lib/utils/constants';
 import CustomDropDown from '../UI/CustomDropDown';
 import { useCreateCourseMutation } from '@/services/courseAPI';
 import { CldUploadWidget } from 'next-cloudinary';
+import { useRouter } from 'next/navigation';
 
 const MAX_IMAGES = 3;
 
@@ -42,6 +43,7 @@ export default function AddCoursePage() {
         formState: { errors },
     } = useForm<Course>({
         defaultValues: {
+            courseEducator: '',
             title: '',
             level: '',
             description: '',
@@ -53,8 +55,8 @@ export default function AddCoursePage() {
 
     const [createCourse] = useCreateCourseMutation();
 
-    // We keep local state to allow dynamic changes
     const [courseData, setCourseData] = useState<Course>({
+        courseEducator: '',
         title: '',
         level: '',
         description: '',
@@ -63,7 +65,6 @@ export default function AddCoursePage() {
         chapters: [defaultChapter],
     });
 
-    // Sync form values into courseData state (if needed)
     const handleChange = (field: keyof Course, value: any) => {
         setCourseData((prev) => ({ ...prev, [field]: value }));
         setValue(field, value, { shouldValidate: true });
@@ -139,26 +140,17 @@ export default function AddCoursePage() {
         }
     };
 
-    // const onSubmit = async (data: Course) => {
-    //     try {
-    //         const res = await createCourse(courseData).unwrap();
-    //         console.log('Course created successfully:', res);
-    //     } catch (err: any) {
-    //         console.error('Error creating course:', err);
-    //     }
-    // };
-
+    const router = useRouter();
 
     const onSubmit = async (data: Course) => {
         try {
             const res = await createCourse(courseData).unwrap();
             console.log('Course created successfully:', res);
-
-            // Reset react-hook-form fields
+            router.push("/")
             reset();
 
-            // Reset local state to default values
             setCourseData({
+                courseEducator: '',
                 title: '',
                 level: '',
                 description: '',
@@ -178,6 +170,18 @@ export default function AddCoursePage() {
                 Add Course
             </Typography>
 
+            <TextField
+                label="Course Educator"
+                fullWidth
+                sx={{ mb: 2 }}
+                error={!!errors.title}
+                helperText={errors.title && 'courseEducator name is required'}
+                {...register('courseEducator', {
+                    required: 'courseEducator name is required',
+                    onChange: (e) => handleChange('courseEducator', e.target.value),
+                })}
+                value={courseData.courseEducator}
+            />
             <TextField
                 label="Course Title"
                 fullWidth
@@ -226,7 +230,7 @@ export default function AddCoursePage() {
             />
 
             <TextField
-                label="Total Video Timing"
+                label="Total Video Timing (e.g. 3:25)"
                 fullWidth
                 sx={{ mb: 2 }}
                 error={!!errors.totalVideosTiming}
@@ -244,8 +248,9 @@ export default function AddCoursePage() {
 
             {courseData.images.map((img, idx) => (
                 <Box display="flex" alignItems="center" mb={2} key={idx}>
-                    <CldUploadWidget
-                        uploadPreset="cloudinaryDemo"
+
+
+                    <CldUploadWidget uploadPreset="cloudinaryDemo"
                         onSuccess={(result: any) => {
                             const imageUrl = result?.info?.url;
                             if (imageUrl) {
@@ -253,11 +258,13 @@ export default function AddCoursePage() {
                             }
                         }}
                     >
-                        {({ open }) => (
-                            <Button variant="outlined" onClick={() => open()} sx={{ mr: 2 }}>
-                                Upload an Image
-                            </Button>
-                        )}
+                        {({ open }) => {
+                            return (
+                                <Button variant="outlined" onClick={() => open()} sx={{ mr: 2 }}>
+                                    Upload an Image
+                                </Button>
+                            );
+                        }}
                     </CldUploadWidget>
 
                     {img && (

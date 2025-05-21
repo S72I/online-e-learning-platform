@@ -8,36 +8,31 @@ import CourseDetailPage from '../UI/CourseDetailPage'
 import ContactPage from '../UI/ContactPage'
 import AboutUsPage from '../UI/AboutUsPage'
 import SignUp from '@/components/Auth/signup'
-import Navbar from "@/components/Navbar/index"
-import Footer from "@/components/Footer/index"
+
 import AddCourse from './AddCourse'
 import GetCourses from './GetCourses'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+
 
 const Dashboard = () => {
-    const [storedValue, setStoredValue] = useState("");
+    const [storedValue, setStoredValue] = useState<string | null>(null);
 
     useEffect(() => {
-        const token: any = localStorage.getItem("authToken")
-        setStoredValue(token)
-        // if (token?.role === 'admin') {
-        //     return setStoredValue(token);
-        // } else {
-        //     return console.log("try with admin validation");
-        // }
-    }, [storedValue]);
-
+        const token = localStorage.getItem("authToken");
+        setStoredValue(token);
+    }, []);
 
     return (
         <main>
-            <Navbar />
-            {
-                storedValue ? (
-                    < AddCourse />
-                ) : (<Login />)
-            }
-            <Footer />
+            {storedValue ? <GetCourses /> : <Login />}
         </main>
-    )
-}
+    );
+};
+
+
 
 export default Dashboard
+
+
+

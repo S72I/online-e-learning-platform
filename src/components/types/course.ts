@@ -11,6 +11,7 @@ export interface Chapter {
 }
 
 export interface Course {
+    courseEducator: string;
     title: string;
     level: string;
     description: string;

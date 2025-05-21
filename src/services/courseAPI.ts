@@ -9,7 +9,7 @@ const courseApi = createApi({
     // baseQuery: fetchBaseQuery({ baseUrl: process.env.DOMAIN }),
     endpoints: (builder) => ({
         getCourses: builder.query({
-            query: () => "/api/courses/getCourses",
+            query: () => "/api/users/getcourses",
             providesTags: ["Courses"],
         }),
 
@@ -32,12 +32,13 @@ const courseApi = createApi({
         }),
 
         getCourse: builder.query({
-            query: (courseId) => `/api/courses/${courseId}`,
+            query: (courseId) => `/api/courses/getCourse/${courseId}`,
+             providesTags: ["Courses"],
         }),
 
         deleteCourse: builder.mutation({
             query: (courseId) => ({
-                url: `/api/courses/delete/${courseId}`,
+                url: `/api/courses/deleteCourse/${courseId}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Courses"],

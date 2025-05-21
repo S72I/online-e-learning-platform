@@ -43,7 +43,7 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 
     const result = await baseQuery(args, api, extraOptions);
 
-    if (result.error?.status === 498 && typeof window !== "undefined") {
+    if (result.error?.status === 500 && typeof window !== "undefined") {
         localStorage.removeItem("authToken");
         localStorage.removeItem("rememberMe");
         window.location.href = "/login";
