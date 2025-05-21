@@ -17,6 +17,7 @@ import { levelOptions } from '@/lib/utils/constants';
 import CustomDropDown from '../UI/CustomDropDown';
 import { useCreateCourseMutation } from '@/services/courseAPI';
 import { CldUploadWidget } from 'next-cloudinary';
+import { useRouter } from 'next/navigation';
 
 const MAX_IMAGES = 3;
 
@@ -53,7 +54,6 @@ export default function AddCoursePage() {
 
     const [createCourse] = useCreateCourseMutation();
 
-    // We keep local state to allow dynamic changes
     const [courseData, setCourseData] = useState<Course>({
         title: '',
         level: '',
@@ -63,7 +63,6 @@ export default function AddCoursePage() {
         chapters: [defaultChapter],
     });
 
-    // Sync form values into courseData state (if needed)
     const handleChange = (field: keyof Course, value: any) => {
         setCourseData((prev) => ({ ...prev, [field]: value }));
         setValue(field, value, { shouldValidate: true });
@@ -139,25 +138,15 @@ export default function AddCoursePage() {
         }
     };
 
-    // const onSubmit = async (data: Course) => {
-    //     try {
-    //         const res = await createCourse(courseData).unwrap();
-    //         console.log('Course created successfully:', res);
-    //     } catch (err: any) {
-    //         console.error('Error creating course:', err);
-    //     }
-    // };
-
+    const router = useRouter();
 
     const onSubmit = async (data: Course) => {
         try {
             const res = await createCourse(courseData).unwrap();
             console.log('Course created successfully:', res);
-
-            // Reset react-hook-form fields
+            router.push("/")
             reset();
 
-            // Reset local state to default values
             setCourseData({
                 title: '',
                 level: '',

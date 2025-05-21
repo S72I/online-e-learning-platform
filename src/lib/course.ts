@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import DBConnection from "@/server/dbConfig/dbConfig";
 import Course from "@/server/models/course.mode";
 import { validateUser } from "@/server/middlewares/validateTokenHandler";
@@ -198,3 +198,21 @@ export const getCoursesBetweenDates = async (req: NextRequest, start: string, en
     }
 };
 
+export async function getCoursesByUser(req: NextRequest) {
+
+    try {
+        await DBConnection();
+
+        const user = validateUser(req);
+        const courses = await Course.find({ user_id: user.id, isDeleted: false });
+        if (courses.length <= 0) {
+            return ({ error: "no courses are found", status: 404 })
+        }
+        return (courses)
+
+
+    } catch (error: any) {
+        return { error: error.message || "Something went wrong", status: 500 };
+    }
+
+}

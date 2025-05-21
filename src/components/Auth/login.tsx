@@ -51,10 +51,10 @@ function Login() {
                 router.push("/");
             } else {
                 sessionStorage.setItem("rememberMe", new Boolean(rememberMe).toString());
+                router.push("/");
             }
         } catch (err: any) {
             console.error("Login Failed:", err.data.message);
-            router.push("/login");
         }
     };
 
