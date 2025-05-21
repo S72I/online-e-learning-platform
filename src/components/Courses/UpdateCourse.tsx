@@ -1,7 +1,5 @@
-import { useGetCourseQuery } from '@/services/courseAPI';
-import React, { useEffect } from 'react'
-
-
+import { useGetCourseQuery, useCreateCourseMutation, useUpdateCourseMutation } from '@/services/courseAPI';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -10,36 +8,24 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Chapter, Course, Video } from '../types/course';
 import { Controller, useForm } from 'react-hook-form';
 import { levelOptions } from '@/lib/utils/constants';
 import CustomDropDown from '../UI/CustomDropDown';
-import { useCreateCourseMutation } from '@/services/courseAPI';
 import { CldUploadWidget } from 'next-cloudinary';
 import { useRouter } from 'next/navigation';
 
 const MAX_IMAGES = 3;
 
-const defaultVideo: Video = {
-  title: '',
-  description: '',
-  uri: '',
-  uriTiming: '',
-};
-
-const defaultChapter: Chapter = {
-  title: '',
-  videoUri: [defaultVideo],
-};
-
+const defaultVideo: Video = { title: '', description: '', uri: '', uriTiming: '' };
+const defaultChapter: Chapter = { title: '', videoUri: [defaultVideo] };
 
 const UpdateCourse = ({ courseID }: any) => {
-  console.log("courseID", courseID);
-  const { data } = useGetCourseQuery(courseID);
-  useEffect(() => { }, [useGetCourseQuery]);
+  const { data, isLoading } = useGetCourseQuery(courseID);
+  const [updateTask] = useUpdateCourseMutation();
+  const router = useRouter();
 
   const {
     control,
@@ -59,365 +45,256 @@ const UpdateCourse = ({ courseID }: any) => {
     },
   });
 
-  const [createCourse] = useCreateCourseMutation();
+  useEffect(() => {
+    if (data?.findId) {
+      reset(data.findId);
+    }
+  }, [data, reset]);
 
-  const [courseData, setCourseData] = useState<Course>({
-    title: '',
-    level: '',
-    description: '',
-    images: [''],
-    totalVideosTiming: '',
-    chapters: [defaultChapter],
-  });
+  const onSubmit = async (formData: Course) => {
 
-  const handleChange = (field: keyof Course, value: any) => {
-    setCourseData((prev) => ({ ...prev, [field]: value }));
-    setValue(field, value, { shouldValidate: true });
+    const payload = {
+      ...formData,
+    }
+
+    try {
+      const res = await updateTask({ id: courseID, payload }).unwrap();
+      console.log('Course updated successfully:', res);
+      router.push('/');
+    } catch (err) {
+      console.error('Error updating course:', err);
+    }
   };
 
-  const handleChapterChange = (index: number, value: string) => {
-    const updatedChapters = [...courseData.chapters];
-    updatedChapters[index].title = value;
-    handleChange('chapters', updatedChapters);
-  };
-
-  const handleRemoveChapter = (index: number) => {
-    const updatedChapters = [...courseData.chapters];
-    updatedChapters.splice(index, 1);
-    handleChange('chapters', updatedChapters);
-  };
-
-  const handleVideoChange = (
-    chapterIdx: number,
-    videoIdx: number,
-    key: keyof Video,
-    value: string
-  ) => {
-    const updatedChapters = [...courseData.chapters];
-    updatedChapters[chapterIdx].videoUri[videoIdx][key] = value;
-    handleChange('chapters', updatedChapters);
-  };
-
-  const handleRemoveVideo = (chapterIdx: number, videoIdx: number) => {
-    const updatedChapters = [...courseData.chapters];
-    updatedChapters[chapterIdx].videoUri.splice(videoIdx, 1);
-    handleChange('chapters', updatedChapters);
-  };
-
-  const addChapter = () => {
-    const newChapter: Chapter = {
-      title: '',
-      videoUri: [
-        { title: '', description: '', uri: '', uriTiming: '' }
-      ],
-    };
-    handleChange('chapters', [...courseData.chapters, newChapter]);
-  };
-
-
-  const addVideo = (chapterIdx: number) => {
-    const newVideo = { title: '', description: '', uri: '', uriTiming: '' };
-    const updatedChapters = [...courseData.chapters];
-    const updatedChapter = { ...updatedChapters[chapterIdx] };
-    updatedChapter.videoUri = [...updatedChapter.videoUri, newVideo];
-    updatedChapters[chapterIdx] = updatedChapter;
-    handleChange('chapters', updatedChapters);
-  };
-
-  const handleImageChange = (index: number, value: string) => {
-    const updatedImages = [...courseData.images];
-    updatedImages[index] = value;
-    handleChange('images', updatedImages);
-  };
-
-  const handleRemoveImage = (index: number) => {
-    handleChange(
-      'images',
-      courseData.images.filter((_, idx) => idx !== index)
-    );
+  const handleImageChange = (index: number, url: string) => {
+    const images = [...control._formValues.images];
+    images[index] = url;
+    setValue('images', images);
   };
 
   const addImage = () => {
-    if (courseData.images.length < MAX_IMAGES) {
-      handleChange('images', [...courseData.images, '']);
-    } else {
+    const images = control._formValues.images || [];
+    if (images.length >= MAX_IMAGES) {
       alert('You can only upload a maximum of 3 images.');
+      return;
     }
+    setValue('images', [...images, '']);
   };
 
-  const router = useRouter();
-
-  const onSubmit = async (data: Course) => {
-    try {
-      const res = await createCourse(courseData).unwrap();
-      console.log('Course created successfully:', res);
-      router.push("/")
-      reset();
-
-      setCourseData({
-        title: '',
-        level: '',
-        description: '',
-        totalVideosTiming: '',
-        images: [''],
-        chapters: [defaultChapter],
-      });
-    } catch (err: any) {
-      console.error('Error creating course:', err);
-    }
+  const removeImage = (index: number) => {
+    const images = control._formValues.images.filter((_: any, i: any) => i !== index);
+    setValue('images', images);
   };
+
+  const addChapter = () => {
+    const chapters = [...control._formValues.chapters];
+    chapters.push(defaultChapter);
+    setValue('chapters', chapters);
+  };
+
+  const removeChapter = (index: number) => {
+    const chapters = control._formValues.chapters.filter((_: any, i: any) => i !== index);
+    setValue('chapters', chapters);
+  };
+
+  const addVideo = (chapterIdx: number) => {
+    const chapters = [...control._formValues.chapters];
+    chapters[chapterIdx].videoUri.push({ ...defaultVideo });
+    setValue('chapters', chapters);
+  };
+
+  const removeVideo = (chapterIdx: number, videoIdx: number) => {
+    const chapters = [...control._formValues.chapters];
+    chapters[chapterIdx].videoUri.splice(videoIdx, 1);
+    setValue('chapters', chapters);
+  };
+
+  if (isLoading) return <Typography>Loading...</Typography>;
+
   return (
-    <div>
-      {data && data.findId ? (
-        <Container maxWidth="md" sx={{ py: 6 }}>
-          <Typography color="#FF9500" variant="h4" fontWeight={700} mb={4}>
-            Update Course
-          </Typography>
+    <Container maxWidth="md" sx={{ py: 6 }}>
+      <Typography color="#FF9500" variant="h4" fontWeight={700} mb={4}>
+        Update Course
+      </Typography>
 
-          <TextField
-            label="Course Title"
-            fullWidth
-            sx={{ mb: 2 }}
-            error={!!errors.title}
-            helperText={errors.title && 'Title is required'}
-            {...register('title', {
-              required: 'Title is required',
-              onChange: (e) => handleChange('title', e.target.value),
-            })}
-            value={data.findId.title}
+      <TextField
+        label="Course Title"
+        fullWidth
+        sx={{ mb: 2 }}
+        error={!!errors.title}
+        helperText={errors.title?.message}
+        {...register('title', { required: 'Title is required' })}
+      />
+
+      <Controller
+        name="level"
+        control={control}
+        rules={{ required: 'Level is required' }}
+        render={({ field }) => (
+          <CustomDropDown
+            label="Level"
+            value={field.value}
+            setValue={field.onChange}
+            options={levelOptions}
+            error={!!errors.level}
+            helperText={errors.level?.message}
           />
+        )}
+      />
 
-          <Controller
-            name="level"
-            control={control}
-            rules={{ required: 'Level is required' }}
-            render={({ field }) => (
-              <CustomDropDown
-                label="Level"
-                value={data.findId.level}
-                setValue={(val: string) => {
-                  field.onChange(val);
-                  handleChange('level', val);
-                }}
-                options={levelOptions}
-                error={!!errors.level}
-                helperText={errors.level?.message}
-              />
+      <TextField
+        label="Description"
+        fullWidth
+        multiline
+        rows={4}
+        sx={{ mb: 2 }}
+        error={!!errors.description}
+        helperText={errors.description?.message}
+        {...register('description', { required: 'Description is required' })}
+      />
+
+      <TextField
+        label="Total Video Timing"
+        fullWidth
+        sx={{ mb: 2 }}
+        error={!!errors.totalVideosTiming}
+        helperText={errors.totalVideosTiming?.message}
+        {...register('totalVideosTiming', { required: 'Required' })}
+      />
+
+      <Typography variant="h6" mt={4}>Images</Typography>
+      {(control._formValues.images || []).map((img: any, idx: any) => (
+        <Box key={idx} display="flex" alignItems="center" mb={2}>
+          <CldUploadWidget
+            uploadPreset="cloudinaryDemo"
+            onSuccess={(res: any) => handleImageChange(idx, res.info.secure_url)}
+          >
+            {({ open }) => (
+              <Button variant="outlined" onClick={() => open()} sx={{ mr: 2 }}>
+                Upload Image
+              </Button>
             )}
-          />
+          </CldUploadWidget>
+          {img && (
+            <Box component="img" src={img} width={100} height="auto" sx={{ mr: 2 }} />
+          )}
+          <IconButton color="error" onClick={() => removeImage(idx)}>
+            <DeleteIcon />
+          </IconButton>
+        </Box>
+      ))}
+      <Button onClick={addImage} startIcon={<AddIcon />} sx={{ mb: 4 }}>
+        Add Image
+      </Button>
 
+      <Typography variant="h5" mt={4} mb={2}>Chapters</Typography>
+      {(control._formValues.chapters || []).map((chapter: any, chapterIdx: any) => (
+        <Box key={chapterIdx} sx={{ border: '1px solid #ccc', p: 2, mb: 3, borderRadius: 2 }}>
           <TextField
-            label="Description"
-            fullWidth
-            multiline
-            rows={4}
-            sx={{ mb: 2 }}
-            error={!!errors.description}
-            helperText={errors.description && 'Description is required'}
-            {...register('description', {
-              required: 'Description is required',
-              onChange: (e) => handleChange('description', e.target.value),
-            })}
-            value={data.findId.description}
-          />
-
-          <TextField
-            label="Total Video Timing"
+            label={`Chapter Title ${chapterIdx + 1}`}
             fullWidth
             sx={{ mb: 2 }}
-            error={!!errors.totalVideosTiming}
-            helperText={errors.totalVideosTiming && 'Total video timing is required'}
-            {...register('totalVideosTiming', {
-              required: 'Total video timing is required',
-              onChange: (e) => handleChange('totalVideosTiming', e.target.value),
-            })}
-            value={data.findId.totalVideosTiming}
+            value={chapter.title}
+            onChange={(e) => {
+              const chapters = [...control._formValues.chapters];
+              chapters[chapterIdx].title = e.target.value;
+              setValue('chapters', chapters);
+            }}
           />
+          <IconButton
+            color="error"
+            onClick={() => removeChapter(chapterIdx)}
+            disabled={control._formValues.chapters.length === 1}
+          >
+            <DeleteIcon />
+          </IconButton>
 
-          <Typography variant="h6" mt={4}>
-            Images
-          </Typography>
+          {chapter.videoUri.map((video: any, videoIdx: any) => (
+            <Box key={videoIdx} sx={{ mb: 2 }}>
+              <TextField
+                label="Video Title"
+                fullWidth
+                value={video.title}
+                sx={{ mb: 1 }}
+                onChange={(e) => {
+                  const chapters = [...control._formValues.chapters];
+                  chapters[chapterIdx].videoUri[videoIdx].title = e.target.value;
+                  setValue('chapters', chapters);
+                }}
+              />
+              <TextField
+                label="Video Description"
+                fullWidth
+                value={video.description}
+                sx={{ mb: 1 }}
+                onChange={(e) => {
+                  const chapters = [...control._formValues.chapters];
+                  chapters[chapterIdx].videoUri[videoIdx].description = e.target.value;
+                  setValue('chapters', chapters);
+                }}
+              />
+              <TextField
+                label="Video Timing"
+                fullWidth
+                value={video.uriTiming}
+                sx={{ mb: 1 }}
+                onChange={(e) => {
+                  const chapters = [...control._formValues.chapters];
+                  chapters[chapterIdx].videoUri[videoIdx].uriTiming = e.target.value;
+                  setValue('chapters', chapters);
+                }}
+              />
 
-          {data.findId.images.map((img: any, idx: any) => (
-            <Box display="flex" alignItems="center" mb={2} key={idx}>
               <CldUploadWidget
                 uploadPreset="cloudinaryDemo"
-                onSuccess={(result: any) => {
-                  const imageUrl = result?.info?.url;
-                  if (imageUrl) {
-                    handleImageChange(idx, imageUrl);
+                options={{ resourceType: 'video' }}
+                onSuccess={(res: any) => {
+                  const videoUrl = res?.info?.secure_url;
+                  if (videoUrl) {
+                    const chapters = [...control._formValues.chapters];
+                    chapters[chapterIdx].videoUri[videoIdx].uri = videoUrl;
+                    setValue('chapters', chapters);
                   }
                 }}
               >
                 {({ open }) => (
-                  <Button variant="outlined" onClick={() => open()} sx={{ mr: 2 }}>
-                    Upload an Image
+                  <Button variant="contained" onClick={() => open()} sx={{ mb: 2, mr: 2 }}>
+                    Upload Video
                   </Button>
                 )}
               </CldUploadWidget>
 
-              {img && (
-                <Box
-                  component="img"
-                  src={img}
-                  alt={`Uploaded Image ${idx}`}
-                  width={100}
-                  height="auto"
-                  sx={{ mr: 2 }}
-                />
+              {video.uri && (
+                <video width="80%" height="auto" controls>
+                  <source src={video.uri} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
               )}
-
-              <IconButton color="error" onClick={() => handleRemoveImage(idx)}>
-                <DeleteIcon />
-              </IconButton>
-            </Box>
-          ))}
-
-          <Button onClick={addImage} startIcon={<AddIcon />} sx={{ mb: 4 }}>
-            Add Image
-          </Button>
-
-          <Typography variant="h5" mt={4} mb={2}>
-            Chapters
-          </Typography>
-
-          {data.findId.chapters.map((chapter: any, chapterIdx: any) => (
-            <Box
-              key={chapterIdx}
-              sx={{
-                border: '1px solid #ccc',
-                p: 2,
-                mb: 3,
-                borderRadius: 2,
-                position: 'relative',
-              }}
-            >
-              <TextField
-                label={`Chapter Title ${chapterIdx + 1}`}
-                fullWidth
-                sx={{ mb: 2 }}
-                value={chapter.title}
-                onChange={(e) => handleChapterChange(chapterIdx, e.target.value)}
-              />
 
               <IconButton
                 color="error"
-                onClick={() => handleRemoveChapter(chapterIdx)}
-                sx={{ position: 'absolute', top: 8, right: 8 }}
-                disabled={courseData.chapters.length === 1}
-                title={
-                  courseData.chapters.length === 1
-                    ? 'At least one chapter required'
-                    : undefined
-                }
+                onClick={() => removeVideo(chapterIdx, videoIdx)}
+                disabled={chapter.videoUri.length === 1}
               >
                 <DeleteIcon />
               </IconButton>
-
-              {chapter.videoUri.map((video: any, videoIdx: any) => (
-                <Box key={videoIdx} sx={{ mb: 2 }}>
-                  <TextField
-                    label="Video Title"
-                    fullWidth
-                    sx={{ mb: 1 }}
-                    value={video.title}
-                    onChange={(e) =>
-                      handleVideoChange(chapterIdx, videoIdx, 'title', e.target.value)
-                    }
-                  />
-
-                  <TextField
-                    label="Video Description"
-                    fullWidth
-                    sx={{ mb: 1 }}
-                    value={video.description}
-                    onChange={(e) =>
-                      handleVideoChange(
-                        chapterIdx,
-                        videoIdx,
-                        'description',
-                        e.target.value
-                      )
-                    }
-                  />
-
-                  <TextField
-                    label="Video Timing (e.g. 3:25)"
-                    fullWidth
-                    sx={{ mb: 1 }}
-                    value={video.uriTiming}
-                    onChange={(e) =>
-                      handleVideoChange(chapterIdx, videoIdx, 'uriTiming', e.target.value)
-                    }
-                  />
-
-                  <CldUploadWidget
-                    uploadPreset="cloudinaryDemo"
-                    options={{ resourceType: 'video' }}
-                    onSuccess={(result: any) => {
-                      const videoUrl = result?.info?.secure_url;
-                      if (videoUrl) {
-                        handleVideoChange(chapterIdx, videoIdx, 'uri', videoUrl);
-                      }
-                    }}
-                  >
-                    {({ open }) => (
-                      <Button
-                        variant="contained"
-                        onClick={() => open()}
-                        sx={{ mb: 2, mr: 2 }}
-                      >
-                        Upload Video
-                      </Button>
-                    )}
-                  </CldUploadWidget>
-
-                  {video.uri && (
-                    <video width="80%" height="auto" controls>
-                      <source src={video.uri} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  )}
-
-                  <IconButton
-                    color="error"
-                    onClick={() => handleRemoveVideo(chapterIdx, videoIdx)}
-                    sx={{ mt: 2 }}
-                    disabled={chapter.videoUri.length === 1}
-                    title={
-                      chapter.videoUri.length === 1
-                        ? 'At least one video required'
-                        : undefined
-                    }
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              ))}
-              <Button onClick={() => addVideo(chapterIdx)} size="small">
-                + Add Video
-              </Button>
             </Box>
           ))}
 
-          <Button onClick={addChapter} startIcon={<AddIcon />} sx={{ mt: 2 }}>
-            Add Chapter
-          </Button>
+          <Button onClick={() => addVideo(chapterIdx)} size="small">+ Add Video</Button>
+        </Box>
+      ))}
+      <Button onClick={addChapter} startIcon={<AddIcon />} sx={{ mt: 2 }}>
+        Add Chapter
+      </Button>
 
-          <Box mt={5}>
-            <Button
-              variant="contained"
-              size="large"
-              color="primary"
-              onClick={handleSubmit(onSubmit)}
-            >
-              Submit Course
-            </Button>
-          </Box>
-        </Container>
-      ) : (<Typography>loading....</Typography>)}
-    </div>
-  )
-}
+      <Box mt={5}>
+        <Button variant="contained" size="large" color="primary" onClick={handleSubmit(onSubmit)}>
+          Submit Course
+        </Button>
+      </Box>
+    </Container>
+  );
+};
 
-export default UpdateCourse
+export default UpdateCourse;

@@ -7,6 +7,10 @@ const courseSchema = mongoose.Schema(
       required: true,
       ref: "users",
     },
+    courseEducator: {
+      type: String,
+      required: [true, "Please enter a courseEducator"],
+    },
     title: {
       type: String,
       required: [true, "Please enter a title"],
@@ -41,7 +45,6 @@ const courseSchema = mongoose.Schema(
     ],
     totalVideosTiming: {
       type: String,
-      default: "00:00:00",
     },
     isDeleted: {
       type: Boolean,

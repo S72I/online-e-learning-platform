@@ -43,6 +43,7 @@ export default function AddCoursePage() {
         formState: { errors },
     } = useForm<Course>({
         defaultValues: {
+            courseEducator: '',
             title: '',
             level: '',
             description: '',
@@ -55,6 +56,7 @@ export default function AddCoursePage() {
     const [createCourse] = useCreateCourseMutation();
 
     const [courseData, setCourseData] = useState<Course>({
+        courseEducator: '',
         title: '',
         level: '',
         description: '',
@@ -148,6 +150,7 @@ export default function AddCoursePage() {
             reset();
 
             setCourseData({
+                courseEducator: '',
                 title: '',
                 level: '',
                 description: '',
@@ -167,6 +170,18 @@ export default function AddCoursePage() {
                 Add Course
             </Typography>
 
+            <TextField
+                label="Course Educator"
+                fullWidth
+                sx={{ mb: 2 }}
+                error={!!errors.title}
+                helperText={errors.title && 'courseEducator name is required'}
+                {...register('courseEducator', {
+                    required: 'courseEducator name is required',
+                    onChange: (e) => handleChange('courseEducator', e.target.value),
+                })}
+                value={courseData.courseEducator}
+            />
             <TextField
                 label="Course Title"
                 fullWidth
@@ -215,7 +230,7 @@ export default function AddCoursePage() {
             />
 
             <TextField
-                label="Total Video Timing"
+                label="Total Video Timing (e.g. 3:25)"
                 fullWidth
                 sx={{ mb: 2 }}
                 error={!!errors.totalVideosTiming}
@@ -233,8 +248,9 @@ export default function AddCoursePage() {
 
             {courseData.images.map((img, idx) => (
                 <Box display="flex" alignItems="center" mb={2} key={idx}>
-                    <CldUploadWidget
-                        uploadPreset="cloudinaryDemo"
+
+
+                    <CldUploadWidget uploadPreset="cloudinaryDemo"
                         onSuccess={(result: any) => {
                             const imageUrl = result?.info?.url;
                             if (imageUrl) {
@@ -242,11 +258,13 @@ export default function AddCoursePage() {
                             }
                         }}
                     >
-                        {({ open }) => (
-                            <Button variant="outlined" onClick={() => open()} sx={{ mr: 2 }}>
-                                Upload an Image
-                            </Button>
-                        )}
+                        {({ open }) => {
+                            return (
+                                <Button variant="outlined" onClick={() => open()} sx={{ mr: 2 }}>
+                                    Upload an Image
+                                </Button>
+                            );
+                        }}
                     </CldUploadWidget>
 
                     {img && (

@@ -13,7 +13,7 @@ export async function createCourse(req: NextRequest, courseData: any) {
 
         await DBConnection();
 
-        const { title, description, level, images, chapters } = courseData;
+        const {courseEducator, title, description, level, images, chapters } = courseData;
 
         console.log("images", images);
 
@@ -29,6 +29,7 @@ export async function createCourse(req: NextRequest, courseData: any) {
 
         const course = await Course.create({
             user_id: user.id,
+            courseEducator,
             title,
             description,
             level,
@@ -208,7 +209,7 @@ export async function getCoursesByUser(req: NextRequest) {
         if (courses.length <= 0) {
             return ({ error: "no courses are found", status: 404 })
         }
-        return (courses)
+        return ({ courses, status: 200 })
 
 
     } catch (error: any) {
