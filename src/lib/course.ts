@@ -13,14 +13,14 @@ export async function createCourse(req: NextRequest, courseData: any) {
 
         await DBConnection();
 
-        const {courseEducator, title, description, level, images, chapters } = courseData;
+        const { courseEducator, title, description, level, totalVideosTiming, images, chapters } = courseData;
 
         console.log("images", images);
 
 
-        // if (!title || !description || !level || !images || !chapters) {
-        //     return { error: "All fields are mandatory", status: 400 };
-        // }
+        if (!title || !description || !courseEducator || !totalVideosTiming || !level || !images || !chapters) {
+            return { error: "All fields are mandatory", status: 400 };
+        }
 
         let user = validateUser(req);
         if (!user.id) {
@@ -33,13 +33,14 @@ export async function createCourse(req: NextRequest, courseData: any) {
             title,
             description,
             level,
+            totalVideosTiming,
             images,
             chapters,
         });
 
         return { course, status: 201 };
     } catch (error: any) {
-        return { error: error.message || "Something went wrong", status: 500 };
+        return { error: error.message || "Something went wrong", status: 401 };
     }
 }
 

@@ -13,6 +13,7 @@ import AddCourse from './AddCourse'
 import GetCourses from './GetCourses'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Demo from './Demo'
 
 
 const Dashboard = () => {

@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
+:root {
+  --font-be-vietnam-pro: "Be Vietnam Pro";
+}
+
 body {
   background: #f7f7f8;
 }
-
-
