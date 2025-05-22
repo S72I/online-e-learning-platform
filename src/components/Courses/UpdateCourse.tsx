@@ -1,3 +1,4 @@
+'use client'
 import { useGetCourseQuery, useCreateCourseMutation, useUpdateCourseMutation } from '@/services/courseAPI';
 import React, { useEffect, useState } from 'react';
 import {
@@ -11,20 +12,22 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Chapter, Course, Video } from '../types/course';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { levelOptions } from '@/lib/utils/constants';
 import CustomDropDown from '../UI/CustomDropDown';
 import { CldUploadWidget } from 'next-cloudinary';
 import { useRouter } from 'next/navigation';
 
+
+
 const MAX_IMAGES = 3;
 
-const defaultVideo: Video = { title: '', description: '', uri: '', uriTiming: '' };
-const defaultChapter: Chapter = { title: '', videoUri: [defaultVideo] };
+const defaultVideo = { title: '', description: '', uri: '', uriTiming: '' };
+const defaultChapter = { title: '', videoUri: [defaultVideo] };
 
 const UpdateCourse = ({ courseID }: any) => {
   const { data, isLoading } = useGetCourseQuery(courseID);
-  const [updateTask] = useUpdateCourseMutation();
+  const [updateCourse] = useUpdateCourseMutation();
   const router = useRouter();
 
   const {
@@ -34,7 +37,7 @@ const UpdateCourse = ({ courseID }: any) => {
     register,
     reset,
     formState: { errors },
-  } = useForm<Course>({
+  } = useForm({
     defaultValues: {
       title: '',
       level: '',
@@ -45,20 +48,18 @@ const UpdateCourse = ({ courseID }: any) => {
     },
   });
 
+  const watchImages = useWatch({ control, name: 'images' });
+  const watchChapters = useWatch({ control, name: 'chapters' });
+
   useEffect(() => {
     if (data?.findId) {
       reset(data.findId);
     }
   }, [data, reset]);
 
-  const onSubmit = async (formData: Course) => {
-
-    const payload = {
-      ...formData,
-    }
-
+  const onSubmit = async (formData: any) => {
     try {
-      const res = await updateTask({ id: courseID, payload }).unwrap();
+      const res = await updateCourse({ id: courseID, payload: formData }).unwrap();
       console.log('Course updated successfully:', res);
       router.push('/');
     } catch (err) {
@@ -66,47 +67,67 @@ const UpdateCourse = ({ courseID }: any) => {
     }
   };
 
-  const handleImageChange = (index: number, url: string) => {
-    const images = [...control._formValues.images];
-    images[index] = url;
-    setValue('images', images);
-  };
-
   const addImage = () => {
-    const images = control._formValues.images || [];
-    if (images.length >= MAX_IMAGES) {
+    if (watchImages.length >= MAX_IMAGES) {
       alert('You can only upload a maximum of 3 images.');
       return;
     }
-    setValue('images', [...images, '']);
+    setValue('images', [...watchImages, '']);
   };
 
   const removeImage = (index: number) => {
-    const images = control._formValues.images.filter((_: any, i: any) => i !== index);
-    setValue('images', images);
+    const updated = watchImages.filter((_, i) => i !== index);
+    setValue('images', updated);
   };
 
+  const handleImageChange = async (index: number, event: any) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    console.log("Selected file:", file);
+
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", "images_present");
+    const res = await fetch("https://api.cloudinary.com/v1_1/dmgkiiaqo/image/upload", {
+      method: "POST",
+      body: data,
+    });
+
+    if (!res.ok) {
+      throw new Error(`Upload failed: ${res.status}`);
+    }
+
+    const uploadedUrl = await res.json();
+
+    console.log("uploadedUrl.secure_url", uploadedUrl.secure_url);
+
+    const updated = [...watchImages];
+    updated[index] = uploadedUrl.secure_url;
+
+    setValue('images', updated);
+  };
+
+
   const addChapter = () => {
-    const chapters = [...control._formValues.chapters];
-    chapters.push(defaultChapter);
-    setValue('chapters', chapters);
+    setValue('chapters', [...watchChapters, defaultChapter]);
   };
 
   const removeChapter = (index: number) => {
-    const chapters = control._formValues.chapters.filter((_: any, i: any) => i !== index);
-    setValue('chapters', chapters);
+    const updated = watchChapters.filter((_, i) => i !== index);
+    setValue('chapters', updated);
   };
 
   const addVideo = (chapterIdx: number) => {
-    const chapters = [...control._formValues.chapters];
-    chapters[chapterIdx].videoUri.push({ ...defaultVideo });
-    setValue('chapters', chapters);
+    const updated = [...watchChapters];
+    updated[chapterIdx].videoUri.push({ ...defaultVideo });
+    setValue('chapters', updated);
   };
 
   const removeVideo = (chapterIdx: number, videoIdx: number) => {
-    const chapters = [...control._formValues.chapters];
-    chapters[chapterIdx].videoUri.splice(videoIdx, 1);
-    setValue('chapters', chapters);
+    const updated = [...watchChapters];
+    updated[chapterIdx].videoUri.splice(videoIdx, 1);
+    setValue('chapters', updated);
   };
 
   if (isLoading) return <Typography>Loading...</Typography>;
@@ -163,21 +184,10 @@ const UpdateCourse = ({ courseID }: any) => {
       />
 
       <Typography variant="h6" mt={4}>Images</Typography>
-      {(control._formValues.images || []).map((img: any, idx: any) => (
+      {watchImages.map((img, idx) => (
         <Box key={idx} display="flex" alignItems="center" mb={2}>
-          <CldUploadWidget
-            uploadPreset="cloudinaryDemo"
-            onSuccess={(res: any) => handleImageChange(idx, res.info.secure_url)}
-          >
-            {({ open }) => (
-              <Button variant="outlined" onClick={() => open()} sx={{ mr: 2 }}>
-                Upload Image
-              </Button>
-            )}
-          </CldUploadWidget>
-          {img && (
-            <Box component="img" src={img} width={100} height="auto" sx={{ mr: 2 }} />
-          )}
+          <input type="file" accept='image/*' onChange={(event: any) => handleImageChange(idx, event)} />
+          {img && <Box component="img" src={img} width={100} height="auto" sx={{ mr: 2 }} />}
           <IconButton color="error" onClick={() => removeImage(idx)}>
             <DeleteIcon />
           </IconButton>
@@ -188,7 +198,7 @@ const UpdateCourse = ({ courseID }: any) => {
       </Button>
 
       <Typography variant="h5" mt={4} mb={2}>Chapters</Typography>
-      {(control._formValues.chapters || []).map((chapter: any, chapterIdx: any) => (
+      {watchChapters.map((chapter, chapterIdx) => (
         <Box key={chapterIdx} sx={{ border: '1px solid #ccc', p: 2, mb: 3, borderRadius: 2 }}>
           <TextField
             label={`Chapter Title ${chapterIdx + 1}`}
@@ -196,81 +206,88 @@ const UpdateCourse = ({ courseID }: any) => {
             sx={{ mb: 2 }}
             value={chapter.title}
             onChange={(e) => {
-              const chapters = [...control._formValues.chapters];
-              chapters[chapterIdx].title = e.target.value;
-              setValue('chapters', chapters);
+              const updated = [...watchChapters];
+              updated[chapterIdx].title = e.target.value;
+              setValue('chapters', updated);
             }}
           />
           <IconButton
             color="error"
             onClick={() => removeChapter(chapterIdx)}
-            disabled={control._formValues.chapters.length === 1}
+            disabled={watchChapters.length === 1}
           >
             <DeleteIcon />
           </IconButton>
 
-          {chapter.videoUri.map((video: any, videoIdx: any) => (
+          {chapter.videoUri.map((video, videoIdx) => (
             <Box key={videoIdx} sx={{ mb: 2 }}>
               <TextField
                 label="Video Title"
                 fullWidth
-                value={video.title}
                 sx={{ mb: 1 }}
+                value={video.title}
                 onChange={(e) => {
-                  const chapters = [...control._formValues.chapters];
-                  chapters[chapterIdx].videoUri[videoIdx].title = e.target.value;
-                  setValue('chapters', chapters);
+                  const updated = [...watchChapters];
+                  updated[chapterIdx].videoUri[videoIdx].title = e.target.value;
+                  setValue('chapters', updated);
                 }}
               />
               <TextField
                 label="Video Description"
                 fullWidth
-                value={video.description}
                 sx={{ mb: 1 }}
+                value={video.description}
                 onChange={(e) => {
-                  const chapters = [...control._formValues.chapters];
-                  chapters[chapterIdx].videoUri[videoIdx].description = e.target.value;
-                  setValue('chapters', chapters);
+                  const updated = [...watchChapters];
+                  updated[chapterIdx].videoUri[videoIdx].description = e.target.value;
+                  setValue('chapters', updated);
                 }}
               />
               <TextField
                 label="Video Timing"
                 fullWidth
-                value={video.uriTiming}
                 sx={{ mb: 1 }}
+                value={video.uriTiming}
                 onChange={(e) => {
-                  const chapters = [...control._formValues.chapters];
-                  chapters[chapterIdx].videoUri[videoIdx].uriTiming = e.target.value;
-                  setValue('chapters', chapters);
+                  const updated = [...watchChapters];
+                  updated[chapterIdx].videoUri[videoIdx].uriTiming = e.target.value;
+                  setValue('chapters', updated);
                 }}
               />
+              <input
+                type="file"
+                onChange={async (event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
 
-              <CldUploadWidget
-                uploadPreset="cloudinaryDemo"
-                options={{ resourceType: 'video' }}
-                onSuccess={(res: any) => {
-                  const videoUrl = res?.info?.secure_url;
-                  if (videoUrl) {
-                    const chapters = [...control._formValues.chapters];
-                    chapters[chapterIdx].videoUri[videoIdx].uri = videoUrl;
-                    setValue('chapters', chapters);
+                  console.log("Selected file:", file);
+
+                  const data = new FormData();
+                  data.append("file", file);
+                  data.append("upload_preset", "videos_present");
+                  const res = await fetch("https://api.cloudinary.com/v1_1/dmgkiiaqo/video/upload", {
+                    method: "POST",
+                    body: data,
+                  });
+
+                  if (!res.ok) {
+                    throw new Error(`Upload failed: ${res.status}`);
                   }
-                }}
-              >
-                {({ open }) => (
-                  <Button variant="contained" onClick={() => open()} sx={{ mb: 2, mr: 2 }}>
-                    Upload Video
-                  </Button>
-                )}
-              </CldUploadWidget>
 
+                  const uploadedUrl = await res.json();
+
+                  const updated = [...watchChapters];
+                  updated[chapterIdx].videoUri[videoIdx].uri = uploadedUrl.secure_url;
+                  setValue('chapters', updated);
+                }}
+                accept="video/*"
+              />
               {video.uri && (
-                <video width="80%" height="auto" controls>
+                <video width="80%" controls>
                   <source src={video.uri} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               )}
-
               <IconButton
                 color="error"
                 onClick={() => removeVideo(chapterIdx, videoIdx)}
@@ -280,8 +297,9 @@ const UpdateCourse = ({ courseID }: any) => {
               </IconButton>
             </Box>
           ))}
-
-          <Button onClick={() => addVideo(chapterIdx)} size="small">+ Add Video</Button>
+          <Button onClick={() => addVideo(chapterIdx)} size="small">
+            + Add Video
+          </Button>
         </Box>
       ))}
       <Button onClick={addChapter} startIcon={<AddIcon />} sx={{ mt: 2 }}>

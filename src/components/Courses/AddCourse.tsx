@@ -16,7 +16,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { levelOptions } from '@/lib/utils/constants';
 import CustomDropDown from '../UI/CustomDropDown';
 import { useCreateCourseMutation } from '@/services/courseAPI';
-import { CldUploadWidget } from 'next-cloudinary';
 import { useRouter } from 'next/navigation';
 
 const MAX_IMAGES = 3;
@@ -86,11 +85,37 @@ export default function AddCoursePage() {
         chapterIdx: number,
         videoIdx: number,
         key: keyof Video,
-        value: string
+        event: any
     ) => {
-        const updatedChapters = [...courseData.chapters];
-        updatedChapters[chapterIdx].videoUri[videoIdx][key] = value;
-        handleChange('chapters', updatedChapters);
+
+        if (key === "uri") {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            const fileData = new FormData();
+            fileData.append("file", file);
+            fileData.append("upload_preset", "videos_present");
+
+            fetch("https://api.cloudinary.com/v1_1/dmgkiiaqo/video/upload", {
+                method: "POST",
+                body: fileData,
+            })
+                .then((res) => res.json())
+                .then((data) => {
+
+                    const updatedChapters = [...courseData.chapters];
+                    updatedChapters[chapterIdx].videoUri[videoIdx][key] = data.secure_url;
+                    handleChange('chapters', updatedChapters);
+                })
+                .catch((err) => console.error("Upload failed:", err));
+        } else {
+            const updatedChapters = [...courseData.chapters];
+            updatedChapters[chapterIdx].videoUri[videoIdx][key] = event;
+            handleChange('chapters', updatedChapters);
+        }
+
+
+
     };
 
     const handleRemoveVideo = (chapterIdx: number, videoIdx: number) => {
@@ -119,11 +144,30 @@ export default function AddCoursePage() {
         handleChange('chapters', updatedChapters);
     };
 
-    const handleImageChange = (index: number, value: string) => {
-        const updatedImages = [...courseData.images];
-        updatedImages[index] = value;
-        handleChange('images', updatedImages);
+    const handleImageChange = (event: any, index: number) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const fileData = new FormData();
+        fileData.append("file", file);
+        fileData.append("upload_preset", "images_present");
+
+        fetch("https://api.cloudinary.com/v1_1/dmgkiiaqo/image/upload", {
+            method: "POST",
+            body: fileData,
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.secure_url) {
+                    const updatedImages = [...courseData.images];
+                    updatedImages[index] = data.secure_url;
+                    setCourseData((prev) => ({ ...prev, images: updatedImages }));
+                }
+            })
+            .catch((err) => console.error("Upload failed:", err));
     };
+
+
 
     const handleRemoveImage = (index: number) => {
         handleChange(
@@ -142,24 +186,24 @@ export default function AddCoursePage() {
 
     const router = useRouter();
 
-    const onSubmit = async (data: Course) => {
+
+    const onSubmit = async () => {
         try {
             const res = await createCourse(courseData).unwrap();
-            console.log('Course created successfully:', res);
-            router.push("/")
+            console.log("Course created successfully:", res);
             reset();
-
+            router.push("/")
             setCourseData({
-                courseEducator: '',
-                title: '',
-                level: '',
-                description: '',
-                totalVideosTiming: '',
-                images: [''],
+                courseEducator: "",
+                title: "",
+                level: "",
+                description: "",
+                totalVideosTiming: "",
+                images: [],
                 chapters: [defaultChapter],
             });
         } catch (err: any) {
-            console.error('Error creating course:', err);
+            console.error("Error creating course:", err.message || err);
         }
     };
 
@@ -174,8 +218,8 @@ export default function AddCoursePage() {
                 label="Course Educator"
                 fullWidth
                 sx={{ mb: 2 }}
-                error={!!errors.title}
-                helperText={errors.title && 'courseEducator name is required'}
+                error={!!errors.courseEducator}
+                helperText={errors.courseEducator && 'courseEducator name is required'}
                 {...register('courseEducator', {
                     required: 'courseEducator name is required',
                     onChange: (e) => handleChange('courseEducator', e.target.value),
@@ -249,33 +293,14 @@ export default function AddCoursePage() {
             {courseData.images.map((img, idx) => (
                 <Box display="flex" alignItems="center" mb={2} key={idx}>
 
-
-                    <CldUploadWidget uploadPreset="cloudinaryDemo"
-                        onSuccess={(result: any) => {
-                            const imageUrl = result?.info?.url;
-                            if (imageUrl) {
-                                handleImageChange(idx, imageUrl);
-                            }
-                        }}
-                    >
-                        {({ open }) => {
-                            return (
-                                <Button variant="outlined" onClick={() => open()} sx={{ mr: 2 }}>
-                                    Upload an Image
-                                </Button>
-                            );
-                        }}
-                    </CldUploadWidget>
+                    <input
+                        type="file"
+                        onChange={(event) => handleImageChange(event, idx)}
+                        accept="image/*"
+                    />
 
                     {img && (
-                        <Box
-                            component="img"
-                            src={img}
-                            alt={`Uploaded Image ${idx}`}
-                            width={100}
-                            height="auto"
-                            sx={{ mr: 2 }}
-                        />
+                        <Box component="img" src={img} alt={`Uploaded Image ${idx}`} width={100} height="auto" sx={{ mr: 2 }} />
                     )}
 
                     <IconButton color="error" onClick={() => handleRemoveImage(idx)}>
@@ -362,33 +387,18 @@ export default function AddCoursePage() {
                                 }
                             />
 
-                            <CldUploadWidget
-                                uploadPreset="cloudinaryDemo"
-                                options={{ resourceType: 'video' }}
-                                onSuccess={(result: any) => {
-                                    const videoUrl = result?.info?.secure_url;
-                                    if (videoUrl) {
-                                        handleVideoChange(chapterIdx, videoIdx, 'uri', videoUrl);
-                                    }
-                                }}
-                            >
-                                {({ open }) => (
-                                    <Button
-                                        variant="contained"
-                                        onClick={() => open()}
-                                        sx={{ mb: 2, mr: 2 }}
-                                    >
-                                        Upload Video
-                                    </Button>
-                                )}
-                            </CldUploadWidget>
+                            <input
+                                type="file"
+                                onChange={(event) => handleVideoChange(chapterIdx, videoIdx, 'uri', event)}
+                                accept="video/*"
+                            />
 
-                            {video.uri && (
+                            {video.uri ? (
                                 <video width="80%" height="auto" controls>
                                     <source src={video.uri} type="video/mp4" />
                                     Your browser does not support the video tag.
                                 </video>
-                            )}
+                            ) : (video.uri == "" ? "Select Video" : "loading...")}
 
                             <IconButton
                                 color="error"

@@ -23,17 +23,17 @@ const courseApi = createApi({
         }),
 
         updateCourse: builder.mutation({
-            query: ({ id, updatedCourse }) => ({
+            query: ({ id, payload }) => ({
                 url: `/api/courses/updateCourse/${id}`,
                 method: "PUT",
-                body: updatedCourse,
+                body: payload,
             }),
             invalidatesTags: ["Courses"],
         }),
-
+        
         getCourse: builder.query({
             query: (courseId) => `/api/courses/getCourse/${courseId}`,
-             providesTags: ["Courses"],
+            providesTags: ["Courses"],
         }),
 
         deleteCourse: builder.mutation({

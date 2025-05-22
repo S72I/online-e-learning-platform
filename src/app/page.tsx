@@ -6,8 +6,6 @@ import Dashboard from "@/components/Courses/Dashboard";
 
 
 
-
-
 export default function Home() {
 
 

@@ -1,5 +1,5 @@
 export const levelOptions = [
-  { value: "beginner", label: "beginner" },
-  { value: "intermediate", label: "intermediate" },
-  { value: "advanced", label: "advanced" },
+  { value: "Beginner", label: "Beginner" },
+  { value: "Intermediate", label: "Intermediate" },
+  { value: "Advanced", label: "Advanced" },
 ];

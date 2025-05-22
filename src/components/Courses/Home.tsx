@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import CustomCard from '../UI/CustomCard'
 import TestimonialsCard from '../UI/TestimonialsCard'

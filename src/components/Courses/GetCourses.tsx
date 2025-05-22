@@ -1,23 +1,21 @@
 'use client'
 import { useDeleteCourseMutation, useGetCoursesQuery } from '@/services/courseAPI'
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import React, { useEffect } from 'react'
 import { Box, Button, Grid, Stack, Typography } from '@mui/material';
 import { CldImage } from 'next-cloudinary';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { Be_Vietnam_Pro } from 'next/font/google';
+
+
+const beVietnamPro = Be_Vietnam_Pro({ weight: "800", subsets: ['sans-serif'] })
+const beVietnamPro500 = Be_Vietnam_Pro({ weight: "400", subsets: ['sans-serif'] })
 
 const GetCourses = () => {
     let arg: any
     const { data }: any = useGetCoursesQuery(arg)
     useEffect(() => { }, [useGetCoursesQuery])
-
 
     const router = useRouter();
 
@@ -55,27 +53,88 @@ const GetCourses = () => {
                                 bgcolor: "white",
                                 height: "auto", overflow: "hidden", width: "100%",
                             }}>
-                            <CldImage
-                                src={course.images[0]}
-                                alt="Sarah L"
-                                width="400"
-                                height="200"
-                                style={{
-                                    margin: "auto",
-                                    marginTop: "50px"
+
+                            <Box
+                                sx={{
+                                    margin: 'auto',
+                                    mt: 10,
+                                    height: '350px',
+                                    overflow: 'hidden',
+                                    width: '90%',
                                 }}
-                            />
+                            >
+                                <img
+                                    src={course.images[0] || "/images/thumbnails/Image-not-found.png"}
+                                    alt="Sarah L"
+                                    width={"100%"}
+                                    height={"100%"}
+                                    style={{ width: '100%', height: '100%', borderRadius: 12 }} />
+
+                            </Box>
+
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", px: 4, mt: 2 }}>
-                                <Stack direction={'row'} >
-                                    <Typography sx={{ mr: 1, color: "#4C4C4D", borderRadius: 2, px: 2, py: 1, bgcolor: "#F1F1F3", fontSize: 12 }} >{course.uriTiming}</Typography>
-                                    <Typography sx={{ borderRadius: 2, color: "#4C4C4D", textAlign: 'center', px: 2, py: 1, bgcolor: "#F1F1F3", fontSize: 12 }}>{course.level}</Typography>
+                                <Stack direction={'row'} sx={{ mt: 1 }}>
+                                    <Typography
+                                        sx={{
+                                            mr: 1,
+                                            color: "#4C4C4D",
+                                            borderRadius: 2,
+                                            px: 2,
+                                            py: 1,
+                                            alignSelf: 'center',
+                                            border: '0.5px #F1F1F3 solid',
+                                            fontSize: 15,
+                                            fontWeight: 'bold',
+                                            textAlign: 'center',
+                                        }} >{course.totalVideosTiming} Minutes</Typography>
+
+                                    <Typography
+                                        sx={{
+                                            borderRadius: 2,
+                                            color: "#4C4C4D",
+                                            textAlign: 'center',
+                                            px: 2,
+                                            py: 1,
+                                            alignSelf: 'center',
+                                            border: '0.5px #F1F1F3 solid',
+                                            fontSize: 15,
+                                            fontWeight: 'bold'
+                                        }}>{course.level}</Typography>
                                 </Stack>
                                 <Box>
-                                    <Typography sx={{ bgcolor: "#F1F1F3", px: 3, py: 0.5, borderRadius: 2, fontSize: 12 }}>{course.name}</Typography>
+                                    <Typography
+                                        sx={{
+                                            textAlign: 'center',
+                                            px: 2,
+                                            py: 1,
+                                            alignSelf: 'center',
+                                            fontSize: 15,
+                                            fontWeight: 'bold'
+                                        }}>By {course.courseEducator}</Typography>
                                 </Box>
                             </Box>
-                            <Typography sx={{ mt: 4, px: 4 }}>{course.title}</Typography>
-                            <Typography sx={{ mt: 3, px: 4, color: "#4C4C4D", fontSize: 14 }}>{course.description}</Typography>
+                            {/* <Typography
+                                sx={{
+                                    mt: 4,
+                                    px: 4,
+                                    fontWeight: 'bold'
+                                }}>{course.title}</Typography> */}
+
+                            <Typography
+
+                                style={beVietnamPro.style}
+                                sx={{
+                                    mt: 3,
+                                    px: 4,
+                                    fontSize: 18
+                                }}
+                            >
+                                {course.title}
+                            </Typography>
+
+                            <Typography
+                                style={beVietnamPro500.style}
+                                sx={{ mt: 2, px: 4, color: "#4C4C4D", fontSize: 15 }}>{course.description}</Typography>
                             <Box width={"100%"} sx={{
                                 mt: 3,
                                 mb: 3,
@@ -88,7 +147,7 @@ const GetCourses = () => {
                             </Box>
                         </Grid>
                     ))
-                ) : (data && data.courses ? <Typography>loading...</Typography> : <Typography> No Courses Found</Typography>)
+                ) : (<Typography>loading...</Typography>)
                 }
 
             </Grid >

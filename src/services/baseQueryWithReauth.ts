@@ -1,20 +1,28 @@
+
+// 'use client'
+
 // import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 // const baseQuery = fetchBaseQuery({
-//     baseUrl: process.env.DOMAIN,
+//     baseUrl: "http://localhost:3000",
 //     prepareHeaders: (headers) => {
-//         const token = localStorage.getItem("authToken");
-//         if (token) {
-//             headers.set("Authorization", `Bearer ${token}`);
+//         if (typeof window !== "undefined") {
+//             const token = localStorage.getItem("authToken");
+//             if (token) {
+//                 headers.set("Authorization", `Bearer ${token}`);
+//             }
 //         }
 //         return headers;
 //     },
 // });
 
 // const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+
 //     const result = await baseQuery(args, api, extraOptions);
-//     if (result.error?.status === 401) {
+
+//     if (result.error?.status === 500 && typeof window !== "undefined") {
 //         localStorage.removeItem("authToken");
+//         localStorage.removeItem("rememberMe");
 //         window.location.href = "/login";
 //     }
 
@@ -22,7 +30,11 @@
 // };
 
 // export default baseQueryWithReauth;
-'use client'
+
+
+
+
+'use client';
 
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
@@ -40,10 +52,9 @@ const baseQuery = fetchBaseQuery({
 });
 
 const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
-
     const result = await baseQuery(args, api, extraOptions);
 
-    if (result.error?.status === 500 && typeof window !== "undefined") {
+    if (result.error?.status === 401 && typeof window !== "undefined") {
         localStorage.removeItem("authToken");
         localStorage.removeItem("rememberMe");
         window.location.href = "/login";
@@ -53,6 +64,3 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 };
 
 export default baseQueryWithReauth;
-
-
-
