@@ -20,9 +20,7 @@ const geistMono = Geist_Mono({
 
 const beVietnamPro = Be_Vietnam_Pro({
   weight: ["400", "500", "600", "700", "800", "900"],
-  variable: "--font-be-vietnam-pro",
-  subsets: ["latin"],
-
+  subsets: ["sans-serif"],
 });
 
 export default function RootLayout({
@@ -34,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${beVietnamPro.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${beVietnamPro.className} antialiased`}
       >
         <Provider store={store}>
           <Navbar />
