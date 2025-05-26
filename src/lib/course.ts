@@ -200,21 +200,39 @@ export const getCoursesBetweenDates = async (req: NextRequest, start: string, en
     }
 };
 
-export async function getCoursesByUser(req: NextRequest) {
 
+export async function getCoursesByUser(req: NextRequest) {
     try {
         await DBConnection();
 
-        const user = validateUser(req);
-        const courses = await Course.find({ user_id: user.id, isDeleted: false });
-        if (courses.length <= 0) {
-            return ({ error: "no courses are found", status: 404 })
+        const { searchParams } = new URL(req.url);
+        const title = searchParams.get('title') || '';
+        const sortOrder = searchParams.get('sortOrder') || ''; // 'asc' | 'desc'
+
+        let query: any = { isDeleted: false };
+
+        // Filter only if title is provided
+        if (title) {
+            const regexPattern: RegExp = new RegExp('^' + title, 'i');
+            query.title = { $regex: regexPattern };
         }
-        return ({ courses, status: 200 })
 
+        let courseQuery = Course.find(query);
 
+        // Sort only if sortOrder is provided
+        if (sortOrder === 'asc' || sortOrder === 'desc') {
+            const sortDirection = sortOrder === 'asc' ? 1 : -1;
+            courseQuery = courseQuery.sort({ title: sortDirection });
+        }
+
+        const courses = await courseQuery.exec();
+
+        if (!courses.length) {
+            return ({ err: 'No courses found', status: 404 });
+        }
+
+        return ({ courses, status: 200 });
     } catch (error: any) {
-        return { error: error.message || "Something went wrong", status: 500 };
+        return ({ err: error.message, status: 500 });
     }
-
 }
