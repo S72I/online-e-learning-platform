@@ -4,8 +4,11 @@ import {
     Button,
     Checkbox,
     Container,
+    FormControlLabel,
     IconButton,
     InputAdornment,
+    Radio,
+    RadioGroup,
     Stack,
     TextField,
     Typography
@@ -15,7 +18,7 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { useRegisterUserMutation } from '@/services/authAPI';
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useRouter } from 'next/navigation';
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -31,19 +34,56 @@ function SignUp() {
     const {
         register,
         handleSubmit,
+        control,
         formState: { errors },
         clearErrors,
         reset,
     } = useForm();
 
-    const onSubmit = async (data: any) => {
+    // const onSubmit = async (data: any) => {
 
+    //     try {
+    //         if (!isChecked) {
+    //             return setError("Please agree the terms and Privacy Policy")
+    //         }
+    //         const response = await registerUser(data).unwrap();
+    //         console.log("response", response);
+    //         if (response.status === 409) {
+    //             return setError(response.error);
+    //         }
+
+    //         reset();
+    //         localStorage.setItem("authToken", response.token);
+    //         clearErrors("apiError");
+    //         router.push("/");
+
+
+    //     } catch (err: any) {
+    //         setSuccessMsg("");
+    //         throw new Error(err)
+    //     }
+    // };
+
+
+    const onSubmit = async (data: any) => {
         try {
             if (!isChecked) {
-                return setError("Please agree the terms and Privacy Policy")
+                return setError("Please agree the terms and Privacy Policy");
             }
-            const response = await registerUser(data).unwrap();
+
+            // Convert role to boolean isAdmin
+            const isAdmin = data.role === "admin";
+
+            // Prepare data for API
+            const payload = {
+                ...data,
+                isAdmin,
+            };
+            delete payload.role; // Remove role if not needed in DB
+
+            const response = await registerUser(payload).unwrap();
             console.log("response", response);
+
             if (response.status === 409) {
                 return setError(response.error);
             }
@@ -53,10 +93,9 @@ function SignUp() {
             clearErrors("apiError");
             router.push("/");
 
-
         } catch (err: any) {
             setSuccessMsg("");
-            throw new Error(err)
+            throw new Error(err);
         }
     };
 
@@ -277,7 +316,30 @@ function SignUp() {
                                         {successMsg}
                                     </Typography>
                                 )}
+
                             </Box>
+                            <Box>
+                                <Typography sx={{ mb: 1, color: "#262626" }}>Select Role</Typography>
+                                <Controller
+                                    name="role"
+                                    control={control}
+                                    rules={{ required: "Role selection is required" }}
+                                    defaultValue="user"
+                                    render={({ field }) => (
+                                        <RadioGroup row {...field}>
+                                            <FormControlLabel value="user" control={<Radio />} label="User" />
+                                            <FormControlLabel value="admin" control={<Radio />} label="Admin" />
+                                        </RadioGroup>
+                                    )}
+                                />
+                                {errors.role && (
+                                    <Typography color="error" variant="body2">
+                                        {errors?.role?.message as string}
+                                    </Typography>
+                                )}
+                            </Box>
+
+
                             <Stack direction={'row'} sx={{ alignItems: 'center' }}>
                                 <Checkbox
                                     checked={isChecked}

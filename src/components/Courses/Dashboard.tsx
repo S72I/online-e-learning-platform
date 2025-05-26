@@ -18,10 +18,11 @@ import Demo from './Demo'
 
 const Dashboard = () => {
     const [storedValue, setStoredValue] = useState<string | null>(null);
-
+    const router = useRouter()
     useEffect(() => {
         const token = localStorage.getItem("authToken");
         setStoredValue(token);
+        router.refresh();
     }, []);
 
     return (
