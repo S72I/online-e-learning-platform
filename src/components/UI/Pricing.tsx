@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Container, Grid, IconButton, Typography } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
@@ -59,14 +60,13 @@ const QnA = [
 
 const Pricing = () => {
     const [expanded, setExpanded] = useState(null);
-
     const handleChange = (panel: any) => (event: any, isExpanded: any) => {
         setExpanded(isExpanded ? panel : null);
     };
 
     return (
         <>
-            <Grid container spacing={2} sx={{ px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
+            <Grid container spacing={2} sx={{ px: { md: 4, xs: 2, lg: 6, xl: 6 }, mt: 10 }}>
                 <Container sx={{ width: "100%", bgcolor: "white", pb: 4, overflow: "hidden", justifyContent: 'space-between', display: 'flex' }}>
                     <Box sx={{ bgcolor: '#FCFCFD', overflow: 'hidden', ml: 4, mt: 7, mr: 1, width: "100%", height: "auto" }}>
                         <Box sx={{ mt: 7 }}>

@@ -96,8 +96,6 @@ const courses = [
 ]
 
 const CourseDetailPage = () => {
-
-
     return (
         <Container maxWidth={false}>
             <Box sx={{

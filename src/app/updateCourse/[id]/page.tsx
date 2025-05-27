@@ -6,10 +6,10 @@ import React from 'react';
 
 const Page = () => {
     const params = useParams();
-
+    
     return (
         <div>
-            <UpdateCourse courseID={params.id} />
+            <UpdateCourse courseID={params.id as string} />
         </div>
     );
 }

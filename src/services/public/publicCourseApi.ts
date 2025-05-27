@@ -22,7 +22,11 @@ export const publicCourseApi = createApi({
             },
             providesTags: ['Courses'],
         }),
+        getCourse: builder.query({
+            query: (courseId) => `/api/courses/getCourse/${courseId}`,
+            providesTags: ["Courses"],
+        }),
     }),
 });
 
-export const { useGetCoursesQuery } = publicCourseApi;
+export const { useGetCoursesQuery, useGetCourseQuery, } = publicCourseApi;

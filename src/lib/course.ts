@@ -207,11 +207,10 @@ export async function getCoursesByUser(req: NextRequest) {
 
         const { searchParams } = new URL(req.url);
         const title = searchParams.get('title') || '';
-        const sortOrder = searchParams.get('sortOrder') || ''; // 'asc' | 'desc'
+        const sortOrder = searchParams.get('sortOrder') || '';
 
         let query: any = { isDeleted: false };
 
-        // Filter only if title is provided
         if (title) {
             const regexPattern: RegExp = new RegExp('^' + title, 'i');
             query.title = { $regex: regexPattern };
@@ -219,7 +218,6 @@ export async function getCoursesByUser(req: NextRequest) {
 
         let courseQuery = Course.find(query);
 
-        // Sort only if sortOrder is provided
         if (sortOrder === 'asc' || sortOrder === 'desc') {
             const sortDirection = sortOrder === 'asc' ? 1 : -1;
             courseQuery = courseQuery.sort({ title: sortDirection });
@@ -236,3 +234,27 @@ export async function getCoursesByUser(req: NextRequest) {
         return ({ err: error.message, status: 500 });
     }
 }
+
+
+export async function getCoursesByAdmin(req: NextRequest) {
+    try {
+        await DBConnection();
+
+        const user = await validateUser(req);
+
+        const courses = await Course.find({ isDeleted: false, user_id: user.id })
+
+        return { courses: courses, status: 200 };
+
+    } catch (error: any) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+}
+// add title and  sorting asc desc if this all data is empty i have to detch al/ courses
+
+
+
+

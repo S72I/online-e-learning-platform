@@ -2,10 +2,15 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { withAuth } from '../withAuth'
+import GetAdminCourses from './GetAdminCourses'
+import GetUserCourses from './GetUserCourses'
+import HomePage from './Home'
 
 const GetCourses = () => {
     const router = useRouter()
     const [loading, setLoading] = useState(true)
+    const [role, setRole] = useState<string | null>(null)
 
     useEffect(() => {
         const token = localStorage.getItem('authToken')
@@ -18,13 +23,9 @@ const GetCourses = () => {
         try {
             const base64Payload = token.split('.')[1]
             const decodedPayload = JSON.parse(atob(base64Payload))
-            const role = decodedPayload.role
+            const userRole = decodedPayload.role
 
-            if (role === 'admin') {
-                router.push('/getAdminCourses')
-            } else {
-                router.push('/getUserCourses')
-            }
+            setRole(userRole)
         } catch (error) {
             console.error('Error decoding token:', error)
             router.push('/login')
@@ -33,8 +34,19 @@ const GetCourses = () => {
         }
     }, [router])
 
-    if (loading) return <div>Loading...</div>
-    return null
+    if (loading) {
+        return <div>Loading...</div>
+    }
+
+    if (role === 'admin') {
+        return <GetAdminCourses />
+    }
+
+    if (role === 'user') {
+        return <GetUserCourses />
+    }
+
+    return <div>Unauthorized</div>
 }
 
 export default GetCourses
