@@ -7,6 +7,7 @@ import {
     IconButton,
     TextField,
     Typography,
+    CircularProgress,
 } from '@mui/material';
 import { useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
@@ -17,6 +18,7 @@ import { levelOptions } from '@/lib/utils/constants';
 import CustomDropDown from '../UI/CustomDropDown';
 import { useCreateCourseMutation } from '@/services/courseAPI';
 import { useRouter } from 'next/navigation';
+import { withAuth } from '../withAuth';
 
 const MAX_IMAGES = 3;
 
@@ -32,7 +34,7 @@ const defaultChapter: Chapter = {
     videoUri: [defaultVideo],
 };
 
-export default function AddCoursePage() {
+function AddCoursePage() {
     const {
         control,
         handleSubmit,
@@ -51,6 +53,10 @@ export default function AddCoursePage() {
             chapters: [defaultChapter],
         },
     });
+
+
+    const [imageLoadingIndex, setImageLoadingIndex] = useState<number | null>(null);
+    const [videoLoadingIndex, setVideoLoadingIndex] = useState<{ chapterIdx: number; videoIdx: number } | null>(null);
 
     const [createCourse] = useCreateCourseMutation();
 
@@ -81,42 +87,51 @@ export default function AddCoursePage() {
         handleChange('chapters', updatedChapters);
     };
 
-    const handleVideoChange = (
+    const handleVideoChange = async (
         chapterIdx: number,
         videoIdx: number,
         key: keyof Video,
         event: any
     ) => {
-
         if (key === "uri") {
             const file = event.target.files?.[0];
             if (!file) return;
+
+            setVideoLoadingIndex({ chapterIdx, videoIdx });
 
             const fileData = new FormData();
             fileData.append("file", file);
             fileData.append("upload_preset", "videos_present");
 
-            fetch("https://api.cloudinary.com/v1_1/dmgkiiaqo/video/upload", {
-                method: "POST",
-                body: fileData,
-            })
-                .then((res) => res.json())
-                .then((data) => {
+            try {
+                const res = await fetch("https://api.cloudinary.com/v1_1/dmgkiiaqo/video/upload", {
+                    method: "POST",
+                    body: fileData,
+                });
 
+                const data = await res.json();
+
+                if (data.secure_url) {
                     const updatedChapters = [...courseData.chapters];
                     updatedChapters[chapterIdx].videoUri[videoIdx][key] = data.secure_url;
+
                     handleChange('chapters', updatedChapters);
-                })
-                .catch((err) => console.error("Upload failed:", err));
-        } else {
+                } else {
+                    console.error("Upload failed:", data);
+                }
+            } catch (err) {
+                console.error("Upload failed:", err);
+            } finally {
+                setVideoLoadingIndex(null);
+            }
+        }
+        else {
             const updatedChapters = [...courseData.chapters];
             updatedChapters[chapterIdx].videoUri[videoIdx][key] = event;
             handleChange('chapters', updatedChapters);
         }
-
-
-
     };
+
 
     const handleRemoveVideo = (chapterIdx: number, videoIdx: number) => {
         const updatedChapters = [...courseData.chapters];
@@ -144,27 +159,41 @@ export default function AddCoursePage() {
         handleChange('chapters', updatedChapters);
     };
 
-    const handleImageChange = (event: any, index: number) => {
+
+    const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
         const file = event.target.files?.[0];
         if (!file) return;
+
+        setImageLoadingIndex(index);
 
         const fileData = new FormData();
         fileData.append("file", file);
         fileData.append("upload_preset", "images_present");
 
-        fetch("https://api.cloudinary.com/v1_1/dmgkiiaqo/image/upload", {
-            method: "POST",
-            body: fileData,
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.secure_url) {
-                    const updatedImages = [...courseData.images];
-                    updatedImages[index] = data.secure_url;
-                    setCourseData((prev) => ({ ...prev, images: updatedImages }));
-                }
-            })
-            .catch((err) => console.error("Upload failed:", err));
+        try {
+            const res = await fetch("https://api.cloudinary.com/v1_1/dmgkiiaqo/image/upload", {
+                method: "POST",
+                body: fileData,
+            });
+
+            const data = await res.json();
+
+            if (data.secure_url) {
+                const updatedImages = [...courseData.images];
+                updatedImages[index] = data.secure_url;
+
+                setCourseData((prev) => ({
+                    ...prev,
+                    images: updatedImages,
+                }));
+            } else {
+                console.error("Upload failed:", data);
+            }
+        } catch (err) {
+            console.error("Upload failed:", err);
+        } finally {
+            setImageLoadingIndex(null);
+        }
     };
 
 
@@ -297,9 +326,13 @@ export default function AddCoursePage() {
                         type="file"
                         onChange={(event) => handleImageChange(event, idx)}
                         accept="image/*"
+                        disabled={imageLoadingIndex === idx}
                     />
 
-                    {img && (
+
+                    {imageLoadingIndex === idx ? (
+                        <CircularProgress size={24} sx={{ ml: 2 }} />
+                    ) : (img &&
                         <Box component="img" src={img} alt={`Uploaded Image ${idx}`} width={100} height="auto" sx={{ mr: 2 }} />
                     )}
 
@@ -391,9 +424,15 @@ export default function AddCoursePage() {
                                 type="file"
                                 onChange={(event) => handleVideoChange(chapterIdx, videoIdx, 'uri', event)}
                                 accept="video/*"
+                                disabled={
+                                    videoLoadingIndex?.chapterIdx === chapterIdx &&
+                                    videoLoadingIndex?.videoIdx === videoIdx
+                                }
                             />
-
-                            {video.uri ? (
+                            {videoLoadingIndex?.chapterIdx === chapterIdx &&
+                                videoLoadingIndex?.videoIdx === videoIdx ? (
+                                <CircularProgress size={24} sx={{ ml: 2 }} />
+                            ) : video.uri ? (
                                 <video width="80%" height="auto" controls>
                                     <source src={video.uri} type="video/mp4" />
                                     Your browser does not support the video tag.
@@ -438,3 +477,5 @@ export default function AddCoursePage() {
         </Container>
     );
 }
+
+export default withAuth(AddCoursePage)

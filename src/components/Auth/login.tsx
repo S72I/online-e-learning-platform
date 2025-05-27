@@ -48,10 +48,11 @@ function Login() {
             if (rememberMe) {
                 localStorage.setItem("authToken", response.token);
                 localStorage.setItem("rememberMe", new Boolean(rememberMe).toString());
-                router.push("/");
+                router.replace("/");
+                router.refresh();
             } else {
                 sessionStorage.setItem("rememberMe", new Boolean(rememberMe).toString());
-                router.push("/");
+                router.replace("/");
             }
         } catch (err: any) {
             console.error("Login Failed:", err.data.message);

@@ -1,3 +1,4 @@
+'use client'
 import { Box, Button, Container, Stack, TextField, Typography } from '@mui/material'
 import React from 'react'
 import EmailIcon from '@mui/icons-material/Email';

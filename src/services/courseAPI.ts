@@ -6,7 +6,6 @@ const courseApi = createApi({
     tagTypes: ["Courses"],
 
     baseQuery: baseQueryWithReauth,
-    // baseQuery: fetchBaseQuery({ baseUrl: process.env.DOMAIN }),
     endpoints: (builder) => ({
         getCourses: builder.query({
             query: (title) => {
