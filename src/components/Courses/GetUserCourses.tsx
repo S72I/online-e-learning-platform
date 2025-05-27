@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 
 const beVietnamPro = Be_Vietnam_Pro({
   weight: ["400", "500", "600", "700", "800", "900"],
-  subsets: ["sans-serif"],
+  subsets: ["latin"],
 })
 
 
