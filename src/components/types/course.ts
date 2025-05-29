@@ -1,21 +1,30 @@
 export interface Video {
-    title: string;
-    description: string;
-    uri: string;
-    uriTiming: string;
+    videoTitle: string;
+    lessonNo: string;
+    videoUri: string;
+    videoTiming: string;
 }
 
 export interface Chapter {
     title: string;
-    videoUri: Video[];
+    videos: Video[];
 }
 
 export interface Course {
-    courseEducator: string;
     title: string;
     level: string;
     description: string;
     images: string[];
     totalVideosTiming: string;
     chapters: Chapter[];
+}
+
+export interface Contact {
+    firstName: string,
+    lastname: string,
+    phonenumber: string,
+    message: string,
+    subject: string,
+    email: string
+
 }

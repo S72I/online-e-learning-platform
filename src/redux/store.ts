@@ -12,7 +12,10 @@ const store = configureStore({
   },
 
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authApi.middleware, courseApi.middleware, publicCourseApi.middleware),
+    getDefaultMiddleware().concat(
+      authApi.middleware,
+      courseApi.middleware,
+      publicCourseApi.middleware),
 
 
 });

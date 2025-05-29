@@ -1,260 +1,337 @@
-import { NextRequest, NextResponse } from "next/server";
-import DBConnection from "@/server/dbConfig/dbConfig";
-import Course from "@/server/models/course.mode";
-import { validateUser } from "@/server/middlewares/validateTokenHandler";
+// import { NextRequest, NextResponse } from "next/server";
+// import DBConnection from "@/server/dbConfig/dbConfig";
+// import Course from "@/server/models/course.mode";
+// import { validateUser } from "@/server/middlewares/validateTokenHandler";
+// import { FilterQuery } from "mongoose";
+// import { courseObj } from "@/server/constants";
+
+// interface CreateCourse {
+//     courseEducator: string;
+//     title: string;
+//     description: string;
+//     level: string;
+//     totalVideosTiming: string;
+//     images: string[];
+//     chapters: Record<string, any>;
+// }
+
+// export async function createCourse(req: NextRequest, courseData: any) {
+//     try {
+//         await DBConnection();
+
+//         const {
+//             courseEducator,
+//             title,
+//             description,
+//             level,
+//             totalVideosTiming,
+//             images,
+//             chapters,
+//         } = courseData as CreateCourse;
+
+//         if (
+//             !courseEducator ||
+//             !title ||
+//             !description ||
+//             !level ||
+//             !totalVideosTiming ||
+//             !images?.length ||
+//             !chapters
+//         ) {
+//             return { error: 'All fields are mandatory', status: 400 };
+//         }
+
+//         const user = validateUser(req);
+//         if (!user?.id) {
+//             return { error: 'JWT expired', status: 498 };
+//         }
+
+//         const course = await Course.create({
+//             user_id: user.id,
+//             courseEducator,
+//             title,
+//             description,
+//             level,
+//             totalVideosTiming,
+//             images,
+//             chapters,
+//         });
+
+//         return { course, status: 201 };
+//     } catch (error: any) {
+//         console.error('Error creating course:', error);
+//         return { error: error.message || 'Something went wrong', status: 500 };
+//     }
+// }
+
+// export async function deleteCourseById(req: NextRequest, id: string) {
+//     try {
+//         await DBConnection();
+
+//         const user = validateUser(req);
+
+//         const findId = await Course.findById(id);
+
+//         if (findId?.isDeleted) {
+//             return { message: "course not exist try again", status: 400 };
+//         }
+
+//         if (String(findId?.user_id) == user.id) {
+
+//             if (user.role == "admin") {
+
+//                 const course = await Course.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+
+//                 if (!course) return { message: "Course not found", status: 404 };
+
+//                 return { message: "Course deleted", status: 200 };
+//             } else {
+//                 return { error: "you're not a valid user", status: 400 };
+//             }
+//         }
+//         else {
+//             return { error: "The user Id not matching", status: 400 };
+//         }
+
+//     } catch (error: any) {
+//         return { err: error.message, status: 400 };
+//     }
+// }
+
+// export async function getCourseById(req: NextRequest, id: string) {
+//     try {
+//         const user = validateUser(req);
 
+//         await DBConnection();
+//         const findId = await Course.findById(id);
 
-export async function createCourse(req: NextRequest, courseData: any) {
-    try {
-        const authHeader = req.headers.get("authorization");
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            return { error: "Unauthorized: No token provided", status: 401 };
-        }
+//         if (!findId) return { message: "Course not found", status: 404 };
 
-        await DBConnection();
+//         if (findId.isDeleted) {
+//             return { message: "course not exist try again", status: 400 };
+//         }
+//         if (String(findId.user_id) == user.id) {
 
-        const { courseEducator, title, description, level, totalVideosTiming, images, chapters } = courseData;
+//             if (user.role == "admin") {
 
-        console.log("images", images);
+//                 return { findId, status: 200 };
+//             } else {
+//                 return { error: "you're not a valid user", status: 400 };
+//             }
+//         }
 
+//     } catch (error: any) {
+//         return { err: error.message, status: 400 };
+//     }
+// }
 
-        if (!title || !description || !courseEducator || !totalVideosTiming || !level || !images || !chapters) {
-            return { error: "All fields are mandatory", status: 400 };
-        }
 
-        let user = validateUser(req);
-        if (!user.id) {
-            return { error: "JWT expired", status: 498 };
-        }
+// export async function getUserCourseById(req: NextRequest, id: string) {
+//     try {
 
-        const course = await Course.create({
-            user_id: user.id,
-            courseEducator,
-            title,
-            description,
-            level,
-            totalVideosTiming,
-            images,
-            chapters,
-        });
+//         await DBConnection();
+//         const findId = await Course.findById(id);
 
-        return { course, status: 201 };
-    } catch (error: any) {
-        return { error: error.message || "Something went wrong", status: 401 };
-    }
-}
+//         if (!findId) return { message: "Course not found", status: 404 };
 
-export async function deleteCourseById(req: NextRequest, id: string) {
-    try {
-        await DBConnection();
+//         if (findId.isDeleted) {
+//             return { message: "course not exist try again", status: 400 };
+//         }
 
-        const user = validateUser(req);
+//         return { findId, status: 200 };
 
-        const findId = await Course.findById(id);
 
-        if (findId?.isDeleted) {
-            return { message: "course not exist try again", status: 400 };
-        }
+//     } catch (error: any) {
+//         return { err: error.message, status: 400 };
+//     }
+// }
 
-        if (String(findId?.user_id) == user.id) {
 
-            if (user.role == "admin") {
+// export async function getCourses(req: NextRequest, { title, sortOrder }: { title: string, sortOrder: 'asc' | 'desc' }) {
+//     try {
+//         // const user = validateUser(req);
 
-                const course = await Course.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+//         // !user ? "User invalid" : ""
 
-                if (!course) return { message: "Course not found", status: 404 };
+//         await DBConnection();
 
-                return { message: "Course deleted", status: 200 };
-            } else {
-                return { error: "you're not a valid user", status: 400 };
-            }
-        }
-        else {
-            return { error: "The user Id not matching", status: 400 };
-        }
+//         const regexPattern: RegExp = new RegExp("^" + title, "i");
 
-    } catch (error: any) {
-        return { err: error.message, status: 400 };
-    }
-}
+//         const sortDirection = sortOrder === 'asc' ? 1 : -1;
 
-export async function getCourseById(req: NextRequest, id: string) {
-    try {
-        const user = validateUser(req);
+//         const courses = await Course.find({ title: { $regex: regexPattern }, isDeleted: false })
+//             .sort({ title: sortDirection });
 
-        await DBConnection();
-        const findId = await Course.findById(id);
+//         if (!courses.length) {
+//             return { err: "No courses found matching your criteria", status: 404 };
+//         }
+//         return { courses, status: 200 };
+//     } catch (error: any) {
+//         return { err: error.message, status: 400 };
+//     }
+// }
 
-        if (!findId) return { message: "Course not found", status: 404 };
+// export async function updateCourseById(req: NextRequest, id: string, courseData: any) {
+//     try {
+//         const user = validateUser(req);
 
-        if (findId.isDeleted) {
-            return { message: "course not exist try again", status: 400 };
-        }
-        if (String(findId.user_id) == user.id) {
+//         await DBConnection();
 
-            if (user.role == "admin") {
+//         const findId = await Course.findById(id);
 
-                return { findId, status: 200 };
-            } else {
-                return { error: "you're not a valid user", status: 400 };
-            }
-        }
+//         if (!findId) {
+//             return { message: "Course not found", status: 404 };
+//         }
 
-    } catch (error: any) {
-        return { err: error.message, status: 400 };
-    }
-}
+//         if (findId.isDeleted) {
+//             return { message: "course not exist try again", status: 400 };
+//         }
 
-export async function getCourses(req: NextRequest, { title, sortOrder }: { title: string, sortOrder: 'asc' | 'desc' }) {
-    try {
-        // const user = validateUser(req);
+//         if (String(findId.user_id) == user.id) {
 
-        // !user ? "User invalid" : ""
+//             if (user.role == "admin") {
+//                 const updatedCourse = await Course.findByIdAndUpdate(id, courseData, { new: true });
 
-        await DBConnection();
+//                 if (!updatedCourse) {
+//                     return { message: "Course update failed", status: 400 };
+//                 }
 
-        const regexPattern: RegExp = new RegExp("^" + title, "i");
+//                 return { message: "Course updated", updatedCourse, status: 200 };
+//             } else {
+//                 return { error: "you're not a valid user", status: 400 };
+//             }
+//         }
+//     } catch (error: any) {
+//         return { err: error.message, status: 400 };
+//     }
+// }
 
-        const sortDirection = sortOrder === 'asc' ? 1 : -1;
+// export async function getAllCourses(req: NextRequest) {
+//     try {
 
-        const courses = await Course.find({ title: { $regex: regexPattern }, isDeleted: false })
-            .sort({ title: sortDirection });
+//         await DBConnection();
 
-        if (!courses.length) {
-            return { err: "No courses found matching your criteria", status: 404 };
-        }
-        return { courses, status: 200 };
-    } catch (error: any) {
-        return { err: error.message, status: 400 };
-    }
-}
+//         const courses = await Course.find({ isDeleted: false });
 
-export async function updateCourseById(req: NextRequest, id: string, courseData: any) {
-    try {
-        const user = validateUser(req);
+//         if (!courses.length) {
+//             return { err: "No courses found", status: 404 };
+//         }
 
-        await DBConnection();
+//         return { courses: courses };
 
-        const findId = await Course.findById(id);
+//     } catch (error: any) {
+//         return { err: error.message, status: 400 };
+//     }
 
-        if (!findId) {
-            return { message: "Course not found", status: 404 };
-        }
+// }
 
-        if (findId.isDeleted) {
-            return { message: "course not exist try again", status: 400 };
-        }
+// export const getCoursesBetweenDates = async (req: NextRequest, start: string, end: string) => {
+//     try {
 
-        if (String(findId.user_id) == user.id) {
+//         const courses = await Course.find({
+//             createdAt: {
+//                 $gte: new Date(start),
+//                 $lte: new Date(end),
+//             },
+//             isDeleted: false,
+//         });
 
-            if (user.role == "admin") {
-                const updatedCourse = await Course.findByIdAndUpdate(id, courseData, { new: true });
+//         return courses;
+//     } catch (error) {
+//         throw new Error("Failed to filter courses by date");
+//     }
+// };
 
-                if (!updatedCourse) {
-                    return { message: "Course update failed", status: 400 };
-                }
 
-                return { message: "Course updated", updatedCourse, status: 200 };
-            } else {
-                return { error: "you're not a valid user", status: 400 };
-            }
-        }
-    } catch (error: any) {
-        return { err: error.message, status: 400 };
-    }
-}
+// export async function getCoursesByUser(req: NextRequest) {
+//     try {
+//         await DBConnection();
 
-export async function getAllCourses(req: NextRequest) {
-    try {
+//         const { searchParams } = new URL(req.url);
+//         const title = searchParams.get('title') || '';
+//         const sortOrder = searchParams.get('sortOrder') || '';
 
-        await DBConnection();
+//         let query: any = { isDeleted: false };
 
-        const courses = await Course.find({ isDeleted: false });
+//         if (title) {
+//             const regexPattern: RegExp = new RegExp('^' + title, 'i');
+//             query.title = { $regex: regexPattern };
+//         }
 
-        if (!courses.length) {
-            return { err: "No courses found", status: 404 };
-        }
+//         let courseQuery = Course.find(query);
 
-        return { courses: courses };
+//         if (sortOrder === 'asc' || sortOrder === 'desc') {
+//             const sortDirection = sortOrder === 'asc' ? 1 : -1;
+//             courseQuery = courseQuery.sort({ title: sortDirection });
+//         }
 
-    } catch (error: any) {
-        return { err: error.message, status: 400 };
-    }
+//         const courses = await courseQuery.exec();
 
-}
+//         if (!courses.length) {
+//             return ({ err: 'No courses found', status: 404 });
+//         }
 
-export const getCoursesBetweenDates = async (req: NextRequest, start: string, end: string) => {
-    try {
+//         return ({ courses, status: 200 });
+//     } catch (error: any) {
+//         return ({ err: error.message, status: 500 });
+//     }
+// }
 
-        const courses = await Course.find({
-            createdAt: {
-                $gte: new Date(start),
-                $lte: new Date(end),
-            },
-            isDeleted: false,
-        });
 
-        return courses;
-    } catch (error) {
-        throw new Error("Failed to filter courses by date");
-    }
-};
+// // export async function getCoursesByAdmin(req: NextRequest) {
+// //     try {
+// //         await DBConnection();
 
+// //         const user = await validateUser(req);
 
-export async function getCoursesByUser(req: NextRequest) {
-    try {
-        await DBConnection();
+// //         const courses = await Course.find({ isDeleted: false, user_id: user.id })
 
-        const { searchParams } = new URL(req.url);
-        const title = searchParams.get('title') || '';
-        const sortOrder = searchParams.get('sortOrder') || '';
+// //         return { courses: courses, status: 200 };
 
-        let query: any = { isDeleted: false };
+// //     } catch (error: any) {
+// //         return new Response(JSON.stringify({ error: error.message }), {
+// //             status: 500,
+// //             headers: { 'Content-Type': 'application/json' },
+// //         });
+// //     }
+// // }
 
-        if (title) {
-            const regexPattern: RegExp = new RegExp('^' + title, 'i');
-            query.title = { $regex: regexPattern };
-        }
 
-        let courseQuery = Course.find(query);
+// export async function getCoursesByAdmin(req: NextRequest) {
+//     try {
+//         await DBConnection();
 
-        if (sortOrder === 'asc' || sortOrder === 'desc') {
-            const sortDirection = sortOrder === 'asc' ? 1 : -1;
-            courseQuery = courseQuery.sort({ title: sortDirection });
-        }
+//         const { searchParams } = new URL(req.url);
+//         const title = searchParams.get('title') || '';
+//         const sortOrder = searchParams.get('sortOrder') || '';
 
-        const courses = await courseQuery.exec();
+//         const user = validateUser(req);
 
-        if (!courses.length) {
-            return ({ err: 'No courses found', status: 404 });
-        }
+//         const query: FilterQuery<courseObj> = { user_id: user.id, isDeleted: false };
 
-        return ({ courses, status: 200 });
-    } catch (error: any) {
-        return ({ err: error.message, status: 500 });
-    }
-}
+//         if (title) {
+//             const regexPattern = new RegExp('^' + title, 'i');
+//             query.title = { $regex: regexPattern };
+//         }
 
+//         let courseQuery = Course.find(query);
 
-export async function getCoursesByAdmin(req: NextRequest) {
-    try {
-        await DBConnection();
+//         if (sortOrder === 'asc' || sortOrder === 'desc') {
+//             const sortDirection = sortOrder === 'asc' ? 1 : -1;
+//             courseQuery = courseQuery.sort({ title: sortDirection });
+//         }
 
-        const user = await validateUser(req);
+//         const courses = await courseQuery.exec();
 
-        const courses = await Course.find({ isDeleted: false, user_id: user.id })
+//         if (!courses.length) {
+//             return { err: 'No courses found', status: 404 };
+//         }
 
-        return { courses: courses, status: 200 };
-
-    } catch (error: any) {
-        return new Response(JSON.stringify({ error: error.message }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
-    }
-}
-// add title and  sorting asc desc if this all data is empty i have to detch al/ courses
-
+//         return { courses, status: 200 };
+//     } catch (error) {
+//         return { err: (error as Error).message, status: 500 };
+//     }
+// }
 
 
 

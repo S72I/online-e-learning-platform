@@ -5,9 +5,11 @@ type GetCoursesQueryArg = {
     sortOrder?: 'asc' | 'desc' | '';
 };
 
+const apiUrl = "/api/courses";
+
 export const publicCourseApi = createApi({
     reducerPath: 'courseAPI',
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3000' }),
+    baseQuery: fetchBaseQuery({ baseUrl: process.env.DOMAIN }),
     tagTypes: ['Courses'],
     endpoints: (builder) => ({
         getCourses: builder.query<any, GetCoursesQueryArg>({
@@ -16,17 +18,35 @@ export const publicCourseApi = createApi({
                 if (title) params.append('title', title);
                 if (sortOrder) params.append('sortOrder', sortOrder);
                 return {
-                    url: `/api/courses/getCourses?${params.toString()}`,
+                    url: `${apiUrl}/allcourses?${params.toString()}`,
                     method: 'GET',
                 };
             },
             providesTags: ['Courses'],
         }),
+        
         getCourse: builder.query({
-            query: (courseId) => `/api/courses/getCourse/${courseId}`,
+            query: (courseId) => `${apiUrl}/getcourse/${courseId}`,
             providesTags: ["Courses"],
+        }),
+        createContact: builder.mutation({
+            query: (payload) => ({
+                url: `${apiUrl}/contact`,
+                method: "POST",
+                body: payload,
+            }),
+            invalidatesTags: ["Courses"],
         }),
     }),
 });
 
-export const { useGetCoursesQuery, useGetCourseQuery, } = publicCourseApi;
+
+//    getCourses: builder.query({
+//             query: (title) => {
+//                 const url = title ? `${apiUrl}/getCourses?title=${encodeURIComponent(title)}` : '/api/courses/getCourses';
+//                 return url;
+//             },
+//             providesTags: ['Courses'],
+//         }),
+
+export const { useGetCoursesQuery, useGetCourseQuery, useCreateContactMutation, } = publicCourseApi;

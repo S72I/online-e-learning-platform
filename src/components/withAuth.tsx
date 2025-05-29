@@ -10,7 +10,7 @@ export const withAuth = (Component: React.ComponentType) => {
         useEffect(() => {
             const token = localStorage.getItem('authToken');
             if (!token) {
-                router.replace('/login');
+                router.replace('/home');
             }
         }, [router]);
 

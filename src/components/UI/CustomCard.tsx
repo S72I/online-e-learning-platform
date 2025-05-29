@@ -73,6 +73,10 @@ const CustomCard = () => {
     const [sortOrder, setSortOrder] = useState<'' | 'asc' | 'desc'>('');
     const { data, isLoading, isError } = useGetCoursesQuery({ title, sortOrder });
 
+
+    console.log("data", data);
+
+
     const router = useRouter();
 
     if (isLoading) return <>Loading....</>
@@ -135,7 +139,7 @@ const CustomCard = () => {
                 <Typography sx={{ mt: 5, textAlign: 'center' }}>No courses available</Typography>
             ) : (
                 <Grid container spacing={2} sx={{ mt: 5, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
-                    {data.courses.map((course: any) => (
+                    {data.courses.slice(0, 4).map((course: any) => (
                         <Grid
                             key={course._id}
                             size={{ xs: 16, md: 6, sm: 6, lg: 6 }}
