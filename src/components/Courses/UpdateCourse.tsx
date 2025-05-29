@@ -23,11 +23,15 @@ import { withAuth } from '../withAuth';
 
 const MAX_IMAGES = 3;
 
-const defaultVideo: Video = { title: '', description: '', uri: '', uriTiming: '' };
-const defaultChapter: Chapter = { title: '', videoUri: [defaultVideo] };
+const defaultVideo: Video = { videoTitle: '', lessonNo: '', videoUri: '', videoTiming: '' };
+const defaultChapter: Chapter = { title: '', videos: [defaultVideo] };
 
 const UpdateCourse = ({ courseID }: { courseID: string }) => {
   const { data, isLoading } = useGetCourseQuery(courseID);
+
+  console.log("data", data);
+
+
   const [updateCourse] = useUpdateCourseMutation();
   const router = useRouter();
 
@@ -56,8 +60,8 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
   const watchChapters = useWatch({ control, name: 'chapters' });
 
   useEffect(() => {
-    if (data?.findId) {
-      reset(data.findId);
+    if (data?.result) {
+      reset(data.result);
     }
   }, [data, reset]);
 
@@ -127,13 +131,13 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
   // Video handlers
   const addVideo = (chapterIdx: number) => {
     const updated = [...watchChapters];
-    updated[chapterIdx].videoUri.push({ ...defaultVideo });
+    updated[chapterIdx].videos.push({ ...defaultVideo });
     setValue('chapters', updated);
   };
 
   const removeVideo = (chapterIdx: number, videoIdx: number) => {
     const updated = [...watchChapters];
-    updated[chapterIdx].videoUri.splice(videoIdx, 1);
+    updated[chapterIdx].videos.splice(videoIdx, 1);
     setValue('chapters', updated);
   };
 
@@ -161,7 +165,7 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
 
       const uploadedUrl = await res.json();
       const updated = [...watchChapters];
-      updated[chapterIdx].videoUri[videoIdx].uri = uploadedUrl.secure_url;
+      updated[chapterIdx].videos[videoIdx].videoUri = uploadedUrl.secure_url;
       setValue('chapters', updated);
     } catch (err) {
       console.error('Video upload failed', err);
@@ -278,16 +282,16 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
             <DeleteIcon />
           </IconButton>
 
-          {chapter.videoUri.map((video, videoIdx) => (
+          {chapter.videos.map((video, videoIdx) => (
             <Box key={videoIdx} sx={{ mb: 2 }}>
               <TextField
                 label="Video Title"
                 fullWidth
                 sx={{ mb: 1 }}
-                value={video.title}
+                value={video.videoTitle}
                 onChange={(e) => {
                   const updated = [...watchChapters];
-                  updated[chapterIdx].videoUri[videoIdx].title = e.target.value;
+                  updated[chapterIdx].videos[videoIdx].videoTitle = e.target.value;
                   setValue('chapters', updated);
                 }}
               />
@@ -295,10 +299,10 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
                 label="Video Description"
                 fullWidth
                 sx={{ mb: 1 }}
-                value={video.description}
+                value={video.lessonNo}
                 onChange={(e) => {
                   const updated = [...watchChapters];
-                  updated[chapterIdx].videoUri[videoIdx].description = e.target.value;
+                  updated[chapterIdx].videos[videoIdx].lessonNo = e.target.value;
                   setValue('chapters', updated);
                 }}
               />
@@ -315,10 +319,10 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
                 {videoLoadingIndex?.chapterIdx === chapterIdx &&
                   videoLoadingIndex?.videoIdx === videoIdx ? (
                   <CircularProgress size={24} sx={{ ml: 2 }} />
-                ) : video.uri ? (
+                ) : video.videoUri ? (
                   <Box marginTop={6}>
                     <video width="80%" height="auto" controls>
-                      <source src={video.uri} type="video/mp4" />
+                      <source src={video.videoUri} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   </Box>
@@ -327,17 +331,17 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
               <TextField
                 label="Video Timing"
                 fullWidth
-                value={video.uriTiming}
+                value={video.videoTiming}
                 onChange={(e) => {
                   const updated = [...watchChapters];
-                  updated[chapterIdx].videoUri[videoIdx].uriTiming = e.target.value;
+                  updated[chapterIdx].videos[videoIdx].videoTiming = e.target.value;
                   setValue('chapters', updated);
                 }}
               />
               <IconButton
                 color="error"
                 onClick={() => removeVideo(chapterIdx, videoIdx)}
-                disabled={chapter.videoUri.length === 1}
+                disabled={chapter.videos.length === 1}
               >
                 <DeleteIcon />
               </IconButton>
@@ -355,8 +359,13 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
         </Box>
       ))}
 
+      <Button onClick={addChapter} startIcon={<AddIcon />} sx={{ mt: 2 }}>
+        Add Chapter
+      </Button>
+
       <Button variant="contained"
         disabled={isLoading}
+        sx={{ mt: 5 }}
         color="warning" fullWidth onClick={handleSubmit(onSubmit)}>
         {isLoading ? "Loading..." : "Update Course"}
       </Button>

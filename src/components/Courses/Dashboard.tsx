@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import Login from "@/app/login/page"
+import Login from "@/app/(pages)/login/page"
 import HomePage from './Home'
 import CoursesPage from '../UI/CoursesPage'
 import CourseDetailPage from '../UI/CourseDetailPage'
@@ -28,7 +28,8 @@ const Dashboard = () => {
 
     return (
         <main>
-            {storedValue ? <Home /> : <Login />}
+            {/* {storedValue ? <Home /> : <Login />} */}
+            <Home /> 
         </main>
     );
 };

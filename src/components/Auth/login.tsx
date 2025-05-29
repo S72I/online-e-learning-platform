@@ -48,11 +48,15 @@ function Login() {
             if (rememberMe) {
                 localStorage.setItem("authToken", response.token);
                 localStorage.setItem("rememberMe", new Boolean(rememberMe).toString());
-                router.replace("/");
+                sessionStorage.removeItem("authToken");
+                sessionStorage.removeItem("rememberMe");
+                router.replace("/home");
                 router.refresh();
             } else {
+                sessionStorage.setItem("authToken", response.token);
                 sessionStorage.setItem("rememberMe", new Boolean(rememberMe).toString());
-                router.replace("/");
+                router.replace("/home");
+                router.refresh();
             }
         } catch (err: any) {
             console.error("Login Failed:", err.data.message);
@@ -124,6 +128,7 @@ function Login() {
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
+                            bgcolor: '#FCFCFD',
                             mt: 2,
                         }}
                     >
@@ -328,3 +333,4 @@ function Login() {
 }
 
 export default Login;
+

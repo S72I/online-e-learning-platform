@@ -6,6 +6,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import EastIcon from '@mui/icons-material/East';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+// import ClearIcon from '@mui/icons-material/Clear';
 
 const availableFreePlan = [
     "Access to selected free courses.",
@@ -66,130 +67,363 @@ const Pricing = () => {
 
     return (
         <>
-            <Grid container spacing={2} sx={{ px: { md: 4, xs: 2, lg: 6, xl: 6 }, mt: 10 }}>
-                <Container sx={{ width: "100%", bgcolor: "white", pb: 4, overflow: "hidden", justifyContent: 'space-between', display: 'flex' }}>
-                    <Box sx={{ bgcolor: '#FCFCFD', overflow: 'hidden', ml: 4, mt: 7, mr: 1, width: "100%", height: "auto" }}>
-                        <Box sx={{ mt: 7 }}>
-                            <Typography width={"80%"} sx={{
-                                textAlign: "center", alignSelf: 'center',
-                                color: "#262626", bgcolor: "#FFEACC", margin: "auto", py: 1, fontSize: 14
+  
+            <Grid container spacing={2} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+                <Container
+                    maxWidth={false}
+                    sx={{
+                        width: "100%",
+                        bgcolor: "white",
+                        pb: 4,
+                        display: 'flex',
+                        flexDirection: { xs: 'column', md: 'row' },
+                        gap: 3,
+                        px: { xs: 2, sm: 3 }
+                    }}
+                >
+                    {/* Free Plan Card */}
+                    <Box sx={{
+                        bgcolor: '#FCFCFD',
+                        width: { xs: '100%', md: '50%' },
+                        mt: { xs: 4, md: 7 },
+                        p: 2,
+                        borderRadius: 1,
+                        boxShadow: 1
+                    }}>
+                        <Box sx={{ mt: { xs: 2, md: 4 } }}>
+                            <Typography sx={{
+                                textAlign: "center",
+                                color: "#262626",
+                                bgcolor: "#FFEACC",
+                                margin: "auto",
+                                py: 1,
+                                fontSize: 14,
+                                width: "80%",
+                                borderRadius: 1
                             }}>Free Plan</Typography>
                         </Box>
-                        <Box sx={{ height: 100, width: 100, margin: 'auto', textAlign: "center", display: 'flex', alignItems: "center" }}>
-                            <Typography sx={{ fontSize: 60, fontWeight: 'bold', fontFamily: '-moz-initial' }}>$0</Typography>
+
+                        <Box sx={{
+                            height: 100,
+                            margin: 'auto',
+                            textAlign: "center",
+                            display: 'flex',
+                            alignItems: "center",
+                            justifyContent: 'center'
+                        }}>
+                            <Typography sx={{ fontSize: 60, fontWeight: 'bold' }}>$0</Typography>
                             <Typography sx={{ mt: 4, color: "#4C4C4D", fontWeight: "700" }}>/month</Typography>
                         </Box>
-                        <Box sx={{ height: "auto", justifySelf: "center", mb: 5, mx: 2, width: "90%", bgcolor: "white", pb: 3, fontSize: 13 }}>
-                            <Typography sx={{ margin: 'auto', textAlign: 'center', color: "#262626", pt: 2, fontSize: 14, pb: 2 }}>Available Features</Typography>
-                            {
-                                availableFreePlan.map((plan, index) => (
-                                    <Box key={index} sx={{ mt: 1, mx: 4, py: 1, border: "0.2px solid", borderColor: "#dedede" }}>
-                                        <CheckIcon sx={{ ml: 1, mr: 1, p: 0.2, bgcolor: "#FFF4E5", width: 18, height: 18, fontSize: 14 }} />{plan}
-                                    </Box>
-                                ))
-                            }
-                            {
-                                notAvailableFreePlan.map((plan, index) => (
-                                    <Box key={index} sx={{ mt: 1, mx: 4, py: 1, border: "0.5px solid", borderColor: "#dedede" }}>
-                                        <ClearIcon sx={{ ml: 1, mr: 1, p: 0.2, bgcolor: "#F1F1F3", width: 18, height: 18, fontSize: 14 }} />{plan}
-                                    </Box>
-                                ))
-                            }
+
+                        <Box sx={{
+                            mb: { xs: 3, md: 5 },
+                            mx: { xs: 1, md: 2 },
+                            bgcolor: "white",
+                            pb: 3,
+                            fontSize: 13
+                        }}>
+                            <Typography sx={{
+                                textAlign: 'center',
+                                color: "#262626",
+                                pt: 2,
+                                fontSize: 14,
+                                pb: 2
+                            }}>
+                                Available Features
+                            </Typography>
+
+                            {availableFreePlan.map((plan, index) => (
+                                <Box key={index} sx={{
+                                    mt: 1,
+                                    mx: { xs: 1, md: 2 },
+                                    py: 1,
+                                    borderBottom: "1px solid",
+                                    borderColor: "#dedede",
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}>
+                                    <CheckIcon sx={{
+                                        ml: 1,
+                                        mr: 1,
+                                        p: 0.2,
+                                        bgcolor: "#FFF4E5",
+                                        width: 18,
+                                        height: 18,
+                                        fontSize: 14
+                                    }} />
+                                    <Typography component="span">{plan}</Typography>
+                                </Box>
+                            ))}
+
+                            {notAvailableFreePlan.map((plan, index) => (
+                                <Box key={index} sx={{
+                                    mt: 1,
+                                    mx: { xs: 1, md: 2 },
+                                    py: 1,
+                                    borderBottom: "1px solid",
+                                    borderColor: "#dedede",
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}>
+                                    <ClearIcon sx={{
+                                        ml: 1,
+                                        mr: 1,
+                                        p: 0.2,
+                                        bgcolor: "#F1F1F3",
+                                        width: 18,
+                                        height: 18,
+                                        fontSize: 14
+                                    }} />
+                                    <Typography component="span">{plan}</Typography>
+                                </Box>
+                            ))}
                         </Box>
-                        <Button fullWidth sx={{ bgcolor: "#FF9500", color: "#FFFFFF" }}>Get Started</Button>
+
+                        <Button
+                            fullWidth
+                            sx={{
+                                bgcolor: "#FF9500",
+                                color: "#FFFFFF",
+                                '&:hover': { bgcolor: "#E68600" }
+                            }}
+                        >
+                            Get Started
+                        </Button>
                     </Box>
 
-                    <Box sx={{ bgcolor: '#FCFCFD', overflow: 'hidden', ml: 4, mt: 7, mr: 1, width: "100%", height: "auto" }}>
-                        <Box sx={{ mt: 7 }}>
-                            <Typography width={"80%"} sx={{
-                                textAlign: "center", alignSelf: 'center',
-                                color: "#262626", bgcolor: "#FFEACC", margin: "auto", py: 1, fontSize: 14
+                    {/* Pro Plan Card */}
+                    <Box sx={{
+                        bgcolor: '#FCFCFD',
+                        width: { xs: '100%', md: '50%' },
+                        mt: { xs: 2, md: 7 },
+                        p: 2,
+                        borderRadius: 1,
+                        boxShadow: 1
+                    }}>
+                        <Box sx={{ mt: { xs: 2, md: 4 } }}>
+                            <Typography sx={{
+                                textAlign: "center",
+                                color: "#262626",
+                                bgcolor: "#FFEACC",
+                                margin: "auto",
+                                py: 1,
+                                fontSize: 14,
+                                width: "80%",
+                                borderRadius: 1
                             }}>Pro Plan</Typography>
                         </Box>
-                        <Box sx={{ height: 100, width: 100, margin: 'auto', textAlign: "center", display: 'flex', alignItems: "center" }}>
-                            <Typography sx={{ fontSize: 60, fontWeight: 'bold', fontFamily: '-moz-initial' }}>$79</Typography>
+
+                        <Box sx={{
+                            height: 100,
+                            margin: 'auto',
+                            textAlign: "center",
+                            display: 'flex',
+                            alignItems: "center",
+                            justifyContent: 'center'
+                        }}>
+                            <Typography sx={{ fontSize: 60, fontWeight: 'bold' }}>$79</Typography>
                             <Typography sx={{ mt: 4, color: "#4C4C4D", fontWeight: "700" }}>/month</Typography>
                         </Box>
-                        <Box sx={{ height: "auto", justifySelf: "center", mb: 5, mx: 2, width: "90%", bgcolor: "white", pb: 3, fontSize: 13 }}>
-                            <Typography sx={{ margin: 'auto', textAlign: 'center', color: "#262626", pt: 2, fontSize: 14, pb: 2 }}>Available Features</Typography>
-                            {
-                                proPlane.map((plan, index) => (
-                                    <Box key={index} sx={{ mt: 1, mx: 4, py: 1, border: "0.2px solid", borderColor: "#dedede" }}>
-                                        <CheckIcon sx={{ ml: 1, mr: 1, p: 0.2, bgcolor: "#FFF4E5", width: 18, height: 18, fontSize: 14 }} />{plan}
-                                    </Box>
-                                ))
-                            }
+
+                        <Box sx={{
+                            mb: { xs: 3, md: 5 },
+                            mx: { xs: 1, md: 2 },
+                            bgcolor: "white",
+                            pb: 3,
+                            fontSize: 13
+                        }}>
+                            <Typography sx={{
+                                textAlign: 'center',
+                                color: "#262626",
+                                pt: 2,
+                                fontSize: 14,
+                                pb: 2
+                            }}>
+                                Available Features
+                            </Typography>
+
+                            {proPlane.map((plan, index) => (
+                                <Box key={index} sx={{
+                                    mt: 1,
+                                    mx: { xs: 1, md: 2 },
+                                    py: 1,
+                                    borderBottom: "1px solid",
+                                    borderColor: "#dedede",
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}>
+                                    <CheckIcon sx={{
+                                        ml: 1,
+                                        mr: 1,
+                                        p: 0.2,
+                                        bgcolor: "#FFF4E5",
+                                        width: 18,
+                                        height: 18,
+                                        fontSize: 14
+                                    }} />
+                                    <Typography component="span">{plan}</Typography>
+                                </Box>
+                            ))}
                         </Box>
-                        <Button fullWidth sx={{ bgcolor: "#FF9500", color: "#FFFFFF" }}>Get Started</Button>
+
+                        <Button
+                            fullWidth
+                            sx={{
+                                bgcolor: "#FF9500",
+                                color: "#FFFFFF",
+                                '&:hover': { bgcolor: "#E68600" }
+                            }}
+                        >
+                            Get Started
+                        </Button>
                     </Box>
                 </Container>
             </Grid>
 
-            <Grid container spacing={2} sx={{ mt: 12, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
-                <Container sx={{
-                    pt: 10,
-                    width: "100%",
-                    height: 500,
-                    bgcolor: "white",
-                    pb: 4,
-                    overflow: "hidden",
-                    justifyContent: 'space-between',
-                    display: 'flex'
-                }}>
-                    <Box sx={{ height: 200, width: "30%" }}>
-                        <Typography sx={{ px: 4, fontSize: 30, fontFamily: 'revert', fontWeight: '700', wordBreak: 'break-word' }}>
+            {/* FAQ Section */}
+            <Grid container sx={{
+                mt: { xs: 6, md: 12 },
+                px: { xs: 2, sm: 3, md: 4, lg: 6 }
+            }}>
+                <Container
+                    maxWidth={false}
+                    sx={{
+                        pt: { xs: 4, md: 10 },
+                        width: "100%",
+                        height: { xs: 'auto', md: 500 },
+                        bgcolor: "white",
+                        pb: 4,
+                        display: 'flex',
+                        flexDirection: { xs: 'column', md: 'row' },
+                        gap: 4,
+                        px: { xs: 2, sm: 3 }
+                    }}
+                >
+                    <Box sx={{
+                        width: { xs: '100%', md: '30%' },
+                        textAlign: { xs: 'center', md: 'left' }
+                    }}>
+                        <Typography sx={{
+                            fontSize: { xs: 24, md: 30 },
+                            fontWeight: '700',
+                            lineHeight: 1.2
+                        }}>
                             Frequently <br /> Asked Questions
                         </Typography>
+
                         <Typography sx={{
-                            px: 4,
                             mt: 2,
                             fontSize: 15,
                             color: '#59595A',
                         }}>
                             Still you have any questions? Contact our Team via support@skillbridge.com
                         </Typography>
+
                         <Button sx={{
-                            mx: 4,
-                            color: '#262626', px: 4, mt: 2,
+                            mt: 2,
+                            color: '#262626',
+                            px: 4,
                             borderRadius: 2,
                             border: '1px solid',
-                            borderColor: '#F2F0EF'
-                        }}>See All FAQ’s</Button>
+                            borderColor: '#F2F0EF',
+                            display: { xs: 'none', md: 'inline-flex' }
+                        }}>
+                            See All FAQ's
+                        </Button>
                     </Box>
-                    <Box sx={{ overflow: 'scroll', height: "auto", width: "65%" }}>
+
+                    <Box sx={{
+                        width: { xs: '100%', md: '65%' },
+                        height: { xs: 'auto', md: 400 },
+                        overflowY: 'auto',
+                        pr: { md: 2 }
+                    }}>
                         {QnA.map((data, index) => (
                             <Accordion
                                 key={index}
                                 expanded={expanded === `panel${index}`}
                                 onChange={handleChange(`panel${index}`)}
-                                sx={{ m: 2, boxShadow: 'none', border: '0.5px solid', borderColor: '#F2F0EF' }}
+                                sx={{
+                                    mb: 2,
+                                    boxShadow: 'none',
+                                    border: '1px solid',
+                                    borderColor: '#F2F0EF',
+                                    borderRadius: '4px !important'
+                                }}
                             >
                                 <AccordionSummary
-                                    sx={{ px: 4 }}
+                                    sx={{ px: { xs: 2, md: 4 } }}
                                     expandIcon={expanded === `panel${index}` ? (
-                                        <RemoveIcon sx={{ borderRadius: 2, bgcolor: '#FFF4E5', p: 0.8, fontSize: 30, color: 'black' }} />
+                                        <ClearIcon sx={{
+                                            borderRadius: 2,
+                                            bgcolor: '#FFF4E5',
+                                            p: 0.5,
+                                            fontSize: { xs: 20, md: 30 },
+                                            color: 'black'
+                                        }} />
                                     ) : (
-                                        <AddIcon sx={{ borderRadius: 2, bgcolor: '#FFF4E5', p: 0.8, fontSize: 30, color: 'black' }} />
+                                        <AddIcon sx={{
+                                            borderRadius: 2,
+                                            bgcolor: '#FFF4E5',
+                                            p: 0.5,
+                                            fontSize: { xs: 20, md: 30 },
+                                            color: 'black'
+                                        }} />
                                     )}
                                     aria-controls={`panel${index}-content`}
                                     id={`panel${index}-header`}
                                 >
-                                    <Typography component="span">{data.title}</Typography>
+                                    <Typography sx={{ fontSize: { xs: 14, md: 16 } }}>{data.title}</Typography>
                                 </AccordionSummary>
-                                <AccordionDetails sx={{ py: 2, borderTop: '1px solid', borderTopColor: '#F2F0EF' }}>
-                                    {data.description}
+
+                                <AccordionDetails sx={{
+                                    py: 2,
+                                    borderTop: '1px solid',
+                                    borderTopColor: '#F2F0EF',
+                                    px: { xs: 2, md: 4 }
+                                }}>
+                                    <Typography>{data.description}</Typography>
                                 </AccordionDetails>
+
                                 <Box sx={{
-                                    my: 4, px: 4, alignItems: 'center', display: 'flex', justifyContent: 'space-between', justifySelf: 'center',
-                                    width: "80%", height: 50, bgcolor: '#F1F1F3'
+                                    my: 2,
+                                    px: { xs: 2, md: 4 },
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    height: 50,
+                                    bgcolor: '#F1F1F3',
+                                    mx: 'auto',
+                                    width: '90%'
                                 }}>
                                     <Typography sx={{ color: '#333333', fontSize: 14 }}>{data.text}</Typography>
-                                    <IconButton>
-                                        <EastIcon sx={{ bgcolor: '#FFFFFF', width: 35, height: 35, p: 1, borderRadius: 5 }} />
+                                    <IconButton size="small">
+                                        <EastIcon sx={{
+                                            bgcolor: '#FFFFFF',
+                                            width: { xs: 25, md: 35 },
+                                            height: { xs: 25, md: 35 },
+                                            p: 0.5,
+                                            borderRadius: 5
+                                        }} />
                                     </IconButton>
                                 </Box>
                             </Accordion>
                         ))}
+
+                        <Button
+                            fullWidth
+                            sx={{
+                                mt: 2,
+                                color: '#262626',
+                                px: 4,
+                                borderRadius: 2,
+                                border: '1px solid',
+                                borderColor: '#F2F0EF',
+                                display: { xs: 'flex', md: 'none' }
+                            }}
+                        >
+                            See All FAQ's
+                        </Button>
                     </Box>
                 </Container>
             </Grid>

@@ -2,7 +2,7 @@
 import { useGetCoursesQuery } from '@/services/public/publicCourseApi';
 import React, { useState } from 'react';
 import { withAuth } from '../withAuth';
-import { Box, Button, Grid, Stack, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
 import { Be_Vietnam_Pro } from 'next/font/google'
 import { useRouter } from 'next/navigation';
 
@@ -31,15 +31,15 @@ const GetUserCourse = () => {
       <h1 className="text-2xl font-semibold">All Courses</h1>
 
       <div className="my-4 flex gap-4">
-        <input
-          type="text"
-          placeholder="Search by title"
+        <TextField
+          label="Search by Title"
+          variant="outlined"
+          size="small"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="border p-2 rounded"
+          sx={{ width: 300 }}
         />
-
-        <select
+        {/* <select
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value as '' | 'asc' | 'desc')}
           className="border p-2 rounded"
@@ -47,11 +47,24 @@ const GetUserCourse = () => {
           <option value="">No Sort</option>
           <option value="asc">Sort A-Z</option>
           <option value="desc">Sort Z-A</option>
-        </select>
+        </select> */}
+        <FormControl sx={{ width: '180px' }} size="small">
+          <InputLabel id="sort-order-label">Sort</InputLabel>
+          <Select
+            labelId="sort-order-label"
+            value={sortOrder}
+            label="Sort"
+            onChange={(e) => setSortOrder(e.target.value as '' | 'asc' | 'desc')}
+          >
+            <MenuItem value="No Sort">No Sort</MenuItem>
+            <MenuItem value="asc">Sort A-Z</MenuItem>
+            <MenuItem value="desc">Sort Z-A</MenuItem>
+          </Select>
+        </FormControl>
       </div>
 
       {isLoading ? (
-        <Typography sx={{ mt: 5, textAlign: 'center' }}>Loading courses...</Typography>
+        <Typography sx={{ mt: 5, textAlign: 'center' }}><CircularProgress /></Typography>
       ) : isError ? (
         <Typography sx={{ mt: 5, textAlign: 'center' }}>Failed to load courses</Typography>
       ) : !data?.courses || data.courses.length === 0 ? (
@@ -159,4 +172,4 @@ const GetUserCourse = () => {
   );
 };
 
-export default withAuth(GetUserCourse);
+export default GetUserCourse;

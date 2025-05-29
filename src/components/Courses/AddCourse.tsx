@@ -23,15 +23,15 @@ import { withAuth } from '../withAuth';
 const MAX_IMAGES = 3;
 
 const defaultVideo: Video = {
-    title: '',
-    description: '',
-    uri: '',
-    uriTiming: '',
+    videoTitle: '',
+    lessonNo: '',
+    videoUri: '',
+    videoTiming: '',
 };
 
 const defaultChapter: Chapter = {
     title: '',
-    videoUri: [defaultVideo],
+    videos: [defaultVideo],
 };
 
 function AddCoursePage() {
@@ -44,7 +44,6 @@ function AddCoursePage() {
         formState: { errors },
     } = useForm<Course>({
         defaultValues: {
-            courseEducator: '',
             title: '',
             level: '',
             description: '',
@@ -61,7 +60,6 @@ function AddCoursePage() {
     const [createCourse] = useCreateCourseMutation();
 
     const [courseData, setCourseData] = useState<Course>({
-        courseEducator: '',
         title: '',
         level: '',
         description: '',
@@ -93,7 +91,7 @@ function AddCoursePage() {
         key: keyof Video,
         event: any
     ) => {
-        if (key === "uri") {
+        if (key === "videoUri") {
             const file = event.target.files?.[0];
             if (!file) return;
 
@@ -113,7 +111,7 @@ function AddCoursePage() {
 
                 if (data.secure_url) {
                     const updatedChapters = [...courseData.chapters];
-                    updatedChapters[chapterIdx].videoUri[videoIdx][key] = data.secure_url;
+                    updatedChapters[chapterIdx].videos[videoIdx][key] = data.secure_url;
 
                     handleChange('chapters', updatedChapters);
                 } else {
@@ -127,7 +125,7 @@ function AddCoursePage() {
         }
         else {
             const updatedChapters = [...courseData.chapters];
-            updatedChapters[chapterIdx].videoUri[videoIdx][key] = event;
+            updatedChapters[chapterIdx].videos[videoIdx][key] = event;
             handleChange('chapters', updatedChapters);
         }
     };
@@ -135,15 +133,15 @@ function AddCoursePage() {
 
     const handleRemoveVideo = (chapterIdx: number, videoIdx: number) => {
         const updatedChapters = [...courseData.chapters];
-        updatedChapters[chapterIdx].videoUri.splice(videoIdx, 1);
+        updatedChapters[chapterIdx].videos.splice(videoIdx, 1);
         handleChange('chapters', updatedChapters);
     };
 
     const addChapter = () => {
         const newChapter: Chapter = {
             title: '',
-            videoUri: [
-                { title: '', description: '', uri: '', uriTiming: '' }
+            videos: [
+                { videoTitle: '', lessonNo: '', videoUri: '', videoTiming: '' }
             ],
         };
         handleChange('chapters', [...courseData.chapters, newChapter]);
@@ -151,10 +149,10 @@ function AddCoursePage() {
 
 
     const addVideo = (chapterIdx: number) => {
-        const newVideo = { title: '', description: '', uri: '', uriTiming: '' };
+        const newVideo = { videoTitle: '', lessonNo: '', videoUri: '', videoTiming: '' };
         const updatedChapters = [...courseData.chapters];
         const updatedChapter = { ...updatedChapters[chapterIdx] };
-        updatedChapter.videoUri = [...updatedChapter.videoUri, newVideo];
+        updatedChapter.videos = [...updatedChapter.videos, newVideo];
         updatedChapters[chapterIdx] = updatedChapter;
         handleChange('chapters', updatedChapters);
     };
@@ -223,7 +221,6 @@ function AddCoursePage() {
             reset();
             router.push("/")
             setCourseData({
-                courseEducator: "",
                 title: "",
                 level: "",
                 description: "",
@@ -243,7 +240,7 @@ function AddCoursePage() {
                 Add Course
             </Typography>
 
-            <TextField
+            {/* <TextField
                 label="Course Educator"
                 fullWidth
                 sx={{ mb: 2 }}
@@ -254,7 +251,7 @@ function AddCoursePage() {
                     onChange: (e) => handleChange('courseEducator', e.target.value),
                 })}
                 value={courseData.courseEducator}
-            />
+            /> */}
             <TextField
                 label="Course Title"
                 fullWidth
@@ -329,7 +326,6 @@ function AddCoursePage() {
                         disabled={imageLoadingIndex === idx}
                     />
 
-
                     {imageLoadingIndex === idx ? (
                         <CircularProgress size={24} sx={{ ml: 2 }} />
                     ) : (img &&
@@ -383,28 +379,35 @@ function AddCoursePage() {
                         <DeleteIcon />
                     </IconButton>
 
-                    {chapter.videoUri.map((video, videoIdx) => (
+                    {chapter.videos.map((video, videoIdx) => (
                         <Box key={videoIdx} sx={{ mb: 2 }}>
                             <TextField
                                 label="Video Title"
                                 fullWidth
                                 sx={{ mb: 1 }}
-                                value={video.title}
-                                onChange={(e) =>
-                                    handleVideoChange(chapterIdx, videoIdx, 'title', e.target.value)
-                                }
+                                value={video.videoTitle}
+                                // onChange={(e) =>
+                                //     handleVideoChange(chapterIdx, videoIdx, 'videoTitle', e.target.value)
+                                // }
+                                error={!!errors.chapters}
+                                helperText={errors.chapters && 'videoTitle is required'}
+                                {...register('chapters', {
+                                    required: 'videoTitle is required',
+                                    onChange: (e) => handleVideoChange(chapterIdx, videoIdx, 'videoTitle', e.target.value),
+                                })}
                             />
 
                             <TextField
-                                label="Video Description"
+                                label="lessonNo"
+                                type='number'
                                 fullWidth
                                 sx={{ mb: 1 }}
-                                value={video.description}
+                                value={video.lessonNo}
                                 onChange={(e) =>
                                     handleVideoChange(
                                         chapterIdx,
                                         videoIdx,
-                                        'description',
+                                        'lessonNo',
                                         e.target.value
                                     )
                                 }
@@ -414,15 +417,15 @@ function AddCoursePage() {
                                 label="Video Timing (e.g. 3:25)"
                                 fullWidth
                                 sx={{ mb: 1 }}
-                                value={video.uriTiming}
+                                value={video.videoTiming}
                                 onChange={(e) =>
-                                    handleVideoChange(chapterIdx, videoIdx, 'uriTiming', e.target.value)
+                                    handleVideoChange(chapterIdx, videoIdx, 'videoTiming', e.target.value)
                                 }
                             />
 
                             <input
                                 type="file"
-                                onChange={(event) => handleVideoChange(chapterIdx, videoIdx, 'uri', event)}
+                                onChange={(event) => handleVideoChange(chapterIdx, videoIdx, 'videoUri', event)}
                                 accept="video/*"
                                 disabled={
                                     videoLoadingIndex?.chapterIdx === chapterIdx &&
@@ -432,20 +435,20 @@ function AddCoursePage() {
                             {videoLoadingIndex?.chapterIdx === chapterIdx &&
                                 videoLoadingIndex?.videoIdx === videoIdx ? (
                                 <CircularProgress size={24} sx={{ ml: 2 }} />
-                            ) : video.uri ? (
+                            ) : video.videoUri ? (
                                 <video width="80%" height="auto" controls>
-                                    <source src={video.uri} type="video/mp4" />
+                                    <source src={video.videoUri} type="video/mp4" />
                                     Your browser does not support the video tag.
                                 </video>
-                            ) : (video.uri == "" ? "Select Video" : "loading...")}
+                            ) : (video.videoUri == "" ? "Select Video" : "loading...")}
 
                             <IconButton
                                 color="error"
                                 onClick={() => handleRemoveVideo(chapterIdx, videoIdx)}
                                 sx={{ mt: 2 }}
-                                disabled={chapter.videoUri.length === 1}
+                                disabled={chapter.videos.length === 1}
                                 title={
-                                    chapter.videoUri.length === 1
+                                    chapter.videos.length === 1
                                         ? 'At least one video required'
                                         : undefined
                                 }
