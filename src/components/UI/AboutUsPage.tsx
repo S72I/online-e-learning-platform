@@ -52,11 +52,7 @@ const goals = [
 
 const AboutUsPage = () => {
     return (
-        // <div><Image
-        //     src={"/images/currentPageImages/bgImageForDesktop.svg"}
-        //     alt=''
-        //     width={1000}
-        //     height={100} /></div>
+  
         <Container maxWidth={false}>
             <Box sx={{
                 display: 'flex',

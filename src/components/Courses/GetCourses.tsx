@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { withAuth } from '../withAuth'
 import GetAdminCourses from './GetAdminCourses'
 import GetUserCourses from './GetUserCourses'
 import HomePage from './Home'

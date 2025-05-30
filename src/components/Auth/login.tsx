@@ -16,10 +16,11 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { useRouter } from 'next/navigation';
-import { useLoginUserMutation } from '@/services/authAPI';
+import authApi, { useLoginUserMutation } from '@/services/authAPI';
 import { useForm } from "react-hook-form";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { useAuth } from '@/context/AuthContext';
 
 function Login() {
     const [loginUser, { isLoading, error }] = useLoginUserMutation();
@@ -32,6 +33,7 @@ function Login() {
         setRememberMe(event.target.checked);
     };
 
+    const { login } = useAuth();
     const {
         register,
         handleSubmit,
@@ -41,27 +43,30 @@ function Login() {
     const onSubmit = async (data: any) => {
         try {
             const response = await loginUser(data).unwrap();
-
-            if (response.status === 404) {
-                return setCheckError(response.error)
+            if (response.status !== 200) {
+                setCheckError(response.error);
+                return;
             }
+
+
             if (rememberMe) {
                 localStorage.setItem("authToken", response.token);
-                localStorage.setItem("rememberMe", new Boolean(rememberMe).toString());
+                localStorage.setItem("rememberMe", String(rememberMe));
                 sessionStorage.removeItem("authToken");
                 sessionStorage.removeItem("rememberMe");
-                router.replace("/home");
-                router.refresh();
+                login(response.token);
             } else {
                 sessionStorage.setItem("authToken", response.token);
-                sessionStorage.setItem("rememberMe", new Boolean(rememberMe).toString());
-                router.replace("/home");
-                router.refresh();
+                sessionStorage.setItem("rememberMe", String(rememberMe));
             }
+            router.replace("/home");
+            router.refresh();
         } catch (err: any) {
-            console.error("Login Failed:", err.data.message);
+            setCheckError(err?.data?.message || "Login failed");
+            console.error("Login Failed:", err?.data?.message);
         }
     };
+
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -255,8 +260,7 @@ function Login() {
 
                             {checkerror && (
                                 <Typography color="error" variant="body2">
-                                    {
-                                        "Email or password not matching try again"}
+                                    {checkerror}
                                 </Typography>
                             )}
 

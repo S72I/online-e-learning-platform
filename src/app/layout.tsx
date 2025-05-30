@@ -6,6 +6,7 @@ import store from "@/redux/store";
 import Navbar from "@/components/Navbar/index"
 import Footer from "@/components/Footer/index"
 import '@fontsource/be-vietnam-pro';
+import { AuthProvider } from "@/context/AuthContext";
 
 
 const geistSans = Geist({
@@ -35,9 +36,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${beVietnamPro.className} antialiased`}
       >
         <Provider store={store}>
-          <Navbar />
-          {children}
-          <Footer />
+          <AuthProvider>
+            <Navbar />
+            {children}
+            <Footer />
+          </AuthProvider>
         </Provider>
       </body>
     </html>

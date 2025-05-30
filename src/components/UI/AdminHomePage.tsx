@@ -8,7 +8,6 @@ import BenefitsCards from '../UI/BenefitsCards'
 import Image from 'next/image'
 import Sponsors from '../UI/Sponsors'
 import ElectricBoltSharpIcon from '@mui/icons-material/ElectricBoltSharp';
-import { withAuth } from '../withAuth'
 import Link from 'next/link'
 import GetAdminCourses from '../Courses/GetAdminCourses'
 

@@ -9,7 +9,7 @@ import GetAdminCourses from "@/components/Courses/GetAdminCourses";
 export default function Home() {
   return (
     <main>
-      <GetAdminCourses />
+      <Dashboard />
     </main>
   );
 }
