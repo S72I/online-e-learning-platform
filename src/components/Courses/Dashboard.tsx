@@ -28,7 +28,6 @@ const Dashboard = () => {
 
     return (
         <main>
-            {/* {storedValue ? <Home /> : <Login />} */}
             <Home /> 
         </main>
     );

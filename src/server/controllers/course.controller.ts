@@ -119,6 +119,7 @@ export async function getCoursesByAdmin(req: NextRequest) {
         const { searchParams } = new URL(req.url);
         const title = searchParams.get('title') || '';
         const sortOrder = searchParams.get('sortOrder') || '';
+        const level = searchParams.get('level') || '';
 
 
         console.log("title", title);
@@ -131,6 +132,9 @@ export async function getCoursesByAdmin(req: NextRequest) {
         if (title) {
             const regexPattern = new RegExp('^' + title, 'i');
             query.title = { $regex: regexPattern };
+        }
+        if (level) {
+            query.level = level;
         }
 
         let courseQuery = CourseModel.find(query);

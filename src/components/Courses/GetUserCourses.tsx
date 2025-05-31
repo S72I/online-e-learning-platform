@@ -1,7 +1,6 @@
 'use client';
 import { useGetCoursesQuery } from '@/services/public/publicCourseApi';
 import React, { useState } from 'react';
-import { withAuth } from '../withAuth';
 import { Box, Button, CircularProgress, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
 import { Be_Vietnam_Pro } from 'next/font/google'
 import { useRouter } from 'next/navigation';

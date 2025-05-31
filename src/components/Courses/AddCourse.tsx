@@ -18,7 +18,6 @@ import { levelOptions } from '@/lib/utils/constants';
 import CustomDropDown from '../UI/CustomDropDown';
 import { useCreateCourseMutation } from '@/services/courseAPI';
 import { useRouter } from 'next/navigation';
-import { withAuth } from '../withAuth';
 
 const MAX_IMAGES = 3;
 
@@ -54,7 +53,6 @@ function AddCoursePage() {
     });
 
 
-    const [imageLoadingIndex, setImageLoadingIndex] = useState<number | null>(null);
     const [videoLoadingIndex, setVideoLoadingIndex] = useState<{ chapterIdx: number; videoIdx: number } | null>(null);
 
     const [createCourse] = useCreateCourseMutation();
@@ -157,50 +155,58 @@ function AddCoursePage() {
         handleChange('chapters', updatedChapters);
     };
 
+    const [imageArray, setImageArray] = useState<string[]>([]);
+    const [imageLoading, setImageLoading] = useState(false);
 
-    const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
+        if (imageArray.length >= MAX_IMAGES) {
+            alert(`You can upload up to ${MAX_IMAGES} images.`);
+            return;
+        }
 
-        setImageLoadingIndex(index);
+        setImageLoading(true);
 
-        const fileData = new FormData();
-        fileData.append("file", file);
-        fileData.append("upload_preset", "images_present");
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append('upload_preset', 'images_present');
 
         try {
             const res = await fetch("https://api.cloudinary.com/v1_1/dmgkiiaqo/image/upload", {
                 method: "POST",
-                body: fileData,
-            });
+                body: formData,
+            }
+            );
 
             const data = await res.json();
 
             if (data.secure_url) {
-                const updatedImages = [...courseData.images];
-                updatedImages[index] = data.secure_url;
+                const updatedArray = [...imageArray, data.secure_url];
+                setImageArray(updatedArray);
 
+                // Update your course data with the new images array
                 setCourseData((prev) => ({
                     ...prev,
-                    images: updatedImages,
+                    images: updatedArray,
                 }));
             } else {
                 console.error("Upload failed:", data);
             }
         } catch (err) {
-            console.error("Upload failed:", err);
+            console.error("Upload error:", err);
         } finally {
-            setImageLoadingIndex(null);
+            setImageLoading(false);
         }
     };
 
-
-
     const handleRemoveImage = (index: number) => {
-        handleChange(
-            'images',
-            courseData.images.filter((_, idx) => idx !== index)
-        );
+        const updatedArray = imageArray.filter((_, i) => i !== index);
+        setImageArray(updatedArray);
+        setCourseData((prev) => ({
+            ...prev,
+            images: updatedArray,
+        }));
     };
 
     const addImage = () => {
@@ -316,31 +322,48 @@ function AddCoursePage() {
                 Images
             </Typography>
 
-            {courseData.images.map((img, idx) => (
-                <Box display="flex" alignItems="center" mb={2} key={idx}>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
+                {imageArray.map((img, idx) => (
+                    <Box key={idx} position="relative" display="inline-block">
+                        <Box
+                            component="img"
+                            src={img}
+                            alt={`Uploaded Image ${idx + 1}`}
+                            width={100}
+                            height="auto"
+                            sx={{ borderRadius: 1, border: "1px solid #ccc" }}
+                        />
+                        <IconButton
+                            color="error"
+                            onClick={() => handleRemoveImage(idx)}
+                            sx={{ position: "absolute", top: 0, right: 0 }}
+                            size="small"
+                            aria-label={`Remove image ${idx + 1}`}
+                        >
+                            <DeleteIcon fontSize="small" />
+                        </IconButton>
+                    </Box>
+                ))}
+            </Box>
 
+            {imageLoading && <CircularProgress size={24} sx={{ mb: 2 }} />}
+
+            {!imageLoading && imageArray.length < MAX_IMAGES && (
+                <Button
+                    component="label"
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    sx={{ mb: 2 }}
+                >
+                    Add Image
                     <input
                         type="file"
-                        onChange={(event) => handleImageChange(event, idx)}
+                        hidden
                         accept="image/*"
-                        disabled={imageLoadingIndex === idx}
+                        onChange={handleImageChange}
                     />
-
-                    {imageLoadingIndex === idx ? (
-                        <CircularProgress size={24} sx={{ ml: 2 }} />
-                    ) : (img &&
-                        <Box component="img" src={img} alt={`Uploaded Image ${idx}`} width={100} height="auto" sx={{ mr: 2 }} />
-                    )}
-
-                    <IconButton color="error" onClick={() => handleRemoveImage(idx)}>
-                        <DeleteIcon />
-                    </IconButton>
-                </Box>
-            ))}
-
-            <Button onClick={addImage} startIcon={<AddIcon />} sx={{ mb: 4 }}>
-                Add Image
-            </Button>
+                </Button>
+            )}
 
             <Typography variant="h5" mt={4} mb={2}>
                 Chapters
@@ -386,15 +409,9 @@ function AddCoursePage() {
                                 fullWidth
                                 sx={{ mb: 1 }}
                                 value={video.videoTitle}
-                                // onChange={(e) =>
-                                //     handleVideoChange(chapterIdx, videoIdx, 'videoTitle', e.target.value)
-                                // }
-                                error={!!errors.chapters}
-                                helperText={errors.chapters && 'videoTitle is required'}
-                                {...register('chapters', {
-                                    required: 'videoTitle is required',
-                                    onChange: (e) => handleVideoChange(chapterIdx, videoIdx, 'videoTitle', e.target.value),
-                                })}
+                                onChange={(e) =>
+                                    handleVideoChange(chapterIdx, videoIdx, 'videoTitle', e.target.value)
+                                }
                             />
 
                             <TextField
@@ -481,4 +498,4 @@ function AddCoursePage() {
     );
 }
 
-export default withAuth(AddCoursePage)
+export default AddCoursePage

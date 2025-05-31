@@ -19,8 +19,7 @@ import { useGetCourseQuery, useUpdateCourseMutation } from '@/services/courseAPI
 import CustomDropDown from '../UI/CustomDropDown';
 import { levelOptions } from '@/lib/utils/constants';
 import { Chapter, Video } from '../types/course';
-import { withAuth } from '../withAuth';
-
+ 
 const MAX_IMAGES = 3;
 
 const defaultVideo: Video = { videoTitle: '', lessonNo: '', videoUri: '', videoTiming: '' };
