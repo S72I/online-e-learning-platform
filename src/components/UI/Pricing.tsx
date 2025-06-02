@@ -5,8 +5,10 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import EastIcon from '@mui/icons-material/East';
 import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
-// import ClearIcon from '@mui/icons-material/Clear';
+
+
+let TempavailableFreePlan = [];
+let TempavailableProPlan = [];
 
 const availableFreePlan = [
     "Access to selected free courses.",
@@ -30,6 +32,36 @@ const proPlane = [
     "Access to exclusive Pro Plan community forums.",
     "Early access to new courses and updates."
 ];
+
+
+const availableFreePlanYearly = [
+    "Access to selected free courses.",
+    "Limited course materials and resources.",
+    "Basic community support.",
+    "No certification upon completion.",
+    "Ad-supported platform.",
+    "Access to exclusive Pro Plan community forums.",
+    "Early access to new courses and updates."
+];
+
+const notAvailableFreePlanYearly = [
+    "Access to exclusive Pro Plan community forums.",
+    "Early access to new courses and updates."
+];
+
+const proPlanYearly = [
+    "Unlimited access to all courses.",
+    "Unlimited course materials and resources.",
+    "Priority support from instructors.",
+    "Course completion certificates.",
+    "Ad-free experience.",
+    "Access to exclusive Pro Plan community forums.",
+    "Early access to new courses and updates.",
+    "Exclusive yearly subscriber badge.",
+    "Save 20% compared to monthly plan."
+];
+
+
 
 const QnA = [
     {
@@ -59,7 +91,24 @@ const QnA = [
     }
 ];
 
-const Pricing = () => {
+type subscriptionPlan = {
+    planType: "monthly" | "yearly"
+}
+const Pricing: React.FC<subscriptionPlan> = ({ planType }: subscriptionPlan) => {
+
+    if (planType === 'monthly') {
+        TempavailableFreePlan = availableFreePlan
+    } else {
+        TempavailableFreePlan = availableFreePlanYearly
+    }
+    if (planType === 'monthly') {
+        TempavailableProPlan = proPlane
+    } else {
+        TempavailableProPlan = proPlanYearly
+    }
+
+    console.log("subscriptionPlan", planType);
+
     const [expanded, setExpanded] = useState(null);
     const handleChange = (panel: any) => (event: any, isExpanded: any) => {
         setExpanded(isExpanded ? panel : null);
@@ -67,7 +116,7 @@ const Pricing = () => {
 
     return (
         <>
-  
+
             <Grid container spacing={2} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
                 <Container
                     maxWidth={false}
@@ -100,7 +149,7 @@ const Pricing = () => {
                                 fontSize: 14,
                                 width: "80%",
                                 borderRadius: 1
-                            }}>Free Plan</Typography>
+                            }}>{planType === 'monthly' ? 'Free Plan' : 'Basic Plan'}</Typography>
                         </Box>
 
                         <Box sx={{
@@ -111,8 +160,8 @@ const Pricing = () => {
                             alignItems: "center",
                             justifyContent: 'center'
                         }}>
-                            <Typography sx={{ fontSize: 60, fontWeight: 'bold' }}>$0</Typography>
-                            <Typography sx={{ mt: 4, color: "#4C4C4D", fontWeight: "700" }}>/month</Typography>
+                            <Typography sx={{ fontSize: 60, fontWeight: 'bold' }}>{planType === 'monthly' ? '$0' : '$250'} </Typography>
+                            <Typography sx={{ mt: 4, color: "#4C4C4D", fontWeight: "700" }}>{planType === 'monthly' ? '/month' : '/year'} </Typography>
                         </Box>
 
                         <Box sx={{
@@ -132,7 +181,7 @@ const Pricing = () => {
                                 Available Features
                             </Typography>
 
-                            {availableFreePlan.map((plan, index) => (
+                            {TempavailableFreePlan.map((plan, index) => (
                                 <Box key={index} sx={{
                                     mt: 1,
                                     mx: { xs: 1, md: 2 },
@@ -155,7 +204,7 @@ const Pricing = () => {
                                 </Box>
                             ))}
 
-                            {notAvailableFreePlan.map((plan, index) => (
+                            {planType === 'monthly' ? (notAvailableFreePlan.map((plan, index) => (
                                 <Box key={index} sx={{
                                     mt: 1,
                                     mx: { xs: 1, md: 2 },
@@ -176,7 +225,7 @@ const Pricing = () => {
                                     }} />
                                     <Typography component="span">{plan}</Typography>
                                 </Box>
-                            ))}
+                            ))) : ""}
                         </Box>
 
                         <Button
@@ -191,7 +240,6 @@ const Pricing = () => {
                         </Button>
                     </Box>
 
-                    {/* Pro Plan Card */}
                     <Box sx={{
                         bgcolor: '#FCFCFD',
                         width: { xs: '100%', md: '50%' },
@@ -221,8 +269,8 @@ const Pricing = () => {
                             alignItems: "center",
                             justifyContent: 'center'
                         }}>
-                            <Typography sx={{ fontSize: 60, fontWeight: 'bold' }}>$79</Typography>
-                            <Typography sx={{ mt: 4, color: "#4C4C4D", fontWeight: "700" }}>/month</Typography>
+                            <Typography sx={{ fontSize: 60, fontWeight: 'bold' }}>{planType === 'monthly' ? '$79' : '$790'}</Typography>
+                            <Typography sx={{ mt: 4, color: "#4C4C4D", fontWeight: "700" }}>{planType === 'monthly' ? '/month' : '/year'}</Typography>
                         </Box>
 
                         <Box sx={{
@@ -242,7 +290,7 @@ const Pricing = () => {
                                 Available Features
                             </Typography>
 
-                            {proPlane.map((plan, index) => (
+                            {TempavailableProPlan.map((plan, index) => (
                                 <Box key={index} sx={{
                                     mt: 1,
                                     mx: { xs: 1, md: 2 },

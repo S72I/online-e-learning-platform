@@ -33,7 +33,7 @@ function Login() {
         setRememberMe(event.target.checked);
     };
 
-    const { login } = useAuth();
+    const { login, sessionLogin } = useAuth();
     const {
         register,
         handleSubmit,
@@ -48,16 +48,12 @@ function Login() {
                 return;
             }
 
-
             if (rememberMe) {
-                localStorage.setItem("authToken", response.token);
-                localStorage.setItem("rememberMe", String(rememberMe));
                 sessionStorage.removeItem("authToken");
                 sessionStorage.removeItem("rememberMe");
                 login(response.token);
             } else {
-                sessionStorage.setItem("authToken", response.token);
-                sessionStorage.setItem("rememberMe", String(rememberMe));
+                sessionLogin(response.token);
             }
             router.replace("/home");
             router.refresh();

@@ -19,10 +19,10 @@ import { useGetCourseQuery, useUpdateCourseMutation } from '@/services/courseAPI
 import CustomDropDown from '../UI/CustomDropDown';
 import { levelOptions } from '@/lib/utils/constants';
 import { Chapter, Video } from '../types/course';
- 
+
 const MAX_IMAGES = 3;
 
-const defaultVideo: Video = { videoTitle: '', lessonNo: '', videoUri: '', videoTiming: '' };
+const defaultVideo: Video = { videoTitle: '', description: '', videoUri: '', videoTiming: '' };
 const defaultChapter: Chapter = { title: '', videos: [defaultVideo] };
 
 const UpdateCourse = ({ courseID }: { courseID: string }) => {
@@ -68,7 +68,7 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
     try {
       const res = await updateCourse({ id: courseID, payload: formData }).unwrap();
       console.log('Course updated successfully:', res);
-      router.push('/');
+      router.push('/addCourses');
     } catch (err) {
       console.error('Error updating course:', err);
     }
@@ -298,10 +298,10 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
                 label="Video Description"
                 fullWidth
                 sx={{ mb: 1 }}
-                value={video.lessonNo}
+                value={video.description}
                 onChange={(e) => {
                   const updated = [...watchChapters];
-                  updated[chapterIdx].videos[videoIdx].lessonNo = e.target.value;
+                  updated[chapterIdx].videos[videoIdx].description = e.target.value;
                   setValue('chapters', updated);
                 }}
               />

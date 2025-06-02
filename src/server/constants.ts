@@ -11,7 +11,7 @@ interface Chapter {
     videos: [
         {
             videoTitle: string,
-            lessonNo: string,
+            description: string,
             videoUri: string,
             videoTiming: string
         }

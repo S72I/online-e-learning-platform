@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/context/AuthContext'
+import { Box, CircularProgress } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
@@ -14,12 +15,12 @@ export default function PublicOnlyRoute({
 
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
-            router.push('/') // Redirect to home or dashboard
+            router.push('/')
         }
     }, [isAuthenticated, isLoading, router])
 
     if (isLoading || isAuthenticated) {
-        return <div>Loading...</div>
+        return <Box><CircularProgress /></Box>
     }
 
     return <>{children}</>

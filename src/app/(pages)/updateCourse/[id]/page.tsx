@@ -1,7 +1,6 @@
 'use client'
 import UpdateCourse from '@/components/Courses/UpdateCourse';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { useGetCourseQuery } from '@/services/courseAPI';
 import { useParams } from 'next/navigation';
 import React from 'react';
 
@@ -10,7 +9,7 @@ const Page = () => {
 
     return (
         <div>
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['admin']}>
                 <UpdateCourse courseID={params.id as string} />
             </ProtectedRoute>
         </div>

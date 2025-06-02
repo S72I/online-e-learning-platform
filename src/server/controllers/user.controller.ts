@@ -23,6 +23,7 @@ export async function signUp({ name, email, password, isAdmin }: User) {
 
         const userRole = user.isAdmin ? "admin" : "user";
 
+        
         const token = jwt.sign({ id: user.id, role: userRole }, process.env.ACCESS_TOKEN_SECRET as string, {
             expiresIn: "1h",
         });

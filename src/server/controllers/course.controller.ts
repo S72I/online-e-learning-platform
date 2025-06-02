@@ -7,9 +7,6 @@ import CourseModel from "../models/course.mode";
 import DBConnection from "../dbConfig/dbConfig";
 import { Resend } from "resend";
 
-// await DBConnection();
-
-//private endpoints
 export async function createCourse(req: NextRequest, courseData: Course) {
     try {
         const {
@@ -56,7 +53,7 @@ export async function createCourse(req: NextRequest, courseData: Course) {
 
 export async function deleteCourse(req: NextRequest, id: string) {
     try {
-        await DBConnection();
+
 
         const user = validateUser(req);
 
@@ -91,8 +88,6 @@ export async function deleteCourse(req: NextRequest, id: string) {
 export async function getUserCourseById(req: NextRequest, id: string) {
     try {
 
-        await DBConnection();
-
         const user = validateUser(req);
 
         const findId = await CourseModel.findById(id);
@@ -114,7 +109,6 @@ export async function getUserCourseById(req: NextRequest, id: string) {
 
 export async function getCoursesByAdmin(req: NextRequest) {
     try {
-        await DBConnection();
 
         const { searchParams } = new URL(req.url);
         const title = searchParams.get('title') || '';
@@ -159,7 +153,6 @@ export async function getCoursesByAdmin(req: NextRequest) {
 export async function updateCourse(req: NextRequest, id: string, courseData: User) {
     try {
 
-        await DBConnection();
 
         const user = validateUser(req);
 
@@ -194,39 +187,7 @@ export async function updateCourse(req: NextRequest, id: string, courseData: Use
 
 //publice endpoints 
 
-export async function getCourses(req: NextRequest) {
-    try {
-        await DBConnection();
 
-        const { searchParams } = new URL(req.url);
-        const title = searchParams.get('title') || '';
-        const sortOrder = searchParams.get('sortOrder') || '';
-
-        let query: FilterQuery<User> = { isDeleted: false };
-
-        if (title) {
-            const regexPattern: RegExp = new RegExp('^' + title, 'i');
-            query.title = { $regex: regexPattern };
-        }
-
-        let courseQuery = CourseModel.find(query);
-
-        if (sortOrder === 'asc' || sortOrder === 'desc') {
-            const sortDirection = sortOrder === 'asc' ? 1 : -1;
-            courseQuery = courseQuery.sort({ title: sortDirection });
-        }
-
-        const courses = await courseQuery.exec();
-
-        if (!courses.length) {
-            return ({ err: 'No courses found', status: 404 });
-        }
-
-        return ({ courses, status: 200 });
-    } catch (error) {
-        return ({ err: (error as Error).message, status: 500 });
-    }
-}
 
 export async function contact(req: NextRequest, emailBody: EmailBody) {
 
@@ -280,11 +241,42 @@ export const getCoursesBetweenDates = async (req: NextRequest, start: string, en
     }
 };
 
+export async function getCourses(req: NextRequest) {
+    try {
+
+        const { searchParams } = new URL(req.url);
+        const title = searchParams.get('title') || '';
+        const sortOrder = searchParams.get('sortOrder') || '';
+
+        let query: FilterQuery<User> = { isDeleted: false };
+
+        if (title) {
+            const regexPattern: RegExp = new RegExp('^' + title, 'i');
+            query.title = { $regex: regexPattern };
+        }
+
+        let courseQuery = CourseModel.find(query);
+
+        if (sortOrder === 'asc' || sortOrder === 'desc') {
+            const sortDirection = sortOrder === 'asc' ? 1 : -1;
+            courseQuery = courseQuery.sort({ title: sortDirection });
+        }
+
+        const courses = await courseQuery.exec();
+
+        if (!courses.length) {
+            return ({ err: 'No courses found', status: 404 });
+        }
+
+        return ({ courses, status: 200 });
+    } catch (error) {
+        return ({ err: (error as Error).message, status: 500 });
+    }
+}
 
 export async function getCourseById(req: NextRequest, id: string) {
     try {
 
-        await DBConnection();
 
         const findId = await CourseModel.findById(id);
 

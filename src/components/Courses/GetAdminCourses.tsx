@@ -3,7 +3,6 @@
 import React, { useState } from 'react'
 import { useDeleteCourseMutation, useGetCoursesQuery } from '@/services/courseAPI'
 import { Box, Button, Grid, Stack, Typography, TextField, CircularProgress, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Be_Vietnam_Pro } from 'next/font/google'
 
@@ -39,9 +38,7 @@ const GetAdminCourse = () => {
 
     const handleEditClick = (courseID: string) => {
         setLoading(true);
-        setTimeout(() => {
-            window.location.href = `/updateCourse/${courseID}`
-        }, 1000);
+        router.push(`/updateCourse/${courseID}`)
     }
 
 
@@ -49,9 +46,7 @@ const GetAdminCourse = () => {
 
     const handleClick = () => {
         setLoading(true);
-        setTimeout(() => {
-            window.location.href = "/addCourse";
-        }, 1000);
+        router.push("/addCourse")
     };
     return (
         <>

@@ -155,6 +155,7 @@ import CallIcon from '@mui/icons-material/Call'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined'
 import XIcon from '@mui/icons-material/X'
+import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import { useForm } from 'react-hook-form'
 import { useCreateContactMutation } from '@/services/public/publicCourseApi'
@@ -218,6 +219,7 @@ const ContactPage = () => {
                 borderRadius={3}
                 display={'flex'}
                 bgcolor={'white'}
+                margin={"auto"}
             >
                 <Box width={'60%'}>
                     <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ pt: 10, px: 4 }}>
@@ -372,7 +374,7 @@ const ContactPage = () => {
                     <Stack sx={{ m: 4, height: 200, justifyContent: 'center' }}>
                         <Stack direction="row" justifyContent="center" spacing={2}>
                             <FacebookOutlinedIcon sx={{ width: 50, height: 50, p: 1.5, borderRadius: 2, bgcolor: '#F1F1F3' }} />
-                            <XIcon sx={{ width: 50, height: 50, p: 1.5, borderRadius: 2, bgcolor: '#F1F1F3' }} />
+                            <TwitterIcon sx={{ width: 50, height: 50, p: 1.5, borderRadius: 2, bgcolor: '#F1F1F3' }} />
                             <LinkedInIcon sx={{ width: 50, height: 50, p: 1.5, borderRadius: 2, bgcolor: '#F1F1F3' }} />
                         </Stack>
                         <Typography sx={{ pt: 3, fontSize: 18, textAlign: 'center', color: '#4C4C4D' }}>
