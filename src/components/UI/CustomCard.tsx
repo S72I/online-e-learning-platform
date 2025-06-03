@@ -92,7 +92,7 @@ const CustomCard = ({ limit }: Props) => {
             ) : isError ? (
                 <Typography sx={{ mt: 5, textAlign: 'center' }}>Failed to load courses</Typography>
             ) : !data?.courses || data.courses.length === 0 ? (
-                <Typography sx={{ mt: 5, textAlign: 'center' }}>No courses available</Typography>
+                <Typography sx={{ mt: 5, textAlign: 'center' }}>No courses found</Typography>
             ) : (
                 <Grid container spacing={2} sx={{ mt: 5, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
                     {coursesToShow.map((course: any) => (

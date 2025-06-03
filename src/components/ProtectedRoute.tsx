@@ -23,7 +23,7 @@ export default function ProtectedRoute({
                 router.push('/login');
             }
             else if (allowedRoles && role && !allowedRoles.includes(role)) {
-                router.push('/home');
+                router.push('/');
             }
         }
     }, [isAuthenticated, isLoading, role, allowedRoles, router]);

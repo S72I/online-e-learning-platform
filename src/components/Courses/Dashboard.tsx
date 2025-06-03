@@ -1,36 +1,56 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import Login from "@/app/(pages)/login/page"
-import HomePage from './Home'
-import CoursesPage from '../UI/CoursesPage'
-import CourseDetailPage from '../UI/CourseDetailPage'
-import ContactPage from '../UI/ContactPage'
-import AboutUsPage from '../UI/AboutUsPage'
-import SignUp from '@/components/Auth/signup'
-
-import AddCourse from './AddCourse'
-import GetCourses from './GetCourses'
-import Link from 'next/link'
+import UserHomePage from '../UI/UserHomePage'
+import { Box, CircularProgress } from '@mui/material'
+import GetUserCourses from './GetUserCourses'
+import GetAdminCourse from './GetAdminCourses'
 import { useRouter } from 'next/navigation'
-import Demo from './Demo'
-import Home from './Home'
-
 
 const Dashboard = () => {
-    const [storedValue, setStoredValue] = useState<string | null>(null);
     const router = useRouter()
-    useEffect(() => {
-        const token = localStorage.getItem("authToken");
-        setStoredValue(token);
-        router.refresh();
-    }, []);
+    const [loading, setLoading] = useState(false)
+    const [role, setRole] = useState<string | null>(null)
 
-    return (
-        <main>
-            <Home /> 
-        </main>
-    );
+    useEffect(() => {
+        const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken')
+
+        if (!token) {
+            router.push('/')
+            return
+        }
+        try {
+            const base64Payload = token.split('.')[1]
+            const decodedPayload = JSON.parse(atob(base64Payload))
+            const userRole = decodedPayload.role
+            setRole(userRole)
+        } catch (error) {
+            console.error('Error decoding token:', error)
+            router.push('/')
+        } finally {
+            setLoading(false)
+        }
+    }, [router])
+
+    if (loading) {
+        return (
+            <Box sx={{
+                alignSelf: 'center',
+                justifySelf: 'center',
+                mt: 20,
+                display: 'flex'
+            }}>
+                <CircularProgress size={50} sx={{ margin: 'auto' }} />
+            </Box>
+        )
+    }
+
+    if (role === 'admin') {
+        return <GetAdminCourse />
+    }
+    else if (role === 'user') {
+        return <GetUserCourses />
+    } else return <UserHomePage />
 };
 
 

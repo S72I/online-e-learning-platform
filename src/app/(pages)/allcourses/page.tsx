@@ -90,7 +90,7 @@ const Page = () => {
         const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken')
 
         if (!token) {
-            router.push('/home')
+            router.push('/')
             return
         }
 
@@ -101,7 +101,7 @@ const Page = () => {
             setRole(userRole)
         } catch (error) {
             console.error('Error decoding token:', error)
-            router.push('/home')
+            router.push('/')
         } finally {
             setLoading(false)
         }

@@ -68,7 +68,7 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
     try {
       const res = await updateCourse({ id: courseID, payload: formData }).unwrap();
       console.log('Course updated successfully:', res);
-      router.push('/addCourses');
+      router.push('/');
     } catch (err) {
       console.error('Error updating course:', err);
     }

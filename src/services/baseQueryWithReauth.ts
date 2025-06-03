@@ -11,7 +11,7 @@ const baseQuery = fetchBaseQuery({
     baseUrl: process.env.DOMAIN,
     prepareHeaders: (headers) => {
         if (typeof window !== "undefined") {
-            const token = localStorage.getItem("authToken");
+            const token = localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
             if (token) {
                 headers.set("Authorization", `Bearer ${token}`);
             }
@@ -29,7 +29,6 @@ export const baseQueryWithReauth: BaseQueryFn<
 
     if (result.error?.status === 401) {
         if (typeof window !== "undefined") {
-
             localStorage.removeItem("authToken");
             localStorage.removeItem("rememberMe");
             window.location.href = "/login";
