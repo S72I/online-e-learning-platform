@@ -10,23 +10,29 @@ import BenefitsCards from '../UI/BenefitsCards'
 import Image from 'next/image'
 import Sponsors from '../UI/Sponsors'
 import ElectricBoltSharpIcon from '@mui/icons-material/ElectricBoltSharp';
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 const UserHomePage = () => {
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [billing, setBilling] = useState<"monthly" | "yearly">('monthly');
 
-  const handleClick = () => {
-    setLoading(true);
-    setTimeout(() => {
-      router.push("/allcourses");
-    }, 1000);
-  };
+
+  const handlePricingClick = () => {
+    const element = document.getElementById('pricing')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+  const handleCoursesClick = () => {
+    const element = document.getElementById('courses')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 
   return (
-
     <> {
       loading ? (
         <Typography sx={{ mt: 5, textAlign: 'center' }}>
@@ -126,7 +132,7 @@ const UserHomePage = () => {
               justifyContent: 'center'
             }}>
               <Button
-                onClick={handleClick}
+                onClick={() => handleCoursesClick()}
                 variant="contained"
                 sx={{
                   fontWeight: 'bold',
@@ -138,8 +144,8 @@ const UserHomePage = () => {
               >
                 Explore Courses
               </Button>
-              <Button component={Link}
-                href='/pricing'
+              <Button
+                onClick={() => handlePricingClick()}
                 variant="outlined"
                 sx={{
                   fontWeight: '700',
@@ -182,16 +188,17 @@ const UserHomePage = () => {
             }
           />
           <BenefitsCards />
-
-          <SectionHeader
-            title="Our Courses"
-            description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Atque molestiae nesciunt ratione consectetur ducimus eum id excepturi saepe, laudantium veniam velit animi rerum, corporis non sit temporibus ea! Esse, pariatur!"
-            action={
-              <Button variant="outlined" size="small" sx={{ fontSize: 13 }}>
-                View All
-              </Button>
-            }
-          />
+          <Box id="courses">
+            <SectionHeader
+              title="Our Courses"
+              description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Atque molestiae nesciunt ratione consectetur ducimus eum id excepturi saepe, laudantium veniam velit animi rerum, corporis non sit temporibus ea! Esse, pariatur!"
+              action={
+                <Button variant="outlined" size="small" sx={{ fontSize: 13 }}>
+                  View All
+                </Button>
+              }
+            />
+          </Box>
           <CustomCard limit={2} />
 
           <SectionHeader
@@ -204,52 +211,55 @@ const UserHomePage = () => {
             }
           />
           <TestimonialsCard />
-
-          <SectionHeader
-            title="Our Pricing"
-            description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Atque molestiae nesciunt ratione consectetur ducimus eum id excepturi saepe, laudantium veniam velit animi rerum, corporis non sit temporibus ea! Esse, pariatur!"
-            action={
-              <Box sx={{
-                display: 'flex',
-                p: 0.5,
-                bgcolor: '#FCFCFD',
-                borderRadius: 1,
-                border: '1px solid',
-                borderColor: 'grey.300',
-                width: { xs: '100%', sm: 'auto' }
-              }}>
-                <Button
-                  size="small"
-                  sx={{
-                    fontSize: { xs: 12, sm: 13 },
-                    bgcolor: "#FF9500",
-                    color: 'white',
-                    '&:hover': { bgcolor: "#e68600" },
-                    width: { xs: '50%', sm: 'auto' },
-                    px: { xs: 1, sm: 2 }
-                  }}
-                >
-                  Monthly
-                </Button>
-                <Button
-                  size="small"
-                  sx={{
-                    fontSize: { xs: 12, sm: 13 },
-                    color: 'text.primary',
-                    bgcolor: 'transparent',
-                    width: { xs: '50%', sm: 'auto' },
-                    px: { xs: 1, sm: 2 }
-                  }}
-                >
-                  Yearly
-                </Button>
-              </Box>
-            }
-            sx={{ mb: { xs: 4, md: 6 } }}
-          />
-          <Pricing />
+          <Box id="pricing">
+            <SectionHeader
+              title="Our Pricing"
+              description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Atque molestiae nesciunt ratione consectetur ducimus eum id excepturi saepe, laudantium veniam velit animi rerum, corporis non sit temporibus ea! Esse, pariatur!"
+              action={
+                <Box sx={{
+                  display: 'flex',
+                  p: 0.5,
+                  bgcolor: '#FCFCFD',
+                  borderRadius: 1,
+                  border: '1px solid',
+                  borderColor: 'grey.300',
+                  width: { xs: '100%', sm: 'auto' }
+                }}>
+                  <Button
+                    size="small"
+                    sx={{
+                      fontSize: { xs: 12, sm: 13 },
+                      bgcolor: billing === 'monthly' ? "#FF9500" : 'transparent',
+                      color: billing === 'monthly' ? 'white' : 'text.primary',
+                      '&:hover': { bgcolor: billing === 'monthly' ? "#e68600" : 'grey.100' },
+                      width: { xs: '50%', sm: 'auto' },
+                      px: { xs: 1, sm: 2 }
+                    }}
+                    onClick={() => setBilling('monthly')}
+                  >
+                    Monthly
+                  </Button>
+                  <Button
+                    size="small"
+                    sx={{
+                      fontSize: { xs: 12, sm: 13 },
+                      bgcolor: billing === 'yearly' ? "#FF9500" : 'transparent',
+                      color: billing === 'yearly' ? 'white' : 'text.primary',
+                      '&:hover': { bgcolor: billing === 'yearly' ? "#e68600" : 'grey.100' },
+                      width: { xs: '50%', sm: 'auto' },
+                      px: { xs: 1, sm: 2 }
+                    }}
+                    onClick={() => setBilling('yearly')}
+                  >
+                    Yearly
+                  </Button>
+                </Box>
+              }
+              sx={{ mb: { xs: 4, md: 6 } }}
+            />
+          </Box>
+          <Pricing planType={billing} />
         </main >
-
       )
     }
     </>

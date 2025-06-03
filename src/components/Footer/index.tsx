@@ -4,10 +4,13 @@ import React from "react";
 import Image from "next/image";
 import EmailIcon from "@mui/icons-material/Email";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
-import LocationOnIcon from "@mui/icons-material/LocationOn"; 
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import XIcon from "@mui/icons-material/X";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined'
+import TwitterIcon from '@mui/icons-material/Twitter';
+
 
 const Contacts = [
   "hello@skillbridge.com",
@@ -75,9 +78,9 @@ const Index = () => {
         <Box sx={{ width: 200 }}>
           <Typography sx={{ fontWeight: "bold", mb: 2 }}>Social Profiles</Typography>
           <Stack direction="row" spacing={2}>
-            <FacebookIcon />
-            <XIcon />
-            <LinkedInIcon />
+            <FacebookOutlinedIcon sx={{ width: 40, height: 40, p: 1, borderRadius: 2, bgcolor: '#F1F1F3' }} />
+            <TwitterIcon sx={{ width: 40, height: 40, p: 1, borderRadius: 2, bgcolor: '#F1F1F3' }} />
+            <LinkedInIcon sx={{ width: 40, height: 40, p: 1, borderRadius: 2, bgcolor: '#F1F1F3' }} />
           </Stack>
         </Box>
       </Container>

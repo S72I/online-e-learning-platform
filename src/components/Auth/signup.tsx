@@ -23,6 +23,7 @@ import { useRouter } from 'next/navigation';
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { useAuth } from '@/context/AuthContext';
 
 function SignUp() {
 
@@ -31,6 +32,8 @@ function SignUp() {
     const router = useRouter();
     const [error, setError] = useState("")
     const [isChecked, setIsChecked] = useState(false);
+    const { login } = useAuth();
+
     const {
         register,
         handleSubmit,
@@ -71,15 +74,13 @@ function SignUp() {
                 return setError("Please agree the terms and Privacy Policy");
             }
 
-            // Convert role to boolean isAdmin
             const isAdmin = data.role === "admin";
 
-            // Prepare data for API
             const payload = {
                 ...data,
                 isAdmin,
             };
-            delete payload.role; // Remove role if not needed in DB
+            delete payload.role;
 
             const response = await registerUser(payload).unwrap();
             console.log("response", response);
@@ -90,6 +91,7 @@ function SignUp() {
 
             reset();
             localStorage.setItem("authToken", response.token);
+            login(response.token);
             clearErrors("apiError");
             router.push("/");
 

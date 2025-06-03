@@ -1,12 +1,11 @@
 
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode, useLayoutEffect } from 'react'
 import { jwtDecode } from 'jwt-decode'
 
 interface DecodedToken {
     role: 'admin' | 'user'
-    // add any other fields like exp, email, etc.
 }
 
 interface AuthContextType {
@@ -14,22 +13,25 @@ interface AuthContextType {
     isLoading: boolean
     role: 'admin' | 'user' | null
     login: (token: string) => void
+    sessionLogin: (token: string) => void
     logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [role, setRole] = useState<'admin' | 'user' | null>(null)
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         const token = localStorage.getItem('authToken')
+        const sessioToken = sessionStorage.getItem('authToken')
 
         if (token) {
             try {
-                const decoded: DecodedToken = jwtDecode(token)
+                const decoded: DecodedToken = jwtDecode(token as string)
                 setIsAuthenticated(true)
                 setRole(decoded.role)
             } catch (err) {
@@ -38,15 +40,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setRole(null)
                 localStorage.removeItem('authToken')
             }
+        } if (sessioToken) {
+            try {
+                const sessionDecoded: DecodedToken = jwtDecode(sessioToken as string)
+                setIsAuthenticated(true)
+                setRole(sessionDecoded.role)
+
+            } catch (error) {
+                console.error('Invalid token:', error)
+                setIsAuthenticated(false)
+                setRole(null)
+                sessionStorage.removeItem('authToken')
+            }
         }
 
         setIsLoading(false)
     }, [])
 
+    const sessionLogin = (token: string) => {
+        try {
+            const decoded: DecodedToken = jwtDecode(token)
+            sessionStorage.setItem("authToken", token);
+            setIsAuthenticated(true)
+            setRole(decoded.role)
+        } catch (err) {
+            console.error('Failed to decode token:', err)
+        }
+    }
+
     const login = (token: string) => {
         try {
             const decoded: DecodedToken = jwtDecode(token)
             localStorage.setItem('authToken', token)
+            localStorage.setItem("rememberMe", String(true));
             setIsAuthenticated(true)
             setRole(decoded.role)
         } catch (err) {
@@ -56,12 +82,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = () => {
         localStorage.removeItem('authToken')
+        sessionStorage.removeItem('authToken')
         setIsAuthenticated(false)
         setRole(null)
     }
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, role, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, isLoading, role, login, logout, sessionLogin }}>
             {children}
         </AuthContext.Provider>
     )

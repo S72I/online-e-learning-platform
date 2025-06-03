@@ -26,10 +26,10 @@ const GetUserCourse = () => {
   }
 
   return (
-    <div className="p-4">
+    <Box className="p-4">
       <h1 className="text-2xl font-semibold">All Courses</h1>
 
-      <div className="my-4 flex gap-4">
+      <Box className="my-4 flex gap-4">
         <TextField
           label="Search by Title"
           variant="outlined"
@@ -60,14 +60,14 @@ const GetUserCourse = () => {
             <MenuItem value="desc">Sort Z-A</MenuItem>
           </Select>
         </FormControl>
-      </div>
+      </Box>
 
       {isLoading ? (
         <Typography sx={{ mt: 5, textAlign: 'center' }}><CircularProgress /></Typography>
       ) : isError ? (
         <Typography sx={{ mt: 5, textAlign: 'center' }}>Failed to load courses</Typography>
       ) : !data?.courses || data.courses.length === 0 ? (
-        <Typography sx={{ mt: 5, textAlign: 'center' }}>No courses available</Typography>
+        <Typography sx={{ mt: 5, textAlign: 'center' }}>No courses found</Typography>
       ) : (
         <Grid container spacing={2} sx={{ mt: 5, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
           {data.courses.map((course: any) => (
@@ -167,7 +167,7 @@ const GetUserCourse = () => {
           ))}
         </Grid>
       )}
-    </div>
+    </Box>
   );
 };
 

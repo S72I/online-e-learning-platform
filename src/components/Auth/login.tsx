@@ -16,11 +16,18 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { useRouter } from 'next/navigation';
-import authApi, { useLoginUserMutation } from '@/services/authAPI';
+import { useLoginUserMutation } from '@/services/authAPI';
 import { useForm } from "react-hook-form";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useAuth } from '@/context/AuthContext';
+
+
+interface LoginFormInputs {
+    email: string;
+    password: string;
+}
+
 
 function Login() {
     const [loginUser, { isLoading, error }] = useLoginUserMutation();
@@ -29,18 +36,18 @@ function Login() {
 
     const router = useRouter();
 
-    const handleRememberMeChange = (event: any) => {
+    const handleRememberMeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRememberMe(event.target.checked);
     };
 
-    const { login } = useAuth();
+    const { login, sessionLogin } = useAuth();
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm();
+    } = useForm<LoginFormInputs>();
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: LoginFormInputs) => {
         try {
             const response = await loginUser(data).unwrap();
             if (response.status !== 200) {
@@ -48,22 +55,22 @@ function Login() {
                 return;
             }
 
-
             if (rememberMe) {
-                localStorage.setItem("authToken", response.token);
-                localStorage.setItem("rememberMe", String(rememberMe));
                 sessionStorage.removeItem("authToken");
                 sessionStorage.removeItem("rememberMe");
                 login(response.token);
             } else {
-                sessionStorage.setItem("authToken", response.token);
-                sessionStorage.setItem("rememberMe", String(rememberMe));
+                sessionLogin(response.token);
             }
-            router.replace("/home");
+            router.replace("/");
             router.refresh();
-        } catch (err: any) {
-            setCheckError(err?.data?.message || "Login failed");
-            console.error("Login Failed:", err?.data?.message);
+        } catch (err: unknown) {
+            const message =
+                typeof err === "object" && err !== null && "data" in err
+                    ? (err as any).data?.message || "Login failed"
+                    : "Login failed";
+            setCheckError(message);
+            console.error("Login Failed:", message);
         }
     };
 
@@ -74,7 +81,8 @@ function Login() {
         setShowPassword(!showPassword);
     };
 
-    const handleMouseDownPassword = (event: any) => {
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>
+    ) => {
         event.preventDefault();
     };
 

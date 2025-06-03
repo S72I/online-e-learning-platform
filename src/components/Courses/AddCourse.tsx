@@ -23,7 +23,7 @@ const MAX_IMAGES = 3;
 
 const defaultVideo: Video = {
     videoTitle: '',
-    lessonNo: '',
+    description: '',
     videoUri: '',
     videoTiming: '',
 };
@@ -139,7 +139,7 @@ function AddCoursePage() {
         const newChapter: Chapter = {
             title: '',
             videos: [
-                { videoTitle: '', lessonNo: '', videoUri: '', videoTiming: '' }
+                { videoTitle: '', description: '', videoUri: '', videoTiming: '' }
             ],
         };
         handleChange('chapters', [...courseData.chapters, newChapter]);
@@ -147,7 +147,7 @@ function AddCoursePage() {
 
 
     const addVideo = (chapterIdx: number) => {
-        const newVideo = { videoTitle: '', lessonNo: '', videoUri: '', videoTiming: '' };
+        const newVideo = { videoTitle: '', description: '', videoUri: '', videoTiming: '' };
         const updatedChapters = [...courseData.chapters];
         const updatedChapter = { ...updatedChapters[chapterIdx] };
         updatedChapter.videos = [...updatedChapter.videos, newVideo];
@@ -245,19 +245,6 @@ function AddCoursePage() {
             <Typography color="#FF9500" variant="h4" fontWeight={700} mb={4}>
                 Add Course
             </Typography>
-
-            {/* <TextField
-                label="Course Educator"
-                fullWidth
-                sx={{ mb: 2 }}
-                error={!!errors.courseEducator}
-                helperText={errors.courseEducator && 'courseEducator name is required'}
-                {...register('courseEducator', {
-                    required: 'courseEducator name is required',
-                    onChange: (e) => handleChange('courseEducator', e.target.value),
-                })}
-                value={courseData.courseEducator}
-            /> */}
             <TextField
                 label="Course Title"
                 fullWidth
@@ -384,9 +371,14 @@ function AddCoursePage() {
                         label={`Chapter Title ${chapterIdx + 1}`}
                         fullWidth
                         sx={{ mb: 2 }}
-                        value={chapter.title}
-                        onChange={(e) => handleChapterChange(chapterIdx, e.target.value)}
+                        error={!!errors.chapters?.[chapterIdx]?.title}
+                        helperText={errors.chapters?.[chapterIdx]?.title?.message}
+                        {...register(`chapters.${chapterIdx}.title`, {
+                            required: 'Chapter title is required',
+                            onChange: (e) => handleChapterChange(chapterIdx, e.target.value),
+                        })}
                     />
+
 
                     <IconButton
                         color="error"
@@ -409,25 +401,31 @@ function AddCoursePage() {
                                 fullWidth
                                 sx={{ mb: 1 }}
                                 value={video.videoTitle}
-                                onChange={(e) =>
-                                    handleVideoChange(chapterIdx, videoIdx, 'videoTitle', e.target.value)
-                                }
+                                error={!!errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTitle}
+                                helperText={errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTitle?.message}
+                                {...register(`chapters.${chapterIdx}.videos.${videoIdx}.videoTitle`, {
+                                    required: 'Video title is required',
+                                    onChange: (e) => handleVideoChange(chapterIdx, videoIdx, 'videoTitle', e.target.value)
+                                })}
                             />
 
                             <TextField
-                                label="lessonNo"
-                                type='number'
+                                label="Description"
                                 fullWidth
                                 sx={{ mb: 1 }}
-                                value={video.lessonNo}
-                                onChange={(e) =>
-                                    handleVideoChange(
+                                value={video.description}
+
+                                error={!!errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.description}
+                                helperText={errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.description?.message}
+                                {...register(`chapters.${chapterIdx}.videos.${videoIdx}.description`, {
+                                    required: 'lessonNo is required',
+                                    onChange: (e) => handleVideoChange(
                                         chapterIdx,
                                         videoIdx,
-                                        'lessonNo',
+                                        'description',
                                         e.target.value
                                     )
-                                }
+                                })}
                             />
 
                             <TextField
@@ -435,10 +433,15 @@ function AddCoursePage() {
                                 fullWidth
                                 sx={{ mb: 1 }}
                                 value={video.videoTiming}
-                                onChange={(e) =>
-                                    handleVideoChange(chapterIdx, videoIdx, 'videoTiming', e.target.value)
-                                }
+                                error={!!errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTiming}
+                                helperText={errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTiming?.message}
+                                {...register(`chapters.${chapterIdx}.videos.${videoIdx}.videoTiming`, {
+                                    required: 'videoTiming is required',
+                                    onChange: (e) => handleVideoChange(chapterIdx, videoIdx, 'videoTiming', e.target.value)
+                                })}
+
                             />
+
 
                             <input
                                 type="file"

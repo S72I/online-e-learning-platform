@@ -3,7 +3,6 @@
 import React, { useState } from 'react'
 import { useDeleteCourseMutation, useGetCoursesQuery } from '@/services/courseAPI'
 import { Box, Button, Grid, Stack, Typography, TextField, CircularProgress, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Be_Vietnam_Pro } from 'next/font/google'
 
@@ -37,21 +36,16 @@ const GetAdminCourse = () => {
         }
     }
 
+    const [loading, setLoading] = useState(false);
+
     const handleEditClick = (courseID: string) => {
         setLoading(true);
-        setTimeout(() => {
-            window.location.href = `/updateCourse/${courseID}`
-        }, 1000);
+        router.push(`/updateCourse/${courseID}`)
     }
-
-
-    const [loading, setLoading] = useState(false);
 
     const handleClick = () => {
         setLoading(true);
-        setTimeout(() => {
-            window.location.href = "/addCourse";
-        }, 1000);
+        router.push("/addCourse")
     };
     return (
         <>
@@ -97,7 +91,7 @@ const GetAdminCourse = () => {
                     ) : isError ? (
                         <Typography sx={{ mt: 5, textAlign: 'center' }}>Failed to load courses</Typography>
                     ) : !data?.courses || data.courses.length === 0 ? (
-                        <Typography sx={{ mt: 5, textAlign: 'center' }}>No courses available</Typography>
+                        <Typography sx={{ mt: 5, textAlign: 'center' }}>No courses found</Typography>
                     ) : (
                         <Grid container spacing={2} sx={{ mt: 5, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
                             {data.courses.map((course: any) => (

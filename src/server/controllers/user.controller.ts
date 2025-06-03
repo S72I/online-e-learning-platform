@@ -1,7 +1,7 @@
 import UserModel from "../models/user.model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { User } from "../constants";
+import { User } from "../interfaces";
 
 
 export async function signUp({ name, email, password, isAdmin }: User) {
@@ -23,6 +23,7 @@ export async function signUp({ name, email, password, isAdmin }: User) {
 
         const userRole = user.isAdmin ? "admin" : "user";
 
+        
         const token = jwt.sign({ id: user.id, role: userRole }, process.env.ACCESS_TOKEN_SECRET as string, {
             expiresIn: "1h",
         });

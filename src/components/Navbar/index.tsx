@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import {
   Box,
@@ -13,20 +12,11 @@ import {
   AppBar,
   useMediaQuery,
   useTheme,
-  CircularProgress,
 } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-
-const NAV_ITEMS = [
-  { label: 'Home', path: '/' },
-  { label: 'Courses', path: '/courses' },
-  { label: 'About Us', path: '/aboutus' },
-  { label: 'Pricing', path: '/pricing' },
-  { label: 'Contact', path: '/contact' },
-];
 
 const PROMO_BANNER_TEXT = 'Free Courses 🌟 Sale Ends Soon, Get It Now';
 
@@ -44,9 +34,10 @@ export default function NavBar() {
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
-
+  
   const handleLogout = () => {
     logout();
+    localStorage.removeItem("rememberMe");
     router.push('/login');
   };
 
@@ -55,10 +46,46 @@ export default function NavBar() {
     router.push(path);
   };
 
+  interface NavItem {
+    label: string;
+    path: string;
+  }
+
+  const NAV_ITEMS: NavItem[] = [
+    { label: 'Home', path: '/' },
+    { label: 'Courses', path: '/courses' },
+    { label: 'About Us', path: '/aboutus' },
+    { label: 'Pricing', path: '/pricing' },
+    { label: 'Contact', path: '/contact' },
+  ];
+
+  const USER_NAV_ITEMS: NavItem[] = [
+    { label: 'MarketCourses', path: '/' },
+    { label: 'MyCourses', path: '/courses' },
+    { label: 'About Us', path: '/aboutus' },
+    { label: 'Pricing', path: '/pricing' },
+    { label: 'Contact', path: '/contact' },
+  ];
+
+  const ADMIN_NAV_ITEMS: NavItem[] = [
+    { label: 'MyCourses', path: '/' },
+    { label: 'About Us', path: '/aboutus' },
+    { label: 'Pricing', path: '/pricing' },
+    { label: 'Contact', path: '/contact' },
+  ];
+
+  let NavItemsArray: NavItem[] = [];
+
+  if (isAuthenticated && role === 'admin') {
+    NavItemsArray = ADMIN_NAV_ITEMS;
+  } else if (isAuthenticated && role === 'user') {
+    NavItemsArray = USER_NAV_ITEMS;
+  } else {
+    NavItemsArray = NAV_ITEMS;
+  }
 
 
   return (
-
     <>
       <Box
         sx={{
@@ -96,7 +123,7 @@ export default function NavBar() {
             />
           </IconButton>
         </Stack>
-      </Box >
+      </Box>
 
       <AppBar
         position="static"
@@ -120,7 +147,7 @@ export default function NavBar() {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton onClick={() => router.push('/')} sx={{ p: 0 }}>
+            <IconButton onClick={() => router.replace('/')} sx={{ p: 0 }}>
               <Image
                 src="/images/Logo.png"
                 width={30}
@@ -130,29 +157,31 @@ export default function NavBar() {
               />
             </IconButton>
 
-            {isAuthenticated && (
-              <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
-                {NAV_ITEMS.map((item) => (
-                  <Button
-                    key={item.path}
-                    component={Link}
-                    href={item.path}
-                    sx={{
-                      color: 'text.primary',
-                      fontSize: { md: 12, lg: 14 },
-                      textTransform: 'none',
-                      '&:hover': { backgroundColor: 'action.hover' },
-                      px: 2,
-                    }}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
-              </Box>
-            )}
+            {/* Show NAV_ITEMS always */}
+            <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
+              {NavItemsArray.map((item: NavItem) => (
+                <Button
+                  key={item.path}
+                  component={Link}
+                  href={item.path}
+                  sx={{
+                    color: 'text.primary',
+                    fontSize: { md: 12, lg: 14 },
+                    textTransform: 'none',
+                    '&:hover': { backgroundColor: 'action.hover' },
+                    '&:active': { backgroundColor: 'action.hover' },
+                    px: 2,
+                  }}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </Box>
+
           </Box>
 
-          {isAuthenticated && isMobile && (
+          {/* Mobile menu (always available) */}
+          {isMobile && (
             <>
               <IconButton
                 size="large"
@@ -176,7 +205,7 @@ export default function NavBar() {
                 onClose={handleCloseNavMenu}
                 sx={{ display: { md: 'none' } }}
               >
-                {NAV_ITEMS.map((item) => (
+                {NavItemsArray.map((item: NavItem) => (
                   <MenuItem
                     key={item.path}
                     onClick={() => handleNavigate(item.path)}
@@ -189,42 +218,45 @@ export default function NavBar() {
             </>
           )}
 
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            {!isAuthenticated ? (
-              <>
-                <Button
-                  component={Link}
-                  href="/signup"
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    color: 'text.primary',
-                    fontSize: { xs: 12, sm: 13 },
-                    textTransform: 'none',
-                    borderColor: 'divider',
-                    '&:hover': { borderColor: 'text.primary' },
-                  }}
-                >
-                  Sign Up
-                </Button>
-                <Button
-                  component={Link}
-                  href="/login"
-                  variant="contained"
-                  size="small"
-                  sx={{
-                    backgroundColor: 'primary.main',
-                    color: 'white',
-                    fontSize: { xs: 12, sm: 13 },
-                    textTransform: 'none',
-                    '&:hover': { backgroundColor: 'primary.dark' },
-                  }}
-                >
-                  Login
-                </Button>
-              </>
-            ) : (
-              <>
+          {/* Only show auth buttons when not loading */}
+          {!isLoading && (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {!isAuthenticated ? (
+                <>
+                  <Button
+                    component={Link}
+                    href="/signup"
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      color: 'text.primary',
+                      fontSize: { xs: 12, sm: 13 },
+                      textTransform: 'none',
+                      borderColor: 'divider',
+                      '&:hover': {
+                        backgroundColor: '#FF9500', color: 'white',
+                      }
+                    }}
+                  >
+                    Sign Up
+                  </Button>
+                  <Button
+                    component={Link}
+                    href="/login"
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      backgroundColor: '#FF9500',
+                      color: 'white',
+                      fontSize: { xs: 12, sm: 13 },
+                      textTransform: 'none',
+                      '&:hover': { backgroundColor: '#FFD580', color: 'black' },
+                    }}
+                  >
+                    Login
+                  </Button>
+                </>
+              ) : (
                 <Button
                   onClick={handleLogout}
                   variant="outlined"
@@ -239,13 +271,11 @@ export default function NavBar() {
                 >
                   Logout
                 </Button>
-              </>
-            )}
-          </Box>
+              )}
+            </Box>
+          )}
         </Toolbar>
       </AppBar>
     </>
-
-
   );
 }

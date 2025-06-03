@@ -52,7 +52,6 @@ const goals = [
 
 const AboutUsPage = () => {
     return (
-  
         <Container maxWidth={false}>
             <Box sx={{
                 display: 'flex',

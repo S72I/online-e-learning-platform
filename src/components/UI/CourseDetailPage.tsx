@@ -1,7 +1,9 @@
-import { Box, Button, Container, Grid, Stack, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Container, Grid, Stack, Typography } from '@mui/material'
 import Image from 'next/image'
 import React from 'react'
 import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined';
+import { useParams } from 'next/navigation';
+import { useGetCourseQuery } from '@/services/public/publicCourseApi';
 
 
 const courses = [
@@ -96,77 +98,92 @@ const courses = [
 ]
 
 const CourseDetailPage = () => {
+    const params = useParams();
+    const { data, isLoading, isError } = useGetCourseQuery(params.id);
+
+    console.log("data", data);
+
+    // if (isLoading) return <CircularProgress />
     return (
-        <Container maxWidth={false}>
-            <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                mt: 8,
-                width: '92%',
-                borderBottom: '0.5px solid',
-                borderBottomColor: "#DCDCDC",
-                justifySelf: 'center',
-                pb: 8
-            }}>
-                <Typography sx={{ width: '50%', fontWeight: 'bold', fontSize: 30 }}>Online Courses on Design and Development</Typography>
-                <Typography sx={{ width: '50%', color: '#59595A', fontSize: 12 }}>Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of 10 courses designed to provide you with comprehensive knowledge and practical experience. Explore the courses below and find the perfect fit for your learning journey.Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of 10 courses designed to provide you with comprehensive knowledge and practical experience. Explore the courses below and find the perfect fit for your learning journey.</Typography>
-            </Box>
-            <Grid container spacing={2} sx={{ margin: 'auto', justifyContent: 'center', px: { md: 4, xs: 2, lg: 6, xl: 6 }, }}>
-                <Image style={{ marginTop: 50, }} width={1400} height={500} src={"/Container.svg"} alt='' />
-            </Grid>
+        <Box>
+            {isLoading ? (
+                <Typography sx={{ mt: 5, textAlign: 'center' }}><CircularProgress /></Typography>
+            ) : isError ? (
+                <Typography sx={{ mt: 5, textAlign: 'center' }}>Failed to load courses</Typography>
+            ) : !data?.result ? (
+                <Typography sx={{ mt: 5, textAlign: 'center' }}>No course available</Typography>
+            ) : (
+                <>
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        mt: 8,
+                        width: '92%',
+                        borderBottom: '0.5px solid',
+                        borderBottomColor: "#DCDCDC",
+                        justifySelf: 'center',
+                        pb: 8
+                    }}>
+                        <Typography sx={{ width: '50%', fontWeight: 'bold', fontSize: 30 }}>{data?.result?.title}</Typography>
+                        <Typography sx={{ width: '50%', color: '#59595A', fontSize: 12 }}>{data?.result?.description}</Typography>
+                    </Box>
+                    <Grid container spacing={2} sx={{ margin: 'auto', justifyContent: 'center', px: { md: 4, xs: 2, lg: 6, xl: 6 }, }}>
+                        <Image style={{ marginTop: 50, }} width={1400} height={500} src={"/Container.svg"} alt='' />
+                    </Grid>
 
-            <Grid container spacing={2} sx={{ mt: 8, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
-                {
-                    courses.map((data, i) => (
-                        <Grid
-                            key={i}
-                            size={{ xs: 16, md: 6, sm: 6, lg: 6, }}
-                            sx={{
-                                borderRadius: 4,
-                                bgcolor: "white",
-                                height: "auto", overflow: "hidden", width: "100%",
-                            }}>
-                            <Stack
+                    <Grid container spacing={2} sx={{ mt: 5, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
+
+                        {data?.result?.chapters?.map((chapter: any, idx: number) => (
+                            <Grid
+                                key={idx}
+                                size={{ xs: 16, md: 6, sm: 6, lg: 6, }}
                                 sx={{
-                                    border: '0.5px solid',
-                                    borderColor: '#F2F0EF',
-                                    pb: 5,
-                                    justifyContent: 'space-between'
+                                    borderRadius: 4,
+                                    bgcolor: "white",
+                                    height: "auto", overflow: "hidden", width: "100%",
                                 }}>
-
-                                <Box sx={{
-                                    borderRight: '0.5px solid',
-                                    borderRightColor: '#F2F0EF',
-                                    py: 1, px: 4
-                                }}>
-                                    <Typography sx={{ fontSize: 50, fontWeight: 'bold', fontFamily: "cursive", justifySelf: 'flex-end' }}>0{i + 1}</Typography>
-                                    <Typography sx={{ textDecoration: 'underline', fontWeight: 'bold', color: '#333333' }}>{data.header}</Typography>
-                                </Box>
                                 {
-                                    data.chapters.map((chapter, index) => (
-                                        <Box className="chapterBox" key={index} sx={{
-
-                                            width: "92%", alignContent: 'center', margin: 'auto', height: 100,
-                                            border: '1px solid', borderColor: '#F1F1F3', mt: 1, borderRadius: 2
+                                    <Stack
+                                        sx={{
+                                            border: '0.5px solid',
+                                            borderColor: '#F2F0EF',
+                                            pb: 5,
+                                            justifyContent: 'space-between'
                                         }}>
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                <Typography sx={{ px: 2, width: "70%", fontSize: 'normal', fontWeight: 600 }}>{chapter.title}</Typography>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: "#F7F7F8", width: "30%", p: 1, mr: 4, borderRadius: 1 }}>
-                                                    <WatchLaterOutlinedIcon />
-                                                    <Typography className="chapterBox" sx={{ ml: 1, }}>{chapter.time}</Typography>
-                                                </Box>
-                                            </Box>
-                                            <Typography sx={{ px: 2, color: '#59595A' }}>Lesson 0{index + 1}</Typography>
-                                        </Box>
-                                    ))
-                                }
-                            </Stack>
-                        </Grid>
-                    ))
-                }
 
-            </Grid >
-        </Container>
+                                        <Box sx={{
+                                            borderRight: '0.5px solid',
+                                            borderRightColor: '#F2F0EF',
+                                            py: 1, px: 4
+                                        }}>
+                                            <Typography sx={{ fontSize: 50, fontWeight: 'bold', fontFamily: "cursive", justifySelf: 'flex-end' }}>0{idx + 1}</Typography>
+                                            <Typography sx={{ fontWeight: 'bold', color: '#333333' }}>{chapter.title}</Typography>
+                                        </Box>
+                                        {
+                                            chapter.videos.map((chapter: any, i: number) => (
+                                                <Box className="chapterBox" key={i} sx={{
+                                                    width: "92%", alignContent: 'center', margin: 'auto', height: 100,
+                                                    border: '1px solid', borderColor: '#F1F1F3', mt: 1, borderRadius: 2
+                                                }}>
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                        <Typography sx={{ px: 2, width: "70%", fontSize: 'normal', fontWeight: 600 }}>{chapter.videoTitle}</Typography>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: "#F7F7F8", width: "30%", p: 1, mr: 4, borderRadius: 1 }}>
+                                                            <WatchLaterOutlinedIcon />
+                                                            <Typography className="chapterBox" sx={{ ml: 1, }}>{chapter.videoTiming} Minutes</Typography>
+                                                        </Box>
+                                                    </Box>
+                                                    <Typography sx={{ px: 2, color: '#59595A' }}>Lesson 0{i + 1}</Typography>
+                                                </Box>
+                                            ))
+                                        }
+                                    </Stack>
+                                }
+                            </Grid>
+                        ))}
+                    </Grid>
+                </>
+            )}
+        </Box>
     )
 }
 

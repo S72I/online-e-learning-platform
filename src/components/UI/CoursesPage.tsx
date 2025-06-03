@@ -1,7 +1,9 @@
-import { Box, Container, Grid, Stack, Typography } from '@mui/material'
-import React from 'react'
+'use client'
+import { Box, CircularProgress, Container, Grid, Stack, Typography } from '@mui/material'
+import React, { useEffect, useState } from 'react'
 import SectionHeader from './SectionHeader'
 import Image from 'next/image'
+import { useGetCoursesQuery } from '@/services/public/publicCourseApi'
 
 
 const courses = [
@@ -55,6 +57,31 @@ const courses = [
 
 
 const CoursesPage = () => {
+    const [title, setTitle] = useState<string>('');
+    const [sortOrder, setSortOrder] = useState<'' | 'asc' | 'desc'>('');
+
+    const { data, isLoading, isError } = useGetCoursesQuery({ title, sortOrder });
+
+    useEffect(() => {
+        const token = localStorage.getItem('authToken')
+
+        if (!token) {
+            return
+        }
+        try {
+            const base64Payload = token.split('.')[1]
+            const decodedPayload = JSON.parse(atob(base64Payload))
+            const userRole = decodedPayload.role
+
+            console.log("userRole", userRole);
+
+
+        } catch (error) {
+            console.error('Error decoding token:', error)
+
+        }
+    }, [])
+
     return (
         <Container maxWidth={false} >
             <Box sx={{ display: 'flex', alignItems: 'center', mt: 8, width: '92%', justifySelf: 'center' }}>
@@ -62,91 +89,99 @@ const CoursesPage = () => {
                 <Typography sx={{ width: '50%', color: '#59595A', fontSize: 12 }}>Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of 10 courses designed to provide you with comprehensive knowledge and practical experience. Explore the courses below and find the perfect fit for your learning journey.Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of 10 courses designed to provide you with comprehensive knowledge and practical experience. Explore the courses below and find the perfect fit for your learning journey.</Typography>
             </Box>
             <Box >
-                <Grid container spacing={2} mt={12} sx={{ px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
-                    {
+                {isLoading ? (
+                    <Typography sx={{ mt: 5, textAlign: 'center' }}><CircularProgress /></Typography>
+                ) : isError ? (
+                    <Typography sx={{ mt: 5, textAlign: 'center' }}>Failed to load courses</Typography>
+                ) : !data?.courses || data.courses.length === 0 ? (
+                    <Typography sx={{ mt: 5, textAlign: 'center' }}>No courses found</Typography>
+                ) : (
+                    <Grid container spacing={2} mt={12} sx={{ px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
+                        {
 
-                        courses.map((course, index) => (
-
-
-                            <Grid
-                                key={index}
-                                sx={{
-                                    bgcolor: "white",
-                                    borderRadius: 2,
-                                    boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
-                                    height: "auto", overflow: "hidden", width: "100%",
-                                }}>
-                                <SectionHeader
-                                    title={course.header}
-                                    description="Lorem ipsum dolor sit amet consectetur. Tempus tincidunt etiam eget elit id imperdiet et. Cras eu sit dignissim lorem nibh et. Ac cum eget habitasse in velit fringilla feugiat senectus in."
-                                    action={
-                                        <Typography sx={{ border: "0.2px solid", px: 3, bgcolor: "#FCFCFD", borderColor: "transparent", fontSize: 13, }}>
-                                            View All
-                                        </Typography>
-                                    }
-                                />
-                                <Stack direction={'row'} sx={{ width: "100%", px: 6, overflow: 'hidden' }}>
-                                    {
-                                        course.thumbnail.map((data, i) => (
-                                            <Image
-                                                key={i}
-                                                src={data}
-                                                alt="Sarah L"
-                                                width={385}
-                                                height={200}
-                                                style={{
-                                                    margin: "auto",
-                                                }}
-                                            />
-                                        ))
-                                    }
-                                </Stack>
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", px: 6, mt: 2 }}>
-                                    <Stack direction={'row'} >
-                                        <Typography sx={{ mr: 1, color: "#4C4C4D", borderRadius: 2, px: 2, py: 1, bgcolor: "#FCFCFD", fontSize: 12 }} >{course.time}</Typography>
-                                        <Typography sx={{ borderRadius: 2, color: "#4C4C4D", textAlign: 'center', px: 2, py: 1, bgcolor: "#FCFCFD", fontSize: 12 }}>{course.level}</Typography>
-                                    </Stack>
-                                    <Box>
-                                        <Typography sx={{ bgcolor: "#FCFCFD", px: 3, py: 0.5, borderRadius: 2, fontSize: 12 }}>{course.name}</Typography>
-                                    </Box>
-                                </Box>
-
-                                <Box width={"92%"} sx={{
-                                    mt: 3,
-                                    justifySelf: 'center',
-                                    mb: 3,
-                                    justifyContent: "center"
-                                }}>
-                                    <Typography sx={{ py: 1, fontSize: 14, fontWeight: 600, borderRadius: 2, pl: 1, border: "0.5px solid", borderColor: "#F2F0EF" }}>Curriculum</Typography>
-                                    <Stack direction={'row'}
-                                        sx={{
-                                            border: '0.5px solid',
-                                            borderColor: '#F2F0EF',
-                                            borderRadius: 2,
-                                            justifyContent: 'space-between'
-                                        }}>
+                            data?.courses.map((course: any, index: number) => (
+                                <Grid
+                                    key={index}
+                                    sx={{
+                                        bgcolor: "white",
+                                        borderRadius: 2,
+                                        boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+                                        height: "auto", overflow: "hidden", width: "100%",
+                                    }}>
+                                    <SectionHeader
+                                        title={course.title}
+                                        description="Lorem ipsum dolor sit amet consectetur. Tempus tincidunt etiam eget elit id imperdiet et. Cras eu sit dignissim lorem nibh et. Ac cum eget habitasse in velit fringilla feugiat senectus in."
+                                        // description={course.description}
+                                        action={
+                                            <Typography sx={{ border: "0.2px solid", px: 3, bgcolor: "#FCFCFD", borderColor: "transparent", fontSize: 13, }}>
+                                                View All
+                                            </Typography>
+                                        }
+                                    />
+                                    <Stack direction={'row'} sx={{ width: "100%", px: 6, overflow: 'hidden' }}>
                                         {
-                                            course.subtitle.map((data, i) => (
-
-                                                <Box key={i} sx={{
-                                                    borderRight: '0.5px solid',
-                                                    borderRightColor: '#F2F0EF',
-                                                    py: 1, px: 4
-                                                }}>
-                                                    <Typography key={i} sx={{ fontSize: 40, fontWeight: 700 }}>0{i + 1}</Typography>
-                                                    <Typography sx={{ fontSize: 15, fontWeight: 'bold-500', color: '#333333' }}>{data}</Typography>
-                                                </Box>
-
+                                            course.images.map((images: string, i: number) => (
+                                                <Image
+                                                    unoptimized
+                                                    key={i}
+                                                    src={images}
+                                                    alt="Sarah L"
+                                                    width={385}
+                                                    height={200}
+                                                    style={{
+                                                        margin: "auto",
+                                                    }}
+                                                />
                                             ))
                                         }
                                     </Stack>
-                                </Box>
-                            </Grid>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", px: 6, mt: 2 }}>
+                                        <Stack direction={'row'} >
+                                            <Typography sx={{ mr: 1, color: "#4C4C4D", borderRadius: 2, px: 2, py: 1, bgcolor: "#FCFCFD", fontSize: 12 }} >{course.totalVideosTiming}</Typography>
+                                            <Typography sx={{ borderRadius: 2, color: "#4C4C4D", textAlign: 'center', px: 2, py: 1, bgcolor: "#FCFCFD", fontSize: 12 }}>{course.level}</Typography>
+                                        </Stack>
+                                        <Box>
+                                            <Typography sx={{ bgcolor: "#FCFCFD", px: 3, py: 0.5, borderRadius: 2, fontSize: 12 }}>{course.name}</Typography>
+                                        </Box>
+                                    </Box>
 
-                        ))
-                    }
+                                    <Box width={"92%"} sx={{
+                                        mt: 3,
+                                        justifySelf: 'center',
+                                        mb: 3,
+                                        justifyContent: "center"
+                                    }}>
+                                        <Typography sx={{ py: 1, fontSize: 14, fontWeight: 600, borderRadius: 2, pl: 1, border: "0.5px solid", borderColor: "#F2F0EF" }}>Curriculum</Typography>
+                                        <Stack direction={'row'}
+                                            sx={{
+                                                border: '0.5px solid',
+                                                borderColor: '#F2F0EF',
+                                                borderRadius: 2,
+                                                justifyContent: 'space-between'
+                                            }}>
+                                            {
+                                                course.chapters.map((data: any, i: number) => (
 
-                </Grid >
+                                                    <Box key={i} sx={{
+                                                        borderRight: '0.5px solid',
+                                                        borderRightColor: '#F2F0EF',
+                                                        py: 1, px: 4,
+                                                        width: '100%',
+                                                    }}>
+                                                        <Typography key={i} sx={{ fontSize: 40, fontWeight: 700 }}>0{i + 1}</Typography>
+                                                        <Typography sx={{ fontSize: 15, fontWeight: 'bold-500', color: '#333333' }}>{data.title}</Typography>
+                                                    </Box>
+                                                ))
+                                            }
+                                        </Stack>
+                                    </Box>
+                                </Grid>
+
+                            ))
+                        }
+
+                    </Grid >
+                )}
             </Box>
         </Container>
     )
