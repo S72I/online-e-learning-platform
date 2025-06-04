@@ -34,7 +34,7 @@ export default function NavBar() {
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
-  
+
   const handleLogout = () => {
     logout();
     localStorage.removeItem("rememberMe");
@@ -51,28 +51,29 @@ export default function NavBar() {
     path: string;
   }
 
-  const NAV_ITEMS: NavItem[] = [
-    { label: 'Home', path: '/' },
-    { label: 'Courses', path: '/courses' },
+  const COMMON_ITEMS: NavItem[] = [
     { label: 'About Us', path: '/aboutus' },
     { label: 'Pricing', path: '/pricing' },
     { label: 'Contact', path: '/contact' },
+  ];
+
+  const NAV_ITEMS: NavItem[] = [
+    { label: 'Home', path: '/' },
+    { label: 'Courses', path: '/courses' },
+    ...COMMON_ITEMS,
   ];
 
   const USER_NAV_ITEMS: NavItem[] = [
     { label: 'MarketCourses', path: '/' },
     { label: 'MyCourses', path: '/courses' },
-    { label: 'About Us', path: '/aboutus' },
-    { label: 'Pricing', path: '/pricing' },
-    { label: 'Contact', path: '/contact' },
+    ...COMMON_ITEMS,
   ];
 
   const ADMIN_NAV_ITEMS: NavItem[] = [
     { label: 'MyCourses', path: '/' },
-    { label: 'About Us', path: '/aboutus' },
-    { label: 'Pricing', path: '/pricing' },
-    { label: 'Contact', path: '/contact' },
+    ...COMMON_ITEMS,
   ];
+
 
   let NavItemsArray: NavItem[] = [];
 
@@ -84,6 +85,9 @@ export default function NavBar() {
     NavItemsArray = NAV_ITEMS;
   }
 
+  if (isLoading) {
+    return null; 
+  }
 
   return (
     <>
@@ -157,7 +161,7 @@ export default function NavBar() {
               />
             </IconButton>
 
-            {/* Show NAV_ITEMS always */}
+            {/* Desktop Nav Items */}
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
               {NavItemsArray.map((item: NavItem) => (
                 <Button
@@ -177,10 +181,9 @@ export default function NavBar() {
                 </Button>
               ))}
             </Box>
-
           </Box>
 
-          {/* Mobile menu (always available) */}
+          {/* Mobile menu */}
           {isMobile && (
             <>
               <IconButton
@@ -218,47 +221,13 @@ export default function NavBar() {
             </>
           )}
 
-          {/* Only show auth buttons when not loading */}
-          {!isLoading && (
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {!isAuthenticated ? (
-                <>
-                  <Button
-                    component={Link}
-                    href="/signup"
-                    variant="outlined"
-                    size="small"
-                    sx={{
-                      color: 'text.primary',
-                      fontSize: { xs: 12, sm: 13 },
-                      textTransform: 'none',
-                      borderColor: 'divider',
-                      '&:hover': {
-                        backgroundColor: '#FF9500', color: 'white',
-                      }
-                    }}
-                  >
-                    Sign Up
-                  </Button>
-                  <Button
-                    component={Link}
-                    href="/login"
-                    variant="contained"
-                    size="small"
-                    sx={{
-                      backgroundColor: '#FF9500',
-                      color: 'white',
-                      fontSize: { xs: 12, sm: 13 },
-                      textTransform: 'none',
-                      '&:hover': { backgroundColor: '#FFD580', color: 'black' },
-                    }}
-                  >
-                    Login
-                  </Button>
-                </>
-              ) : (
+          {/* Auth Buttons */}
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {!isAuthenticated ? (
+              <>
                 <Button
-                  onClick={handleLogout}
+                  component={Link}
+                  href="/signup"
                   variant="outlined"
                   size="small"
                   sx={{
@@ -266,14 +235,46 @@ export default function NavBar() {
                     fontSize: { xs: 12, sm: 13 },
                     textTransform: 'none',
                     borderColor: 'divider',
-                    '&:hover': { borderColor: '#FF9500', color: '#FF9500' },
+                    '&:hover': {
+                      backgroundColor: '#FF9500', color: 'white',
+                    }
                   }}
                 >
-                  Logout
+                  Sign Up
                 </Button>
-              )}
-            </Box>
-          )}
+                <Button
+                  component={Link}
+                  href="/login"
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    backgroundColor: '#FF9500',
+                    color: 'white',
+                    fontSize: { xs: 12, sm: 13 },
+                    textTransform: 'none',
+                    '&:hover': { backgroundColor: '#FFD580', color: 'black' },
+                  }}
+                >
+                  Login
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={handleLogout}
+                variant="outlined"
+                size="small"
+                sx={{
+                  color: 'text.primary',
+                  fontSize: { xs: 12, sm: 13 },
+                  textTransform: 'none',
+                  borderColor: 'divider',
+                  '&:hover': { borderColor: '#FF9500', color: '#FF9500' },
+                }}
+              >
+                Logout
+              </Button>
+            )}
+          </Box>
         </Toolbar>
       </AppBar>
     </>

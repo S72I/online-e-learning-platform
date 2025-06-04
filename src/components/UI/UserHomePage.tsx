@@ -32,6 +32,9 @@ const UserHomePage = () => {
     }
   }
 
+  const handelViewPurchaseClick = () => {
+    router.push("/login")
+  }
   return (
     <> {
       loading ? (
@@ -199,7 +202,35 @@ const UserHomePage = () => {
               }
             />
           </Box>
-          <CustomCard limit={2} />
+          <CustomCard limit={2} action={
+            <Box width={"100%"}
+              sx={{ px: 2, my: 5, display: "flex", justifyContent: "center" }}>
+              <Button
+                onClick={() => handelViewPurchaseClick()}
+                sx={{
+                  mx: 1,
+                  bgcolor: "#F1F1F3",
+                  fontSize: 12,
+                  width: "50%",
+                  fontWeight: 'bold',
+                  py: 1.5,
+                  color: "#262626"
+                }}>View</Button>
+              <Button
+                onClick={() => handelViewPurchaseClick()}
+                sx={{
+                  mx: 1,
+                  bgcolor: "#FF9500",
+                  '&:hover': { bgcolor: "#e68600" },
+                  fontSize: 12,
+                  width: "50%",
+                  color: "#fff",
+                  fontWeight: 'bold',
+                  py: 1.5
+                }}>Purchase</Button>
+
+            </Box>
+          } />
 
           <SectionHeader
             title="Our Testimonials"

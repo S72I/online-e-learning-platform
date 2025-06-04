@@ -59,8 +59,8 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
   const watchChapters = useWatch({ control, name: 'chapters' });
 
   useEffect(() => {
-    if (data?.result) {
-      reset(data.result);
+    if (data?.course) {
+      reset(data.course);
     }
   }, [data, reset]);
 

@@ -7,6 +7,7 @@ const apiUrl = '/api/courses';
 type GetCoursesQueryArg = {
     title?: string;
     sortOrder?: 'asc' | 'desc' | '';
+    level?: string;
 };
 
 
@@ -25,10 +26,11 @@ const courseApi = createApi({
         // }),
 
         getCourses: builder.query<any, GetCoursesQueryArg>({
-            query: ({ title = '', sortOrder = '' } = {}) => {
+            query: ({ title = '', sortOrder = '', level = '' } = {}) => {
                 const params = new URLSearchParams();
                 if (title) params.append('title', title);
                 if (sortOrder) params.append('sortOrder', sortOrder);
+                if (level) params.append('level', level);
                 return {
                     url: `${apiUrl}/getCourses?${params.toString()}`,
                     method: 'GET',

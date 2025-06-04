@@ -26,8 +26,7 @@ export const baseQueryWithReauth: BaseQueryFn<
     FetchBaseQueryError
 > = async (args, api, extraOptions) => {
     const result = await baseQuery(args, api, extraOptions);
-
-    if (result.error?.status === 401) {
+    if (result.error?.status === 500) {
         if (typeof window !== "undefined") {
             localStorage.removeItem("authToken");
             localStorage.removeItem("rememberMe");
