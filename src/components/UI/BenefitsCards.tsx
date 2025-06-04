@@ -40,10 +40,10 @@ const benefits = [
 
 const BenefitsCards = () => {
     return (
-        <Grid container spacing={2} sx={{ px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
+        <Grid container spacing={2} sx={{ px: { xs: 2, sm: 2, lg: 6, xl: 1 }, justifyContent: 'center' }}>
             {
                 benefits.map((data, index) => (
-                    <Box key={index} sx={{ width: 430, height: 'auto', bgcolor: 'white' }}>
+                    <Grid key={index} sx={{ borderRadius: 2, width: { md: 430, xs: 430, lg: 430, xl: "40%", sm: 330 }, height: 'auto', bgcolor: 'white' }}>
                         <Box
                             justifyContent={"flex-end"}
                             alignItems={"center"}
@@ -89,7 +89,7 @@ const BenefitsCards = () => {
                                 bgcolor: "#F1F1F3"
                             }} />
                         </Box>
-                    </Box>
+                    </Grid>
                 ))
             }
         </Grid>

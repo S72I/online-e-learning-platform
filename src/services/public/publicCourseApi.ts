@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 type GetCoursesQueryArg = {
     title?: string;
     sortOrder?: 'asc' | 'desc' | '';
+    level?: string
 };
 
 const apiUrl = "/api/courses";
@@ -13,10 +14,11 @@ export const publicCourseApi = createApi({
     tagTypes: ['Courses'],
     endpoints: (builder) => ({
         getCourses: builder.query<any, GetCoursesQueryArg>({
-            query: ({ title = '', sortOrder = '' } = {}) => {
+            query: ({ title = '', sortOrder = '', level = '' } = {}) => {
                 const params = new URLSearchParams();
                 if (title) params.append('title', title);
                 if (sortOrder) params.append('sortOrder', sortOrder);
+                if (level) params.append('level', level);
                 return {
                     url: `${apiUrl}/allcourses?${params.toString()}`,
                     method: 'GET',
@@ -24,7 +26,7 @@ export const publicCourseApi = createApi({
             },
             providesTags: ['Courses'],
         }),
-        
+
         getCourse: builder.query({
             query: (courseId) => `${apiUrl}/getcourse/${courseId}`,
             providesTags: ["Courses"],

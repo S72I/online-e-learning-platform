@@ -16,9 +16,10 @@ const GetAdminCourse = () => {
 
     const [title, setTitle] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<'' | 'asc' | 'desc'>('');
+    const [level, setLevel] = useState<string>('');
 
 
-    const { data, isLoading, isError } = useGetCoursesQuery({ title, sortOrder })
+    const { data, isLoading, isError } = useGetCoursesQuery({ title, sortOrder, level })
 
     console.log("data", data);
 
@@ -43,10 +44,17 @@ const GetAdminCourse = () => {
         router.push(`/updateCourse/${courseID}`)
     }
 
+    console.log("data", data);
+
+
+
     const handleClick = () => {
         setLoading(true);
         router.push("/addCourse")
     };
+
+
+
     return (
         <>
             {loading ? (
@@ -84,6 +92,22 @@ const GetAdminCourse = () => {
                                 <MenuItem value="desc">Sort Z-A</MenuItem>
                             </Select>
                         </FormControl>
+
+                        <FormControl sx={{ width: '180px' }} size="small">
+                            <InputLabel id="sort-level-label">Sort Level</InputLabel>
+                            <Select
+                                labelId="sort-level-label"
+                                value={level}
+                                label="Sort Level"
+                                onChange={(e) => setLevel(e.target.value)}
+                            >
+                                <MenuItem value="">No Sort</MenuItem>
+                                <MenuItem value="Beginner">Beginner</MenuItem>
+                                <MenuItem value="Intermediate">Intermediate</MenuItem>
+                                <MenuItem value="Advance">Advance</MenuItem>
+                            </Select>
+                        </FormControl>
+
                     </Box>
 
                     {isLoading ? (

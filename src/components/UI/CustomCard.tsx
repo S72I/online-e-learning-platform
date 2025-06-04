@@ -14,6 +14,7 @@ const beVietnamPro = Be_Vietnam_Pro({
 
 interface Props {
     limit?: number;
+    action?: any;
 }
 
 const courses = [
@@ -71,7 +72,7 @@ const courses = [
     }
 ]
 
-const CustomCard = ({ limit }: Props) => {
+const CustomCard = ({ limit, action }: Props) => {
     const [title, setTitle] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<'' | 'asc' | 'desc'>('');
     const { data, isLoading, isError } = useGetCoursesQuery({ title, sortOrder });
@@ -181,13 +182,30 @@ const CustomCard = ({ limit }: Props) => {
                                 {course.description}
                             </Typography>
 
-                            <Box
-                                width={"100%"}
-                                sx={{ my: 5, display: "flex", justifyContent: "center" }}
-                            >
-                                <Button onClick={() => handelClickCourse(course._id as string)} sx={{ bgcolor: "#F1F1F3", fontSize: 12, width: "80%", color: "#262626" }}>Get it Now</Button>
+                            {/* <Button onClick={() => handelClickCourse(course._id as string)}
+                                    sx={{
+                                        mx: 1,
+                                        bgcolor: "#F1F1F3",
+                                        fontSize: 12,
+                                        width: "50%",
+                                        color: "#262626"
+                                    }}>View</Button>
+                                <Button onClick={() => handelClickCourse(course._id as string)}
+                                    sx={{
+                                        mx: 1,
+                                        '&:hover': { bgcolor: "#e68600" },
+                                        bgcolor: "#F1F1F3",
+                                        fontSize: 12,
+                                        width: "50%",
+                                        color: "#262626"
+                                    }}>Get it Now</Button> */}
 
-                            </Box>
+                            {action && (
+                                <Box width={"100%"}>
+                                    {action}
+                                </Box>
+                            )}
+
                         </Grid>
                     ))}
                 </Grid>

@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 
 const Dashboard = () => {
     const router = useRouter()
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [role, setRole] = useState<string | null>(null)
 
     useEffect(() => {
@@ -17,6 +17,7 @@ const Dashboard = () => {
 
         if (!token) {
             router.push('/')
+            setLoading(false)
             return
         }
         try {
@@ -32,30 +33,26 @@ const Dashboard = () => {
         }
     }, [router])
 
+
     if (loading) {
-        return (
-            <Box sx={{
+        return <Box
+            sx={{
                 alignSelf: 'center',
                 justifySelf: 'center',
                 mt: 20,
                 display: 'flex'
-            }}>
-                <CircularProgress size={50} sx={{ margin: 'auto' }} />
-            </Box>
-        )
+            }}
+        ><CircularProgress /></Box>;
     }
 
     if (role === 'admin') {
         return <GetAdminCourse />
     }
-    else if (role === 'user') {
+    if (role === 'user') {
         return <GetUserCourses />
-    } else return <UserHomePage />
+    }
+
+    return <UserHomePage />
 };
 
-
-
 export default Dashboard
-
-
-
