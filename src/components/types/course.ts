@@ -20,11 +20,11 @@ export interface Course {
 }
 
 export interface Contact {
-    firstName: string,
+    subject: string,
+    firstname: string,
     lastname: string,
     phonenumber: string,
     message: string,
-    subject: string,
     email: string
 
 }

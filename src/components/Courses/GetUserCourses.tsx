@@ -1,7 +1,14 @@
 'use client';
 import { useGetCoursesQuery } from '@/services/public/publicCourseApi';
 import React, { useState } from 'react';
-import { Box, Button, CircularProgress, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
+import {
+  Box, Button, CircularProgress, FormControl, Grid, InputLabel, MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Select, Stack, TextField, Typography
+} from '@mui/material'
 import { Be_Vietnam_Pro } from 'next/font/google'
 import { useRouter } from 'next/navigation';
 import CustomCard from '../UI/CustomCard';
@@ -16,18 +23,41 @@ const GetUserCourse = () => {
   const [sortOrder, setSortOrder] = useState<'' | 'asc' | 'desc'>('');
   const [level, setLevel] = useState<string>('');
 
-  const router = useRouter();
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false)
+  const [selectedCourse, setSelectedCourse] = useState<any>(null)
+  const [isPurchaseModal, setIsPurchaseModal] = useState(false)
 
+  const router = useRouter();
   const { data, isLoading, isError } = useGetCoursesQuery({ title, sortOrder, level });
 
-  console.log("data", data);
-
-  const handelClickCourse = (courseId: string) => {
-    router.replace(`/courses/${courseId}`)
+  const handelViewClick = (courseId: string) => {
+    router.push(`/courses/${courseId}`)
   }
 
-  const handelModalClick = () => {
-    
+  const handlePurchaseClick = (course: string) => {
+    setSelectedCourse(course)
+    setShowPurchaseModal(true)
+  }
+
+  const confirmPurchase = async () => {
+    if (!selectedCourse) return
+    setIsPurchaseModal(true)
+    try {
+      // await deleteCourse(selectedCourse._id).unwrap()
+      setShowPurchaseModal(false)
+      setSelectedCourse(null)
+      // toast.success("Course deleted successfully!");
+      router.refresh()
+    } catch (error) {
+      console.error('Delete error:', error)
+    } finally {
+      setIsPurchaseModal(false)
+    }
+  }
+
+  const cancelPurchase = () => {
+    setShowPurchaseModal(false)
+    setSelectedCourse(null)
   }
 
   return (
@@ -79,134 +109,181 @@ const GetUserCourse = () => {
       ) : !data?.courses || data.courses.length === 0 ? (
         <Typography sx={{ mt: 5, textAlign: 'center' }}>No courses found</Typography>
       ) : (
-        // <Grid container spacing={2} sx={{ mt: 5, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
-        //   {data.courses.map((course: any) => (
-        //     <Grid
-        //       key={course._id}
-        //       size={{ xs: 16, md: 6, sm: 6, lg: 6 }}
-        //       sx={{ bgcolor: "white", height: "auto", overflow: "hidden", width: "100%" }}
-        //     >
-        //       <Box sx={{ margin: 'auto', mt: 6, height: '350px', overflow: 'hidden', width: '90%' }}>
-        //         <img
-        //           src={course.images?.[0] || "/images/thumbnails/Image-not-found.png"}
-        //           alt={course.title || "Course Image"}
-        //           width={"100%"}
-        //           height={"100%"}
-        //           style={{ width: '100%', height: '100%', borderRadius: 12 }}
-        //         />
-        //       </Box>
+        <Grid container spacing={2} sx={{ mt: 5, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
+          {data.courses.map((course: any) => (
 
-        //       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", px: 4, mt: 2 }}>
-        //         <Stack direction={'row'} sx={{ mt: 1 }}>
-        //           <Typography
-        //             sx={{
-        //               mr: 1,
-        //               color: "#4C4C4D",
-        //               borderRadius: 2,
-        //               px: 2,
-        //               py: 1,
-        //               alignSelf: 'center',
-        //               border: '0.5px #F1F1F3 solid',
-        //               fontSize: 15,
-        //               fontWeight: 'bold',
-        //               textAlign: 'center',
-        //             }}
-        //           >
-        //             {course.totalVideosTiming} Minutes
-        //           </Typography>
+            <Grid
+              key={course._id}
+              size={{ xs: 16, md: 6, sm: 6, lg: 6 }}
+              sx={{ bgcolor: "white", height: "auto", overflow: "hidden", width: "100%" }}
+            >
+              <Box sx={{ margin: 'auto', mt: 6, height: '350px', overflow: 'hidden', width: '90%' }}>
+                <img
+                  src={course.images?.[0] || "/images/thumbnails/Image-not-found.png"}
+                  alt={course.title || "Course Image"}
+                  width={"100%"}
+                  height={"100%"}
+                  style={{ width: '100%', height: '100%', borderRadius: 12 }}
+                />
+              </Box>
 
-        //           <Typography
-        //             sx={{
-        //               borderRadius: 2,
-        //               color: "#4C4C4D",
-        //               textAlign: 'center',
-        //               px: 2,
-        //               py: 1,
-        //               alignSelf: 'center',
-        //               border: '0.5px #F1F1F3 solid',
-        //               fontSize: 15,
-        //               fontWeight: 'bold',
-        //             }}
-        //           >
-        //             {course.level}
-        //           </Typography>
-        //         </Stack>
-        //         <Box>
-        //           <Typography
-        //             sx={{
-        //               textAlign: 'center',
-        //               px: 2,
-        //               py: 1,
-        //               alignSelf: 'center',
-        //               fontSize: 15,
-        //               fontWeight: 'bold',
-        //             }}
-        //           >
-        //             By {course.courseEducator}
-        //           </Typography>
-        //         </Box>
-        //       </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", px: 4, mt: 2 }}>
+                <Stack direction={'row'} sx={{ mt: 1 }}>
+                  <Typography
+                    sx={{
+                      mr: 1,
+                      color: "#4C4C4D",
+                      borderRadius: 2,
+                      px: 2,
+                      py: 1,
+                      alignSelf: 'center',
+                      border: '0.5px #F1F1F3 solid',
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {course.totalVideosTiming} Minutes
+                  </Typography>
 
-        //       <Typography
-        //         style={beVietnamPro.style}
-        //         fontWeight={"700"}
-        //         sx={{ mt: 3, px: 4, fontSize: 18 }}
-        //       >
-        //         {course.title}
-        //       </Typography>
+                  <Typography
+                    sx={{
+                      borderRadius: 2,
+                      color: "#4C4C4D",
+                      textAlign: 'center',
+                      px: 2,
+                      py: 1,
+                      alignSelf: 'center',
+                      border: '0.5px #F1F1F3 solid',
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {course.level}
+                  </Typography>
+                </Stack>
+                <Box>
+                  <Typography
+                    sx={{
+                      textAlign: 'center',
+                      px: 2,
+                      py: 1,
+                      alignSelf: 'center',
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    By {course.user_name}
+                  </Typography>
+                </Box>
+              </Box>
 
-        //       <Typography
-        //         height={70}
-        //         overflow="hidden"
-        //         textOverflow="ellipsis"
-        //         style={beVietnamPro.style}
-        //         fontWeight={400}
-        //         sx={{ mt: 2, px: 4, color: "#4C4C4D", fontSize: 15 }}
-        //       >
-        //         {course.description}
-        //       </Typography>
+              <Typography
+                style={beVietnamPro.style}
+                fontWeight={"700"}
+                sx={{ mt: 3, px: 4, fontSize: 18 }}
+              >
+                {course.title}
+              </Typography>
 
-        //       <Box
-        //         width={"100%"}
-        //         sx={{ my: 5, display: "flex", justifyContent: "center" }}
-        //       >
-        //         <Button onClick={() => handelClickCourse(course._id as string)} sx={{ bgcolor: "#F1F1F3", fontSize: 12, width: "80%", color: "#262626" }}>Get it Now</Button>
+              <Typography
+                height={70}
+                overflow="hidden"
+                textOverflow="ellipsis"
+                style={beVietnamPro.style}
+                fontWeight={400}
+                sx={{ mt: 2, px: 4, color: "#4C4C4D", fontSize: 15 }}
+              >
+                {course.description}
+              </Typography>
 
-        //       </Box>
-        //     </Grid>
-        //   ))}
-        // </Grid>
+              <Box width={"100%"}
+                sx={{ px: 2, mb: 5, display: "flex", justifyContent: "center" }}>
+                <Button
+                  onClick={() => handelViewClick(course._id)}
+                  sx={{
+                    mx: 1,
+                    bgcolor: "#F1F1F3",
+                    fontSize: 12,
+                    width: "50%",
+                    fontWeight: 'bold',
+                    py: 1.5,
+                    color: "#262626"
+                  }}>View</Button>
+                <Button
+                  onClick={() => handlePurchaseClick(course._id)}
+                  sx={{
+                    mx: 1,
+                    bgcolor: "#FF9500",
+                    '&:hover': { bgcolor: "#e68600" },
+                    fontSize: 12,
+                    width: "50%",
+                    color: "#fff",
+                    fontWeight: 'bold',
+                    py: 1.5
+                  }}>Purchase</Button>
+              </Box>
 
-        <CustomCard action={
-          <Box width={"100%"}
-            sx={{ px: 2, my: 5, display: "flex", justifyContent: "center" }}>
-            <Button
-              // onClick={() => handelClickCourse(course._id as string)}
-              sx={{
-                mx: 1,
-                bgcolor: "#F1F1F3",
-                fontSize: 12,
-                width: "50%",
-                fontWeight: 'bold',
-                py: 1.5,
-                color: "#262626"
-              }}>View</Button>
-            <Button
-              onClick={() => handelModalClick()}
-              sx={{
-                mx: 1,
-                bgcolor: "#FF9500",
-                '&:hover': { bgcolor: "#e68600" },
-                fontSize: 12,
-                width: "50%",
-                color: "#fff",
-                fontWeight: 'bold',
-                py: 1.5
-              }}>Purchase</Button>
+              <Dialog open={showPurchaseModal} onClose={cancelPurchase}>
+                <DialogTitle>Purchase Confirmation</DialogTitle>
+                <DialogContent>
+                  Are you sure you want to purchase this course ?
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={cancelPurchase} disabled={isPurchaseModal}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={confirmPurchase}
+                    color="success"
+                    disabled={isPurchaseModal}
+                    sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minWidth: 100 }}
+                  >
+                    {isPurchaseModal ? (
+                      <CircularProgress size={24} />
+                    ) : (
+                      'Purchase'
+                    )}
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </Grid>
 
-          </Box>
-        } />
+
+          ))}
+        </Grid>
+
+        // <CustomCard action={
+        //   <Box width={"100%"}
+        //     sx={{ px: 2, my: 5, display: "flex", justifyContent: "center" }}>
+        //     <Button
+        //       sx={{
+        //         mx: 1,
+        //         bgcolor: "#F1F1F3",
+        //         fontSize: 12,
+        //         width: "50%",
+        //         fontWeight: 'bold',
+        //         py: 1.5,
+        //         color: "#262626"
+        //       }}>View</Button>
+        //     <Button
+        //       onClick={() => handelModalClick()}
+        //       sx={{
+        //         mx: 1,
+        //         bgcolor: "#FF9500",
+        //         '&:hover': { bgcolor: "#e68600" },
+        //         fontSize: 12,
+        //         width: "50%",
+        //         color: "#fff",
+        //         fontWeight: 'bold',
+        //         py: 1.5
+        //       }}>Purchase</Button>
+
+        //   </Box>
+        // } />
       )}
+
+
     </Box>
   );
 };

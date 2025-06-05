@@ -12,12 +12,33 @@ import {
 import { useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Chapter, Course, Video } from '../types/course';
 import { Controller, useForm } from 'react-hook-form';
 import { levelOptions } from '@/lib/utils/constants';
 import CustomDropDown from '../UI/CustomDropDown';
 import { useCreateCourseMutation } from '@/services/courseAPI';
 import { useRouter } from 'next/navigation';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// --- Types ---
+interface Video {
+    videoTitle: string;
+    description: string;
+    videoUri: string;
+    videoTiming: string;
+}
+interface Chapter {
+    title: string;
+    videos: Video[];
+}
+interface Course {
+    title: string;
+    level: string;
+    description: string;
+    images: string[];
+    chapters: Chapter[];
+    totalVideosTiming: string;
+}
 
 const MAX_IMAGES = 3;
 
@@ -33,6 +54,24 @@ const defaultChapter: Chapter = {
     videos: [defaultVideo],
 };
 
+function secondsToHms(seconds: number) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    if (h > 0) {
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+function hmsToSeconds(hms: string) {
+    if (!hms) return 0;
+    const parts = hms.split(':').map(Number);
+    if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    if (parts.length === 2) return parts[0] * 60 + parts[1];
+    return 0;
+}
+
 function AddCoursePage() {
     const {
         control,
@@ -46,12 +85,11 @@ function AddCoursePage() {
             title: '',
             level: '',
             description: '',
+            images: [],
+            chapters: [],
             totalVideosTiming: '',
-            images: [''],
-            chapters: [defaultChapter],
         },
     });
-
 
     const [videoLoadingIndex, setVideoLoadingIndex] = useState<{ chapterIdx: number; videoIdx: number } | null>(null);
 
@@ -61,10 +99,12 @@ function AddCoursePage() {
         title: '',
         level: '',
         description: '',
-        images: [''],
+        images: [],
+        chapters: [],
         totalVideosTiming: '',
-        chapters: [defaultChapter],
     });
+
+    const [showChapters, setShowChapters] = useState(false);
 
     const handleChange = (field: keyof Course, value: any) => {
         setCourseData((prev) => ({ ...prev, [field]: value }));
@@ -89,6 +129,7 @@ function AddCoursePage() {
         key: keyof Video,
         event: any
     ) => {
+        const updatedChapters = [...courseData.chapters];
         if (key === "videoUri") {
             const file = event.target.files?.[0];
             if (!file) return;
@@ -108,9 +149,8 @@ function AddCoursePage() {
                 const data = await res.json();
 
                 if (data.secure_url) {
-                    const updatedChapters = [...courseData.chapters];
-                    updatedChapters[chapterIdx].videos[videoIdx][key] = data.secure_url;
-
+                    updatedChapters[chapterIdx].videos[videoIdx].videoUri = data.secure_url;
+                    updatedChapters[chapterIdx].videos[videoIdx].videoTiming = secondsToHms(data.duration || 0);
                     handleChange('chapters', updatedChapters);
                 } else {
                     console.error("Upload failed:", data);
@@ -120,14 +160,11 @@ function AddCoursePage() {
             } finally {
                 setVideoLoadingIndex(null);
             }
-        }
-        else {
-            const updatedChapters = [...courseData.chapters];
+        } else if (key === "videoTitle" || key === "description" || key === "videoTiming") {
             updatedChapters[chapterIdx].videos[videoIdx][key] = event;
             handleChange('chapters', updatedChapters);
         }
     };
-
 
     const handleRemoveVideo = (chapterIdx: number, videoIdx: number) => {
         const updatedChapters = [...courseData.chapters];
@@ -145,8 +182,13 @@ function AddCoursePage() {
         handleChange('chapters', [...courseData.chapters, newChapter]);
     };
 
-
     const addVideo = (chapterIdx: number) => {
+        const currentVideos = courseData.chapters[chapterIdx].videos;
+        const lastVideo = currentVideos[currentVideos.length - 1];
+        if (!lastVideo.videoTitle || !lastVideo.videoUri || !lastVideo.videoTiming) {
+            alert("Please fill in the current video details first (title, video file, and timing).");
+            return;
+        }
         const newVideo = { videoTitle: '', description: '', videoUri: '', videoTiming: '' };
         const updatedChapters = [...courseData.chapters];
         const updatedChapter = { ...updatedChapters[chapterIdx] };
@@ -176,8 +218,7 @@ function AddCoursePage() {
             const res = await fetch("https://api.cloudinary.com/v1_1/dmgkiiaqo/image/upload", {
                 method: "POST",
                 body: formData,
-            }
-            );
+            });
 
             const data = await res.json();
 
@@ -185,7 +226,6 @@ function AddCoursePage() {
                 const updatedArray = [...imageArray, data.secure_url];
                 setImageArray(updatedArray);
 
-                // Update your course data with the new images array
                 setCourseData((prev) => ({
                     ...prev,
                     images: updatedArray,
@@ -209,39 +249,62 @@ function AddCoursePage() {
         }));
     };
 
-    const addImage = () => {
-        if (courseData.images.length < MAX_IMAGES) {
-            handleChange('images', [...courseData.images, '']);
-        } else {
-            alert('You can only upload a maximum of 3 images.');
-        }
-    };
-
     const router = useRouter();
 
+    const getTotalDuration = () => {
+        return courseData.chapters.reduce((chapterSum, chapter) => (
+            chapterSum + chapter.videos.reduce((videoSum, video) => videoSum + hmsToSeconds(video.videoTiming || "0:00"), 0)
+        ), 0);
+    };
+
+    const validateCourseData = () => {
+        if (
+            !courseData.title ||
+            !courseData.level ||
+            !courseData.description ||
+            courseData.chapters.length === 0 ||
+            courseData.chapters.some(
+                ch => !ch.title || ch.videos.length === 0 ||
+                    ch.videos.some(v => !v.videoTitle || !v.videoUri || !v.videoTiming)
+            )
+        ) {
+            alert('Please fill all required fields!');
+            return false;
+        }
+        return true;
+    };
 
     const onSubmit = async () => {
+        if (!validateCourseData()) return;
+        const totalSeconds = getTotalDuration();
+        const formatted = secondsToHms(totalSeconds);
+        const payload = { ...courseData, totalVideosTiming: formatted };
         try {
-            const res = await createCourse(courseData).unwrap();
-            console.log("Course created successfully:", res);
-            reset();
-            router.push("/")
+            await createCourse(payload).unwrap();
+            toast.success("Course Added successfully!");
+            setTimeout(() => {
+                router.push("/");
+            }, 1000);
+
             setCourseData({
                 title: "",
                 level: "",
                 description: "",
-                totalVideosTiming: "",
                 images: [],
-                chapters: [defaultChapter],
+                chapters: [],
+                totalVideosTiming: ''
             });
-        } catch (err: any) {
-            console.error("Error creating course:", err.message || err);
+            setShowChapters(false);
+            reset();
+        } catch (err) {
+            toast.error("Failed to Add course.");
+
         }
     };
 
-
     return (
         <Container maxWidth="md" sx={{ py: 6 }}>
+            <ToastContainer />
             <Typography color="#FF9500" variant="h4" fontWeight={700} mb={4}>
                 Add Course
             </Typography>
@@ -292,19 +355,6 @@ function AddCoursePage() {
                 value={courseData.description}
             />
 
-            <TextField
-                label="Total Video Timing (e.g. 3:25)"
-                fullWidth
-                sx={{ mb: 2 }}
-                error={!!errors.totalVideosTiming}
-                helperText={errors.totalVideosTiming && 'Total video timing is required'}
-                {...register('totalVideosTiming', {
-                    required: 'Total video timing is required',
-                    onChange: (e) => handleChange('totalVideosTiming', e.target.value),
-                })}
-                value={courseData.totalVideosTiming}
-            />
-
             <Typography variant="h6" mt={4}>
                 Images
             </Typography>
@@ -340,7 +390,7 @@ function AddCoursePage() {
                     component="label"
                     variant="contained"
                     startIcon={<AddIcon />}
-                    sx={{ mb: 2 }}
+                    sx={{ mb: 2, bgcolor: '#E9692C' }}
                 >
                     Add Image
                     <input
@@ -352,153 +402,200 @@ function AddCoursePage() {
                 </Button>
             )}
 
-            <Typography variant="h5" mt={4} mb={2}>
-                Chapters
-            </Typography>
-
-            {courseData.chapters.map((chapter, chapterIdx) => (
-                <Box
-                    key={chapterIdx}
-                    sx={{
-                        border: '1px solid #ccc',
-                        p: 2,
-                        mb: 3,
-                        borderRadius: 2,
-                        position: 'relative',
-                    }}
-                >
-                    <TextField
-                        label={`Chapter Title ${chapterIdx + 1}`}
-                        fullWidth
-                        sx={{ mb: 2 }}
-                        error={!!errors.chapters?.[chapterIdx]?.title}
-                        helperText={errors.chapters?.[chapterIdx]?.title?.message}
-                        {...register(`chapters.${chapterIdx}.title`, {
-                            required: 'Chapter title is required',
-                            onChange: (e) => handleChapterChange(chapterIdx, e.target.value),
-                        })}
-                    />
-
-
-                    <IconButton
-                        color="error"
-                        onClick={() => handleRemoveChapter(chapterIdx)}
-                        sx={{ position: 'absolute', top: 8, right: 8 }}
-                        disabled={courseData.chapters.length === 1}
-                        title={
-                            courseData.chapters.length === 1
-                                ? 'At least one chapter required'
-                                : undefined
-                        }
+            {!showChapters && (
+                <Box >
+                    <Button
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={() => {
+                            setShowChapters(true);
+                            if (courseData.chapters.length === 0) addChapter();
+                        }}
+                        sx={{ bgcolor: '#E9692C' }}
                     >
-                        <DeleteIcon />
-                    </IconButton>
+                        Add Chapter
+                    </Button>
+                </Box>
+            )}
 
-                    {chapter.videos.map((video, videoIdx) => (
-                        <Box key={videoIdx} sx={{ mb: 2 }}>
+            {showChapters && (
+                <>
+                    <Typography variant="h5" mt={4} mb={2}>
+                        Chapters
+                    </Typography>
+
+                    {courseData.chapters.map((chapter, chapterIdx) => (
+                        <Box
+                            key={chapterIdx}
+                            sx={{
+                                border: '1px solid #ccc',
+                                p: 2,
+                                mb: 3,
+                                borderRadius: 2,
+                                position: 'relative',
+                            }}
+                        >
                             <TextField
-                                label="Video Title"
+                                label={`Chapter Title ${chapterIdx + 1}`}
                                 fullWidth
-                                sx={{ mb: 1 }}
-                                value={video.videoTitle}
-                                error={!!errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTitle}
-                                helperText={errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTitle?.message}
-                                {...register(`chapters.${chapterIdx}.videos.${videoIdx}.videoTitle`, {
-                                    required: 'Video title is required',
-                                    onChange: (e) => handleVideoChange(chapterIdx, videoIdx, 'videoTitle', e.target.value)
+                                sx={{ mb: 2 }}
+                                error={!!errors.chapters?.[chapterIdx]?.title}
+                                helperText={errors.chapters?.[chapterIdx]?.title?.message}
+                                {...register(`chapters.${chapterIdx}.title`, {
+                                    required: 'Chapter title is required',
+                                    onChange: (e) => handleChapterChange(chapterIdx, e.target.value),
                                 })}
+                                value={chapter.title}
                             />
-
-                            <TextField
-                                label="Description"
-                                fullWidth
-                                sx={{ mb: 1 }}
-                                value={video.description}
-
-                                error={!!errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.description}
-                                helperText={errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.description?.message}
-                                {...register(`chapters.${chapterIdx}.videos.${videoIdx}.description`, {
-                                    required: 'lessonNo is required',
-                                    onChange: (e) => handleVideoChange(
-                                        chapterIdx,
-                                        videoIdx,
-                                        'description',
-                                        e.target.value
-                                    )
-                                })}
-                            />
-
-                            <TextField
-                                label="Video Timing (e.g. 3:25)"
-                                fullWidth
-                                sx={{ mb: 1 }}
-                                value={video.videoTiming}
-                                error={!!errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTiming}
-                                helperText={errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTiming?.message}
-                                {...register(`chapters.${chapterIdx}.videos.${videoIdx}.videoTiming`, {
-                                    required: 'videoTiming is required',
-                                    onChange: (e) => handleVideoChange(chapterIdx, videoIdx, 'videoTiming', e.target.value)
-                                })}
-
-                            />
-
-
-                            <input
-                                type="file"
-                                onChange={(event) => handleVideoChange(chapterIdx, videoIdx, 'videoUri', event)}
-                                accept="video/*"
-                                disabled={
-                                    videoLoadingIndex?.chapterIdx === chapterIdx &&
-                                    videoLoadingIndex?.videoIdx === videoIdx
-                                }
-                            />
-                            {videoLoadingIndex?.chapterIdx === chapterIdx &&
-                                videoLoadingIndex?.videoIdx === videoIdx ? (
-                                <CircularProgress size={24} sx={{ ml: 2 }} />
-                            ) : video.videoUri ? (
-                                <video width="80%" height="auto" controls>
-                                    <source src={video.videoUri} type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                </video>
-                            ) : (video.videoUri == "" ? "Select Video" : "loading...")}
 
                             <IconButton
                                 color="error"
-                                onClick={() => handleRemoveVideo(chapterIdx, videoIdx)}
-                                sx={{ mt: 2 }}
-                                disabled={chapter.videos.length === 1}
+                                onClick={() => handleRemoveChapter(chapterIdx)}
+                                sx={{ position: 'absolute', top: 8, right: 8 }}
+                                disabled={courseData.chapters.length === 1}
                                 title={
-                                    chapter.videos.length === 1
-                                        ? 'At least one video required'
+                                    courseData.chapters.length === 1
+                                        ? 'At least one chapter required'
                                         : undefined
                                 }
                             >
                                 <DeleteIcon />
                             </IconButton>
+
+                            {chapter.videos.map((video, videoIdx) => (
+                                <Box key={videoIdx} sx={{ mb: 2 }}>
+                                    <TextField
+                                        label="Video Title"
+                                        fullWidth
+                                        sx={{ mb: 1 }}
+                                        value={video.videoTitle}
+                                        error={!!errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTitle}
+                                        helperText={errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTitle?.message}
+                                        {...register(`chapters.${chapterIdx}.videos.${videoIdx}.videoTitle`, {
+                                            required: 'Video title is required',
+                                            onChange: (e) => handleVideoChange(chapterIdx, videoIdx, 'videoTitle', e.target.value)
+                                        })}
+                                    />
+
+                                    <TextField
+                                        label="Description"
+                                        fullWidth
+                                        sx={{ mb: 1 }}
+                                        value={video.description}
+                                        error={!!errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.description}
+                                        helperText={errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.description?.message}
+                                        {...register(`chapters.${chapterIdx}.videos.${videoIdx}.description`, {
+                                            required: 'Description is required',
+                                            onChange: (e) => handleVideoChange(
+                                                chapterIdx,
+                                                videoIdx,
+                                                'description',
+                                                e.target.value
+                                            )
+                                        })}
+                                    />
+
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                        <Button
+                                            component="label"
+                                            variant="outlined"
+                                            size="small"
+                                            sx={{ mb: 1 }}
+                                            disabled={!!videoLoadingIndex && videoLoadingIndex.chapterIdx === chapterIdx && videoLoadingIndex.videoIdx === videoIdx}
+                                        >
+                                            {video.videoUri ? "Change Video" : "Upload Video"}
+                                            <input
+                                                type="file"
+                                                hidden
+                                                accept="video/*"
+                                                onChange={(e) => handleVideoChange(chapterIdx, videoIdx, 'videoUri', e)}
+                                            />
+                                        </Button>
+                                        {videoLoadingIndex && videoLoadingIndex.chapterIdx === chapterIdx && videoLoadingIndex.videoIdx === videoIdx && (
+                                            <CircularProgress size={20} />
+                                        )}
+                                        {video.videoUri && (
+                                            <video width="50%" height="auto" style={{ marginBottom: 30 }} controls>
+                                                <source src={video.videoUri} type="video/mp4" />
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        )}
+                                    </Box>
+
+                                    <TextField
+                                        disabled
+                                        label="Video Timing (e.g. 00:08:30)"
+                                        fullWidth
+                                        sx={{ mb: 1 }}
+                                        value={video.videoTiming}
+                                        error={!!errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTiming}
+                                        helperText={errors.chapters?.[chapterIdx]?.videos?.[videoIdx]?.videoTiming?.message}
+                                        {...register(`chapters.${chapterIdx}.videos.${videoIdx}.videoTiming`, {
+                                            required: 'Video timing is required',
+                                            onChange: (e) => handleVideoChange(chapterIdx, videoIdx, 'videoTiming', e.target.value)
+                                        })}
+                                    />
+
+                                    <IconButton
+                                        color="error"
+                                        onClick={() => handleRemoveVideo(chapterIdx, videoIdx)}
+                                        disabled={chapter.videos.length === 1}
+                                        title={chapter.videos.length === 1 ? 'At least one video required' : undefined}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </Box>
+                            ))}
+
+                            <Button
+                                variant="contained"
+                                size="small"
+                                startIcon={<AddIcon />}
+                                onClick={() => addVideo(chapterIdx)}
+                                sx={{ mt: 1 }}
+                                disabled={
+                                    chapter.videos.length > 0 &&
+                                    (
+                                        !chapter.videos[chapter.videos.length - 1].videoTitle ||
+                                        !chapter.videos[chapter.videos.length - 1].videoUri ||
+                                        !chapter.videos[chapter.videos.length - 1].videoTiming
+                                    )
+                                }
+                            >
+                                Add Video
+                            </Button>
                         </Box>
                     ))}
-                    <Button onClick={() => addVideo(chapterIdx)} size="small">
-                        + Add Video
-                    </Button>
-                </Box>
-            ))}
 
-            <Button onClick={addChapter} startIcon={<AddIcon />} sx={{ mt: 2 }}>
-                Add Chapter
+                    <Button
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={addChapter}
+                        sx={{ mt: 2, bgcolor: '#E9692C' }}
+                    >
+                        Add Another Chapter
+                    </Button>
+                </>
+            )}
+
+            {showChapters && (
+                <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                    Total Course Video Timing: <b>{secondsToHms(getTotalDuration())}</b>
+                </Typography>
+            )}
+
+            <Button
+                variant="contained"
+
+                fullWidth
+                sx={{ mt: 4, bgcolor: '#E9692C' }}
+                onClick={handleSubmit(onSubmit)}
+            >
+                Create Course
             </Button>
 
-            <Box mt={5}>
-                <Button
-                    variant="contained"
-                    size="large"
-                    color="primary"
-                    onClick={handleSubmit(onSubmit)}
-                >
-                    Submit Course
-                </Button>
-            </Box>
         </Container>
     );
 }
 
-export default AddCoursePage
+export default AddCoursePage;

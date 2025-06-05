@@ -154,12 +154,13 @@ import EmailIcon from '@mui/icons-material/Email'
 import CallIcon from '@mui/icons-material/Call'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined'
-import XIcon from '@mui/icons-material/X'
 import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import { useForm } from 'react-hook-form'
 import { useCreateContactMutation } from '@/services/public/publicCourseApi'
 import { Contact } from '../types/course'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ContactPage = () => {
     const [createContact, { isLoading, error }] = useCreateContactMutation()
@@ -171,11 +172,12 @@ const ContactPage = () => {
         reset
     } = useForm<Contact>({
         defaultValues: {
-            lastname: '',
-            firstName: '',
-            phonenumber: '',
             subject: '',
-            message: ''
+            firstname: '',
+            lastname: '',
+            phonenumber: '',
+            message: '',
+            email: ''
         },
     });
 
@@ -183,14 +185,15 @@ const ContactPage = () => {
         try {
             await createContact(data)
             reset()
-            alert('Message sent successfully!')
+            toast.success("Message sent successfully!");
         } catch (err) {
-            alert('Failed to send message.')
+            toast.error("Failed to send message.");
         }
     }
 
     return (
         <Container maxWidth={false}>
+            <ToastContainer />
             <Box
                 sx={{
                     display: 'flex',
@@ -230,9 +233,9 @@ const ContactPage = () => {
                                     variant="outlined"
                                     fullWidth
                                     placeholder="Enter First Name"
-                                    {...register('firstName', { required: 'First name is required' })}
-                                    error={!!errors.firstName}
-                                    helperText={errors.firstName?.message}
+                                    {...register('firstname', { required: 'First name is required' })}
+                                    error={!!errors.firstname}
+                                    helperText={errors.firstname?.message}
                                     sx={{ backgroundColor: '#FCFCFD' }}
                                 />
                             </Box>
@@ -272,12 +275,17 @@ const ContactPage = () => {
                             <Box width={'50%'} sx={{ pr: 2, pl: 1 }}>
                                 <Typography sx={{ mb: 1 }}>Phone</Typography>
                                 <TextField
+                                    type='number'
                                     variant="outlined"
                                     fullWidth
                                     placeholder="Enter Phone Number"
                                     {...register('phonenumber', {
                                         required: 'Phone is required',
                                         minLength: {
+                                            value: 10,
+                                            message: 'Phone number must be at least 10 digits'
+                                        },
+                                        maxLength: {
                                             value: 10,
                                             message: 'Phone number must be at least 10 digits'
                                         }

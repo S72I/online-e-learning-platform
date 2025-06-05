@@ -19,18 +19,34 @@ import { useGetCourseQuery, useUpdateCourseMutation } from '@/services/courseAPI
 import CustomDropDown from '../UI/CustomDropDown';
 import { levelOptions } from '@/lib/utils/constants';
 import { Chapter, Video } from '../types/course';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const MAX_IMAGES = 3;
 
 const defaultVideo: Video = { videoTitle: '', description: '', videoUri: '', videoTiming: '' };
 const defaultChapter: Chapter = { title: '', videos: [defaultVideo] };
 
+function secondsToHms(seconds: number) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  if (h > 0) {
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+function hmsToSeconds(hms: string) {
+  if (!hms) return 0;
+  const parts = hms.split(':').map(Number);
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return 0;
+}
+
 const UpdateCourse = ({ courseID }: { courseID: string }) => {
   const { data, isLoading } = useGetCourseQuery(courseID);
-
-  console.log("data", data);
-
-
   const [updateCourse] = useUpdateCourseMutation();
   const router = useRouter();
 
@@ -64,17 +80,58 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
     }
   }, [data, reset]);
 
+  const getTotalDuration = () => {
+    return watchChapters.reduce((chapterSum, chapter) => (
+      chapterSum + chapter.videos.reduce((videoSum, video) => videoSum + hmsToSeconds(video.videoTiming || '0:00'), 0)
+    ), 0);
+  };
+
+  const validateForm = () => {
+    if (!watchChapters.length) {
+      alert('Please add at least one chapter.');
+      return false;
+    }
+    if (!watchImages.length || watchImages.some(img => !img)) {
+      alert('Please upload all images.');
+      return false;
+    }
+    if (!watchChapters.every(ch => ch.title && ch.videos.length > 0)) {
+      alert('Please fill all chapter titles and add videos.');
+      return false;
+    }
+    for (const chapter of watchChapters) {
+      for (const video of chapter.videos) {
+        if (!video.videoTitle || !video.videoUri || !video.videoTiming) {
+          alert('Please fill all video details including timing.');
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
   const onSubmit = async (formData: any) => {
+    if (!validateForm()) return;
+
+    const totalSeconds = getTotalDuration();
+    const totalVideosTiming = secondsToHms(totalSeconds);
+
+    const payload = {
+      ...formData,
+      totalVideosTiming,
+    };
+
     try {
-      const res = await updateCourse({ id: courseID, payload: formData }).unwrap();
-      console.log('Course updated successfully:', res);
-      router.push('/');
+      await updateCourse({ id: courseID, payload }).unwrap();
+      toast.success("Course updated successfully!");
+      setTimeout(() => {
+        router.push('/');
+      }, 1000);
     } catch (err) {
-      console.error('Error updating course:', err);
+      toast.error("Failed to update course.");
     }
   };
 
-  // Image handlers
   const addImage = () => {
     if (watchImages.length >= MAX_IMAGES) {
       alert('You can only upload a maximum of 3 images.');
@@ -117,7 +174,6 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
     }
   };
 
-  // Chapter handlers
   const addChapter = () => {
     setValue('chapters', [...watchChapters, defaultChapter]);
   };
@@ -127,7 +183,6 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
     setValue('chapters', updated);
   };
 
-  // Video handlers
   const addVideo = (chapterIdx: number) => {
     const updated = [...watchChapters];
     updated[chapterIdx].videos.push({ ...defaultVideo });
@@ -165,6 +220,9 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
       const uploadedUrl = await res.json();
       const updated = [...watchChapters];
       updated[chapterIdx].videos[videoIdx].videoUri = uploadedUrl.secure_url;
+
+      updated[chapterIdx].videos[videoIdx].videoTiming = secondsToHms(uploadedUrl.duration || 0);
+
       setValue('chapters', updated);
     } catch (err) {
       console.error('Video upload failed', err);
@@ -173,15 +231,15 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
     }
   };
 
-  if (isLoading) return <Box sx={{
-    alignSelf: 'center',
-    justifySelf: 'center',
-    mt: 20,
-    display: 'flex'
-  }}><CircularProgress size={50} sx={{ margin: 'auto' }} /></Box>
+  if (isLoading) return (
+    <Box sx={{ alignSelf: 'center', justifySelf: 'center', mt: 20, display: 'flex' }}>
+      <CircularProgress size={50} sx={{ margin: 'auto' }} />
+    </Box>
+  );
 
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
+      <ToastContainer />
       <Typography color="#FF9500" variant="h4" fontWeight={700} mb={4}>
         Update Course
       </Typography>
@@ -226,9 +284,8 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
         label="Total Video Timing"
         fullWidth
         sx={{ mb: 2 }}
-        error={!!errors.totalVideosTiming}
-        helperText={errors.totalVideosTiming?.message}
-        {...register('totalVideosTiming', { required: 'Required' })}
+        value={secondsToHms(getTotalDuration())}
+        disabled
       />
 
       <Typography variant="h6" mt={4}>
@@ -280,7 +337,6 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
           >
             <DeleteIcon />
           </IconButton>
-
           {chapter.videos.map((video, videoIdx) => (
             <Box key={videoIdx} sx={{ mb: 2 }}>
               <TextField
@@ -328,6 +384,7 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
                 ) : null}
               </Box>
               <TextField
+                disabled
                 label="Video Timing"
                 fullWidth
                 value={video.videoTiming}
@@ -346,27 +403,29 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
               </IconButton>
             </Box>
           ))}
-
           <Button
             variant="outlined"
             onClick={() => addVideo(chapterIdx)}
             startIcon={<AddIcon />}
-            sx={{ mt: 1, }}
+            sx={{ mt: 1 }}
           >
             Add Video
           </Button>
         </Box>
       ))}
-
       <Button onClick={addChapter} startIcon={<AddIcon />} sx={{ mt: 2 }}>
         Add Chapter
       </Button>
 
-      <Button variant="contained"
+      <Button
+        variant="contained"
         disabled={isLoading}
         sx={{ mt: 5 }}
-        color="warning" fullWidth onClick={handleSubmit(onSubmit)}>
-        {isLoading ? "Loading..." : "Update Course"}
+        color="warning"
+        fullWidth
+        onClick={handleSubmit(onSubmit)}
+      >
+        {isLoading ? 'Loading...' : 'Update Course'}
       </Button>
     </Container>
   );

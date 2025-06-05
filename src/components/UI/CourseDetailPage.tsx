@@ -101,7 +101,7 @@ const CourseDetailPage = () => {
     const params = useParams();
     const { data, isLoading, isError } = useGetCourseQuery(params.id);
 
-    console.log("data", data);
+    console.log("data", data.result);
 
     // if (isLoading) return <CircularProgress />
     return (

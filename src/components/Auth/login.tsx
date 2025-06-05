@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { useRouter } from 'next/navigation';
 import { useLoginUserMutation } from '@/services/authAPI';
@@ -22,12 +22,10 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useAuth } from '@/context/AuthContext';
 
-
 interface LoginFormInputs {
     email: string;
     password: string;
 }
-
 
 function Login() {
     const [loginUser, { isLoading, error }] = useLoginUserMutation();
@@ -40,7 +38,14 @@ function Login() {
         setRememberMe(event.target.checked);
     };
 
-    const { login, sessionLogin } = useAuth();
+    const { login, sessionLogin, isAuthenticated } = useAuth();
+
+    useLayoutEffect(() => {
+        if (isAuthenticated) {
+            router.replace("/")
+        }
+    }, [isAuthenticated])
+
     const {
         register,
         handleSubmit,

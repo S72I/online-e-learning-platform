@@ -38,7 +38,7 @@ export default function NavBar() {
   const handleLogout = () => {
     logout();
     localStorage.removeItem("rememberMe");
-    router.push('/login');
+    router.replace('/login');
   };
 
   const handleNavigate = (path: string) => {
@@ -64,7 +64,7 @@ export default function NavBar() {
   ];
 
   const USER_NAV_ITEMS: NavItem[] = [
-    { label: 'MarketCourses', path: '/' },
+    { label: 'Marketplace Courses', path: '/' },
     { label: 'MyCourses', path: '/courses' },
     ...COMMON_ITEMS,
   ];
@@ -86,7 +86,7 @@ export default function NavBar() {
   }
 
   if (isLoading) {
-    return null; 
+    return null;
   }
 
   return (

@@ -1,9 +1,10 @@
 'use client'
-import { Box, CircularProgress, Container, Grid, Stack, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Container, Grid, Stack, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import SectionHeader from './SectionHeader'
 import Image from 'next/image'
 import { useGetCoursesQuery } from '@/services/public/publicCourseApi'
+import { useRouter } from 'next/navigation'
 
 
 const courses = [
@@ -55,13 +56,13 @@ const courses = [
 ]
 
 
-
 const CoursesPage = () => {
     const [title, setTitle] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<'' | 'asc' | 'desc'>('');
 
     const { data, isLoading, isError } = useGetCoursesQuery({ title, sortOrder });
 
+    const router = useRouter();
     useEffect(() => {
         const token = localStorage.getItem('authToken')
 
@@ -72,15 +73,17 @@ const CoursesPage = () => {
             const base64Payload = token.split('.')[1]
             const decodedPayload = JSON.parse(atob(base64Payload))
             const userRole = decodedPayload.role
-
             console.log("userRole", userRole);
-
-
         } catch (error) {
             console.error('Error decoding token:', error)
 
         }
     }, [])
+
+
+    const handelViewAll = (courseId: string) => {
+        router.push(`/courses/${courseId}`)
+    }
 
     return (
         <Container maxWidth={false} >
@@ -113,9 +116,9 @@ const CoursesPage = () => {
                                         description="Lorem ipsum dolor sit amet consectetur. Tempus tincidunt etiam eget elit id imperdiet et. Cras eu sit dignissim lorem nibh et. Ac cum eget habitasse in velit fringilla feugiat senectus in."
                                         // description={course.description}
                                         action={
-                                            <Typography sx={{ border: "0.2px solid", px: 3, bgcolor: "#FCFCFD", borderColor: "transparent", fontSize: 13, }}>
+                                            <Button onClick={() => handelViewAll(course._id)} sx={{ border: "0.2px solid", px: 3, bgcolor: "#FCFCFD", borderColor: "transparent", fontSize: 13, }}>
                                                 View All
-                                            </Typography>
+                                            </Button>
                                         }
                                     />
                                     <Stack direction={'row'} sx={{ width: "100%", px: 6, overflow: 'hidden' }}>
@@ -141,7 +144,7 @@ const CoursesPage = () => {
                                             <Typography sx={{ borderRadius: 2, color: "#4C4C4D", textAlign: 'center', px: 2, py: 1, bgcolor: "#FCFCFD", fontSize: 12 }}>{course.level}</Typography>
                                         </Stack>
                                         <Box>
-                                            <Typography sx={{ bgcolor: "#FCFCFD", px: 3, py: 0.5, borderRadius: 2, fontSize: 12 }}>{course.name}</Typography>
+                                            <Typography sx={{ bgcolor: "#FCFCFD", px: 3, py: 0.5, borderRadius: 2, fontSize: 12 }}>By{course.user_name}</Typography>
                                         </Box>
                                     </Box>
 
