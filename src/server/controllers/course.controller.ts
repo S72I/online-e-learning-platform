@@ -1,13 +1,15 @@
 import { NextRequest } from "next/server";
-import { EmailBody, ICourse, ICourseInput, User } from "../interfaces";
+import { EmailBody, ICourseInput, IPurchasedCourse } from "../interfaces";
 import { validateUser } from "../middlewares/validateTokenHandler";
 
-import mongoose, { FilterQuery, Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { Resend } from "resend";
 import Chapter from "../models/chapterColl.model";
 import Video from "../models/videosColl.model";
 import DBConnection from "../dbConfig/dbConfig";
 import { Course } from "../models/course.model";
+import { getUserDetailsByID } from "../middlewares/getUserDetails";
+import PurchasedCourse from "../models/purchasedColl.model";
 
 DBConnection()
 //private 
@@ -269,7 +271,10 @@ export async function getCoursesByAdmin(req: NextRequest) {
 
         const user = validateUser(req);
 
+        const userName = await getUserDetailsByID(user.id);
+
         const matchFilter: any = { user_id: new mongoose.Types.ObjectId(user.id) };
+
         if (_title) {
             matchFilter.title = { $regex: _title, $options: 'i' };
         }
@@ -307,6 +312,7 @@ export async function getCoursesByAdmin(req: NextRequest) {
                 $group: {
                     _id: '$_id',
                     user_id: { $first: '$user_id' },
+                    user_name: { $first: userName.name },
                     title: { $first: '$title' },
                     level: { $first: '$level' },
                     description: { $first: '$description' },
@@ -364,6 +370,7 @@ export async function updateCourse(req: NextRequest, courseId: string, courseDat
         course.description = description;
         course.totalVideosTiming = totalVideosTiming;
         course.images = images;
+        course.updatedAt = Date.now();
 
         const updatedChapterIds: Types.ObjectId[] = [];
 
@@ -454,13 +461,13 @@ export async function updateCourse(req: NextRequest, courseId: string, courseDat
     }
 }
 
+
+
 //publice endpoints 
 
 export async function contact(req: NextRequest, emailBody: EmailBody) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-
-    console.log("resend", resend);
 
     try {
 
@@ -477,8 +484,6 @@ export async function contact(req: NextRequest, emailBody: EmailBody) {
             message: ${emailBody.email} <br>
             </strong></p>`
         });
-
-        console.log("data", data);
 
         if (error) {
             return ({ error: error, status: 500 });
@@ -514,7 +519,7 @@ export async function getCourses(req: NextRequest) {
         const sortOrder = searchParams.get('sortOrder') || 'asc';
         const level = searchParams.get('level') || '';
 
-        const matchFilter: Record<string, any> = {};
+        const matchFilter: Record<string, any> = { isPrivate: false };
 
         if (_title) {
             matchFilter.title = { $regex: _title, $options: 'i' };
@@ -550,9 +555,24 @@ export async function getCourses(req: NextRequest) {
                 }
             },
             {
+                $lookup: {
+                    from: 'users',
+                    localField: 'user_id',
+                    foreignField: '_id',
+                    as: 'username'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$username',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
                 $group: {
                     _id: '$_id',
                     user_id: { $first: '$user_id' },
+                    user_name: { $first: "$username.name" },
                     title: { $first: '$title' },
                     level: { $first: '$level' },
                     description: { $first: '$description' },
@@ -611,8 +631,11 @@ export async function getCourses(req: NextRequest) {
 export async function getCourseById(req: NextRequest, id: string) {
 
     try {
+
+        const matchFilter: Record<string, any> = { _id: new mongoose.Types.ObjectId(id), isPrivate: false };
+
         const coursesWithChaptersAndVideos = await Course.aggregate([
-            { $match: { _id: new mongoose.Types.ObjectId(id) } },
+            { $match: matchFilter },
             {
                 $lookup: {
                     from: 'chapters',
@@ -649,10 +672,91 @@ export async function getCourseById(req: NextRequest, id: string) {
             },
         ]);
 
-        return { result: coursesWithChaptersAndVideos[0] || null, status: 200 };
+        return { result: coursesWithChaptersAndVideos || null, status: 200 };
     } catch (error) {
         return ({ error: (error as Error).message, status: 500 })
     }
 }
 
+export async function purchaseCourse(req: NextRequest, id: string) {
+    const purchasedCourse = await Course.findByIdAndUpdate(id, { new: true, isPurchased: true })
+    return purchasedCourse;
+}
 
+export async function addPurchaseCourse(req: NextRequest, purchaseCourse: IPurchasedCourse) {
+
+    const { userId, courseId } = purchaseCourse;
+
+    if (!userId) {
+        throw new Error('User ID is required');
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+        throw new Error('Course not found');
+    }
+
+    let userPurchases = await PurchasedCourse.findOneAndUpdate(
+        { userId },
+        { $addToSet: { courses: courseId } },
+        { new: true, upsert: true }
+    );
+
+    const existingPurchases = await PurchasedCourse.findOne({ userId, courses: { $in: [courseId] } });
+    if (existingPurchases) {
+        return { message: 'This course is already purchased' };
+    }
+
+    return { message: 'Course added to purchased courses', userPurchases };
+}
+
+export async function getPurchasedCoursesWithDetails(req: NextRequest, userId: string) {
+    try {
+        const userPurchases = await PurchasedCourse.findOne({ userId });
+        if (!userPurchases || !userPurchases.courses.length) {
+            return { result: [], status: 200, message: 'No courses purchased yet' };
+        }
+
+        const coursesWithDetails = await Course.aggregate([
+            { $match: { _id: { $in: userPurchases.course_id.map((id: string) => new mongoose.Types.ObjectId(id)) } } },
+            {
+                $lookup: {
+                    from: 'chapters',
+                    localField: 'chapters',
+                    foreignField: '_id',
+                    as: 'chapters'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$chapters',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'videos',
+                    localField: 'chapters.videos',
+                    foreignField: '_id',
+                    as: 'chapters.videos'
+                }
+            },
+            {
+                $group: {
+                    _id: '$_id',
+                    user_id: { $first: '$user_id' },
+                    title: { $first: '$title' },
+                    level: { $first: '$level' },
+                    description: { $first: '$description' },
+                    totalVideosTiming: { $first: '$totalVideosTiming' },
+                    images: { $first: '$images' },
+                    chapters: { $push: '$chapters' }
+                }
+            }
+        ]);
+
+        return { result: coursesWithDetails, status: 200 };
+    } catch (error) {
+        return { error: (error as Error).message, status: 500 };
+    }
+}

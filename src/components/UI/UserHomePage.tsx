@@ -32,8 +32,8 @@ const UserHomePage = () => {
     }
   }
 
-  const handelViewPurchaseClick = () => {
-    router.push("/login")
+  const handelGetItNowClick = () => {
+    router.push("/signup")
   }
   return (
     <> {
@@ -202,21 +202,21 @@ const UserHomePage = () => {
               }
             />
           </Box>
-          <CustomCard limit={2} action={
+          <CustomCard limit={6} action={
             <Box width={"100%"}
               sx={{ px: 2, my: 5, display: "flex", justifyContent: "center" }}>
               <Button
-                onClick={() => handelViewPurchaseClick()}
+                onClick={() => handelGetItNowClick()}
                 sx={{
                   mx: 1,
                   bgcolor: "#F1F1F3",
                   fontSize: 12,
-                  width: "50%",
+                  width: "80%",
                   fontWeight: 'bold',
                   py: 1.5,
                   color: "#262626"
-                }}>View</Button>
-              <Button
+                }}>Get it Now</Button>
+              {/* <Button
                 onClick={() => handelViewPurchaseClick()}
                 sx={{
                   mx: 1,
@@ -227,7 +227,7 @@ const UserHomePage = () => {
                   color: "#fff",
                   fontWeight: 'bold',
                   py: 1.5
-                }}>Purchase</Button>
+                }}>Purchase</Button> */}
 
             </Box>
           } />

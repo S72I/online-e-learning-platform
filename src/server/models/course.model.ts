@@ -6,6 +6,7 @@ const courseSchema = new mongoose.Schema({
   title: { type: String, required: true },
   level: { type: String, required: true },
   description: { type: String, required: true },
+  isPrivate: { type: Boolean, default: false },
   totalVideosTiming: { type: String, required: true },
   images: [{ type: String, required: true }],
   chapters: [{ type: mongoose.Schema.Types.ObjectId, ref: "Chapter" }]

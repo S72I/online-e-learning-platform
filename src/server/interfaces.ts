@@ -75,24 +75,29 @@ export interface EmailBody {
 import { Types } from "mongoose";
 
 export interface IVideoInput {
-  _id?: Types.ObjectId | string;
-  videoTitle: string;
-  description?: string;
-  videoUri: string;
-  videoTiming: string;
+    _id?: Types.ObjectId | string;
+    videoTitle: string;
+    description?: string;
+    videoUri: string;
+    videoTiming: string;
 }
 
 export interface IChapterInput {
-  _id?: Types.ObjectId | string;
-  title: string;
-  videos: IVideoInput[];
+    _id?: Types.ObjectId | string;
+    title: string;
+    videos: IVideoInput[];
 }
 
 export interface ICourseInput {
-  title: string;
-  level: string;
-  description: string;
-  totalVideosTiming: string;
-  images: string[];
-  chapters: IChapterInput[];
+    title: string;
+    level: string;
+    description: string;
+    totalVideosTiming: string;
+    images: string[];
+    chapters: IChapterInput[];
+}
+
+export interface IPurchasedCourse {
+    courseId: string[],
+    userId: string
 }
