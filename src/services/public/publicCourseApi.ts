@@ -39,16 +39,23 @@ export const publicCourseApi = createApi({
             }),
             invalidatesTags: ["Courses"],
         }),
+        createPurchaseCourse: builder.mutation({
+            query: (payload) => ({
+                url: `${apiUrl}/purchaseCourse`,
+                method: "POST",
+                body: payload,
+            }),
+            invalidatesTags: ["Courses"],
+        }),
+        getPurchasedCourses: builder.query({
+            query: (userId) => `${apiUrl}/getPurchasedCourses/${userId}`,
+            providesTags: ["Courses"],
+        }),
     }),
 });
-
-
-//    getCourses: builder.query({
-//             query: (title) => {
-//                 const url = title ? `${apiUrl}/getCourses?title=${encodeURIComponent(title)}` : '/api/courses/getCourses';
-//                 return url;
-//             },
-//             providesTags: ['Courses'],
-//         }),
-
-export const { useGetCoursesQuery, useGetCourseQuery, useCreateContactMutation, } = publicCourseApi;
+export const {
+    useGetCoursesQuery,
+    useGetCourseQuery,
+    useCreateContactMutation,
+    useCreatePurchaseCourseMutation,
+    useGetPurchasedCoursesQuery } = publicCourseApi;

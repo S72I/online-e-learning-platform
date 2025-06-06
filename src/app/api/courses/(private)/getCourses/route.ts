@@ -1,7 +1,6 @@
 import { getCoursesByAdmin } from "@/server/controllers/course.controller";
 import { NextRequest, NextResponse } from "next/server";
 
-
 export async function GET(req: NextRequest) {
     try {
         const result = await getCoursesByAdmin(req);

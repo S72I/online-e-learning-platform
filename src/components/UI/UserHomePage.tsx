@@ -4,20 +4,21 @@ import React, { useState } from 'react'
 import CustomCard from '../UI/CustomCard'
 import TestimonialsCard from '../UI/TestimonialsCard'
 import Pricing from '../UI/Pricing'
-import { Box, Button, CircularProgress, Container, Grid, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Container, Typography } from '@mui/material'
 import SectionHeader from '../UI/SectionHeader'
 import BenefitsCards from '../UI/BenefitsCards'
 import Image from 'next/image'
 import Sponsors from '../UI/Sponsors'
 import ElectricBoltSharpIcon from '@mui/icons-material/ElectricBoltSharp';
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
 
 const UserHomePage = () => {
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [billing, setBilling] = useState<"monthly" | "yearly">('monthly');
-
+  
 
   const handlePricingClick = () => {
     const element = document.getElementById('pricing')

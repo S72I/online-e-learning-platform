@@ -6,5 +6,4 @@ const page = () => {
         <AboutUsPage />
     )
 }
-
 export default page

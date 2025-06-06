@@ -20,7 +20,14 @@ export default function PublicOnlyRoute({
     }, [isAuthenticated, isLoading, router])
 
     if (isLoading || isAuthenticated) {
-        return <Box><CircularProgress /></Box>
+        return <Box sx={{
+            alignSelf: 'center',
+            justifySelf: 'center',
+            mt: 20,
+            display: 'flex'
+        }}>
+            <CircularProgress size={50} sx={{ margin: 'auto' }} />
+        </Box>
     }
 
     return <>{children}</>

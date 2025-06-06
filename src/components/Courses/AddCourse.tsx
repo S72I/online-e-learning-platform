@@ -42,17 +42,17 @@ interface Course {
 
 const MAX_IMAGES = 3;
 
-const defaultVideo: Video = {
-    videoTitle: '',
-    description: '',
-    videoUri: '',
-    videoTiming: '',
-};
+// const defaultVideo: Video = {
+//     videoTitle: '',
+//     description: '',
+//     videoUri: '',
+//     videoTiming: '',
+// };
 
-const defaultChapter: Chapter = {
-    title: '',
-    videos: [defaultVideo],
-};
+// const defaultChapter: Chapter = {
+//     title: '',
+//     videos: [defaultVideo],
+// };
 
 function secondsToHms(seconds: number) {
     const h = Math.floor(seconds / 3600);

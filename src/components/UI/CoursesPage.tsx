@@ -1,85 +1,21 @@
 'use client'
 import { Box, Button, CircularProgress, Container, Grid, Stack, Typography } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import SectionHeader from './SectionHeader'
 import Image from 'next/image'
-import { useGetCoursesQuery } from '@/services/public/publicCourseApi'
+import { useGetCoursesQuery, useGetPurchasedCoursesQuery } from '@/services/public/publicCourseApi'
 import { useRouter } from 'next/navigation'
-
-
-const courses = [
-    {
-        "header": "Web Design Fundamentals",
-        "thumbnail": ["/images/thumbnails/Image1.png", "/images/thumbnails/Image2.png", "/images/thumbnails/Image3.png"],
-        "level": "beginner",
-        "time": "4 weeks",
-        "name": "By John Smith",
-        "subtitle": ["Introduction to HTML", 'Styling with CSS', "Introduction to Responsive Design", "Design Principles for Web", "Building a Basic Website"]
-    },
-    {
-        "header": "UI/UX Design",
-        "thumbnail": ["/images/thumbnails/Image2.png", "/images/thumbnails/Image3.png", "/images/thumbnails/Image4.png"],
-        "level": "beginner",
-        "time": "3 weeks",
-        "name": "By Emily Johnson",
-        "subtitle": ["Introduction to HTML", "Introduction to UI/UX Design", "Wireframing and Prototyping", "Visual Design and Branding", "Usability Testing and Iteration"]
-    },
-    {
-
-        "header": "Mobile App Development",
-        "thumbnail": ["/images/thumbnails/Image3.png", "/images/thumbnails/Image4.png", "/images/thumbnails/Image5.png"],
-        "level": "intermediate",
-        "time": "2 weeks",
-        "name": "By David Brown",
-        "subtitle": ["Introduction to Mobile App Development", "Fundamentals of Swift Programming (iOS)", "Fundamentals of Kotlin Programming (Android)", "Building User Interfaces", "App Deployment and Testing"]
-
-    },
-    {
-        "header": "Graphic Design for Beginners",
-        "thumbnail": ["/images/thumbnails/Image4.png", "/images/thumbnails/Image5.png", "/images/thumbnails/Image6.png"],
-        "level": "intermediate",
-        "time": "1 week",
-        "name": "By Sarah Thompson",
-        "subtitle": ["Introduction to Graphic Design", "Typography and Color Theory", "Layout Design and Composition", "Image Editing and Manipulation", "Designing for Print and Digital Media"]
-
-    },
-    {
-        "header": "Front-End Web Development",
-        "thumbnail": ["/images/thumbnails/Image5.png", "/images/thumbnails/Image6.png", "/images/thumbnails/Image1.png"],
-        "level": "advanced",
-
-        "time": "6 days",
-        "name": "By Michael Adams",
-        "subtitle": ["HTML Fundamentals", "CSS Styling and Layouts", "JavaScript Basics", "Building Responsive Websites", "Introduction to Bootstrap and React"]
-
-    }
-]
+import { useAuth } from '@/context/AuthContext'
 
 
 const CoursesPage = () => {
     const [title, setTitle] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<'' | 'asc' | 'desc'>('');
+    const { currentUserId } = useAuth()
 
-    const { data, isLoading, isError } = useGetCoursesQuery({ title, sortOrder });
+    const { data, isLoading, isError } = currentUserId ? useGetPurchasedCoursesQuery(currentUserId) : useGetCoursesQuery({ title, sortOrder });
 
     const router = useRouter();
-    useEffect(() => {
-        const token = localStorage.getItem('authToken')
-
-        if (!token) {
-            return
-        }
-        try {
-            const base64Payload = token.split('.')[1]
-            const decodedPayload = JSON.parse(atob(base64Payload))
-            const userRole = decodedPayload.role
-            console.log("userRole", userRole);
-        } catch (error) {
-            console.error('Error decoding token:', error)
-
-        }
-    }, [])
-
 
     const handelViewAll = (courseId: string) => {
         router.push(`/courses/${courseId}`)
@@ -87,10 +23,6 @@ const CoursesPage = () => {
 
     return (
         <Container maxWidth={false} >
-            <Box sx={{ display: 'flex', alignItems: 'center', mt: 8, width: '92%', justifySelf: 'center' }}>
-                <Typography sx={{ width: '50%', fontWeight: 'bold', fontSize: 30 }}>Online Courses on Design and Development</Typography>
-                <Typography sx={{ width: '50%', color: '#59595A', fontSize: 12 }}>Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of 10 courses designed to provide you with comprehensive knowledge and practical experience. Explore the courses below and find the perfect fit for your learning journey.Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of 10 courses designed to provide you with comprehensive knowledge and practical experience. Explore the courses below and find the perfect fit for your learning journey.</Typography>
-            </Box>
             <Box >
                 {isLoading ? (
                     <Typography sx={{ mt: 5, textAlign: 'center' }}><CircularProgress /></Typography>
@@ -113,8 +45,7 @@ const CoursesPage = () => {
                                     }}>
                                     <SectionHeader
                                         title={course.title}
-                                        description="Lorem ipsum dolor sit amet consectetur. Tempus tincidunt etiam eget elit id imperdiet et. Cras eu sit dignissim lorem nibh et. Ac cum eget habitasse in velit fringilla feugiat senectus in."
-                                        // description={course.description}
+                                        description={course.description}
                                         action={
                                             <Button onClick={() => handelViewAll(course._id)} sx={{ border: "0.2px solid", px: 3, bgcolor: "#FCFCFD", borderColor: "transparent", fontSize: 13, }}>
                                                 View All
@@ -144,7 +75,7 @@ const CoursesPage = () => {
                                             <Typography sx={{ borderRadius: 2, color: "#4C4C4D", textAlign: 'center', px: 2, py: 1, bgcolor: "#FCFCFD", fontSize: 12 }}>{course.level}</Typography>
                                         </Stack>
                                         <Box>
-                                            <Typography sx={{ bgcolor: "#FCFCFD", px: 3, py: 0.5, borderRadius: 2, fontSize: 12 }}>By{course.user_name}</Typography>
+                                            <Typography sx={{ bgcolor: "#FCFCFD", px: 3, py: 0.5, borderRadius: 2, fontSize: 15, fontWeight: 'bold' }}>By {course.user_name}</Typography>
                                         </Box>
                                     </Box>
 

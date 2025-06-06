@@ -1,54 +1,8 @@
-import { alertTitleClasses, Box, Button, Container, Grid, Typography } from '@mui/material'
+import { Box, Button, Container, Grid, Typography } from '@mui/material'
 import Image from 'next/image'
 import React from 'react'
 import SectionHeader from './SectionHeader'
-
-
-const achievements = [
-    {
-        "icon": "/images/aboutPage/crown.svg",
-        "title": "Trusted by Thousands",
-        "description": "We have successfully served thousands of students, helping them unlock their potential and achieve their career goals."
-    },
-    {
-        "icon": "/images/aboutPage/reward.svg",
-        "title": "Award-Winning Courses",
-        "description": "Our courses have received recognition and accolades in the industry for their quality, depth of content, and effective teaching methodologies."
-    },
-    {
-        "icon": "/images/aboutPage/mask.svg",
-        "title": "Positive Student Feedback",
-        "description": "We take pride in the positive feedback we receive from our students, who appreciate the practicality and relevance of our course materials."
-    },
-    {
-        "icon": "/images/aboutPage/shield.svg",
-        "title": "Industry Partnerships",
-        "description": "We have established strong partnerships with industry leaders, enabling us to provide our students with access to the latest tools and technologies"
-    },
-]
-
-const goals = [
-    {
-        "icon": "/images/aboutPage/bag.svg",
-        "title": "Provide Practical Skills",
-        "description": "We focus on delivering practical skills that are relevant to the current industry demands. Our courses are designed to equip learners with the knowledge and tools needed to excel in their chosen field."
-    },
-    {
-        "icon": "/images/aboutPage/book.svg",
-        "title": "Foster Creative Problem-Solving",
-        "description": "We encourage creative thinking and problem-solving abilities, allowing our students to tackle real-world challenges with confidence and innovation."
-    },
-    {
-        "icon": "/images/aboutPage/puzzle.svg",
-        "title": "Promote Collaboration and Community",
-        "description": "We believe in the power of collaboration and peer learning. Our platform fosters a supportive and inclusive community where learners can connect, share insights, and grow together."
-    },
-    {
-        "icon": "/images/aboutPage/idea.svg",
-        "title": "Stay Ahead of the Curve",
-        "description": "The digital landscape is constantly evolving, and we strive to stay at the forefront of industry trends. We regularly update our course content to ensure our students receive the latest knowledge and skills."
-    },
-]
+import { Achievements, Goals } from '../types/course'
 
 const AboutUsPage = () => {
     return (
@@ -72,7 +26,7 @@ const AboutUsPage = () => {
             />
 
             <Grid container spacing={2} sx={{ mt: 8, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
-                {achievements.map((data, i) => (
+                {Achievements.map((data, i) => (
                     <Grid
                         key={i}
                         size={{ xs: 16, md: 6, sm: 6, lg: 6, }}
@@ -97,7 +51,7 @@ const AboutUsPage = () => {
             />
 
             <Grid container spacing={2} sx={{ mt: 8, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
-                {goals.map((data, i) => (
+                {Goals.map((data, i) => (
                     <Grid
                         key={i}
                         size={{ xs: 16, md: 6, sm: 6, lg: 6, }}

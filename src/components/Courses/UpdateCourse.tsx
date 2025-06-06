@@ -425,7 +425,7 @@ const UpdateCourse = ({ courseID }: { courseID: string }) => {
         fullWidth
         onClick={handleSubmit(onSubmit)}
       >
-        {isLoading ? 'Loading...' : 'Update Course'}
+        {isLoading ? 'Update Course...' : 'Update Course'}
       </Button>
     </Container>
   );

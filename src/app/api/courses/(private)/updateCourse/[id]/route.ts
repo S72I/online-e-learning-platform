@@ -5,9 +5,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     try {
         const { id } = await params;
         const courseData = await request.json();
-
         const result = await updateCourse(request, id, courseData);
-
         return NextResponse.json(result, { status: 200 });
     } catch (error) {
         return NextResponse.json({ err: (error as Error).message, status: 400 });

@@ -1,10 +1,15 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const purchasedCourseSchema = new mongoose.Schema({
-    userId: { type: String, required: true },
-    courses: [{ type: String, required: true }],
+const PurchasedCourseSchema = new mongoose.Schema({
+    userId: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    courses: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course'
+    }],
 });
 
-export const PurchasedCourse = mongoose.models.PurchasedCourse || mongoose.model("PurchasedCourse", purchasedCourseSchema);
-
-export default PurchasedCourse;
+export default mongoose.models.PurchasedCourse || mongoose.model('PurchasedCourse', PurchasedCourseSchema);
