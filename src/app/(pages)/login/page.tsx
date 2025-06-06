@@ -2,10 +2,13 @@
 
 import React from 'react'
 import Login from "@/components/Auth/login"
+import PublicOnlyRoute from '@/components/PublicOnlyRoute'
 
 const page = () => {
     return (
-        <Login />
+        <PublicOnlyRoute>
+            <Login />
+        </PublicOnlyRoute>
     )
 }
 

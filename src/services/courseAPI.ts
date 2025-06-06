@@ -3,13 +3,11 @@ import baseQueryWithReauth from "./baseQueryWithReauth";
 
 const apiUrl = '/api/courses';
 
-
 type GetCoursesQueryArg = {
     title?: string;
-    sortOrder?: 'asc' | 'desc' | '';
+    sortOrder?: '' | 'asc' | 'desc';
     level?: string;
 };
-
 
 const courseApi = createApi({
     reducerPath: "courseApi",
@@ -17,14 +15,6 @@ const courseApi = createApi({
 
     baseQuery: baseQueryWithReauth,
     endpoints: (builder) => ({
-        // getCourses: builder.query({
-        //     query: (title) => {
-        //         const url = title ? `${apiUrl}/getCourses?title=${encodeURIComponent(title)}` : `${apiUrl}/getCourses`;
-        //         return url;
-        //     },
-        //     providesTags: ['Courses'],
-        // }),
-
         getCourses: builder.query<any, GetCoursesQueryArg>({
             query: ({ title = '', sortOrder = '', level = '' } = {}) => {
                 const params = new URLSearchParams();

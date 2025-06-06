@@ -1,10 +1,13 @@
 import SignUp from '@/components/Auth/signup'
+import PublicOnlyRoute from '@/components/PublicOnlyRoute'
 import React from 'react'
 
 const page = () => {
     return (
         <>
-            <SignUp />
+            <PublicOnlyRoute>
+                <SignUp />
+            </PublicOnlyRoute>
         </>
     )
 }

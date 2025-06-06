@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
 const PROMO_BANNER_TEXT = 'Free Courses 🌟 Sale Ends Soon, Get It Now';
@@ -24,6 +24,8 @@ export default function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const router = useRouter();
   const theme = useTheme();
+    const pathname = usePathname();
+
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isAuthenticated, logout, role, isLoading } = useAuth();
 
@@ -59,7 +61,7 @@ export default function NavBar() {
 
   const NAV_ITEMS: NavItem[] = [
     { label: 'Home', path: '/' },
-    { label: 'Courses', path: '/courses' },
+    { label: 'Marketplace Courses', path: '/courses' },
     ...COMMON_ITEMS,
   ];
 
@@ -74,7 +76,6 @@ export default function NavBar() {
     ...COMMON_ITEMS,
   ];
 
-
   let NavItemsArray: NavItem[] = [];
 
   if (isAuthenticated && role === 'admin') {
@@ -88,6 +89,11 @@ export default function NavBar() {
   if (isLoading) {
     return null;
   }
+
+  const isActive = (path: string) => {
+    if (path === '/') return pathname === '/';
+    return pathname.startsWith(path);
+  };
 
   return (
     <>
@@ -165,11 +171,12 @@ export default function NavBar() {
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
               {NavItemsArray.map((item: NavItem) => (
                 <Button
+
                   key={item.path}
                   component={Link}
                   href={item.path}
                   sx={{
-                    color: 'text.primary',
+                    color: isActive(item.path) ? '#FF9500' : 'text.primary',
                     fontSize: { md: 12, lg: 14 },
                     textTransform: 'none',
                     '&:hover': { backgroundColor: 'action.hover' },

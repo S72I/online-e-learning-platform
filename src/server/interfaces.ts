@@ -1,3 +1,5 @@
+import { Types } from "mongoose"
+
 export interface User {
     name: string,
     email: string,
@@ -6,37 +8,7 @@ export interface User {
     emailVerify: boolean,
 }
 
-export interface IChapter {
-    title: string,
-    videos: [
-        {
-            videoTitle: string,
-            description: string,
-            videoUri: string,
-            videoTiming: string
-        }
-    ]
-}
-
-export interface ICourse {
-    user_id: string,
-    title: string,
-    level: string,
-    description: string,
-    images: [string],
-    chapters: [IChapter],
-    totalVideosTiming: string,
-    createdAt: Date,
-    updatedAt: Date,
-    isDeleted: boolean
-}
-
-
-export interface EmailTemplateProps {
-    composeEmail: string;
-}
-
-export interface EmailBody {
+export interface IEmailBody {
     firstname: string,
     lastname: string,
     email: string,
@@ -44,35 +16,6 @@ export interface EmailBody {
     subject: string,
     message: string
 }
-
-
-// // Video input (from client)
-// export interface IVideoInput {
-//   videoTitle: string;
-//   description?: string;
-//   videoUri: string;
-//   videoTiming: string;
-// }
-
-// // Chapter input (from client)
-// export interface IChapterInput {
-//   title: string;
-//   videos: IVideoInput[];
-// }
-
-// // Course input (from client)
-// export interface ICourseInput {
-//   title: string;
-//   level: string;
-//   description: string;
-//   totalVideosTiming: string;
-//   images: string[];
-//   chapters: IChapterInput[];
-// }
-
-
-
-import { Types } from "mongoose";
 
 export interface IVideoInput {
     _id?: Types.ObjectId | string;
@@ -98,6 +41,11 @@ export interface ICourseInput {
 }
 
 export interface IPurchasedCourse {
-    courseId: string[],
+    courseId: string,
     userId: string
+}
+
+export const UserRole = {
+    admin: 'admin',
+    user: 'user'
 }

@@ -25,6 +25,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useAuth } from '@/context/AuthContext';
 
+
 function SignUp() {
 
     const [registerUser, { isLoading }] = useRegisterUserMutation();
@@ -32,7 +33,7 @@ function SignUp() {
     const router = useRouter();
     const [error, setError] = useState("")
     const [isChecked, setIsChecked] = useState(false);
-    const { login } = useAuth();
+    const { login, sessionCourseId } = useAuth();
 
     const {
         register,
@@ -42,31 +43,6 @@ function SignUp() {
         clearErrors,
         reset,
     } = useForm();
-
-    // const onSubmit = async (data: any) => {
-
-    //     try {
-    //         if (!isChecked) {
-    //             return setError("Please agree the terms and Privacy Policy")
-    //         }
-    //         const response = await registerUser(data).unwrap();
-    //         console.log("response", response);
-    //         if (response.status === 409) {
-    //             return setError(response.error);
-    //         }
-
-    //         reset();
-    //         localStorage.setItem("authToken", response.token);
-    //         clearErrors("apiError");
-    //         router.push("/");
-
-
-    //     } catch (err: any) {
-    //         setSuccessMsg("");
-    //         throw new Error(err)
-    //     }
-    // };
-
 
     const onSubmit = async (data: any) => {
         try {
@@ -83,9 +59,7 @@ function SignUp() {
             delete payload.role;
 
             const response = await registerUser(payload).unwrap();
-            console.log("response", response);
-
-            if (response.status === 409) {
+            if (response.status === 403) {
                 return setError(response.error);
             }
 
@@ -330,7 +304,7 @@ function SignUp() {
                                     render={({ field }) => (
                                         <RadioGroup row {...field}>
                                             <FormControlLabel value="user" control={<Radio />} label="User" />
-                                            <FormControlLabel value="admin" control={<Radio />} label="Admin" />
+                                            <FormControlLabel disabled={sessionCourseId ? true : false} value="admin" control={<Radio />} label="Admin" />
                                         </RadioGroup>
                                     )}
                                 />

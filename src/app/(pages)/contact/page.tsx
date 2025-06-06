@@ -6,5 +6,4 @@ const page = () => {
         <ContactPage />
     )
 }
-
 export default page
