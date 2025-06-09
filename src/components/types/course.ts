@@ -93,7 +93,7 @@ export const Goals = [
 ]
 
 
-export const benefits = [
+export const Benefits = [
     {
         id: 1,
         name: 'Flexible Learning Schedule',

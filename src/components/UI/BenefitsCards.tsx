@@ -3,13 +3,13 @@
 import { Box, Grid, Typography } from '@mui/material'
 import React from 'react'
 import NorthEastIcon from '@mui/icons-material/NorthEast';
-import { benefits } from '../Types/course';
+import { Benefits } from '@/components/Types/course';
 
 const BenefitsCards = () => {
     return (
         <Grid container spacing={2} sx={{ px: { xs: 2, sm: 2, lg: 6, xl: 1 }, justifyContent: 'center' }}>
             {
-                benefits.map((data, index) => (
+                Benefits.map((data, index) => (
                     <Grid key={index} sx={{ borderRadius: 2, width: { md: 430, xs: 430, lg: 430, xl: "40%", sm: 330 }, height: 'auto', bgcolor: 'white' }}>
                         <Box
                             justifyContent={"flex-end"}
