@@ -38,6 +38,7 @@ export interface ICourseInput {
     totalVideosTiming: string;
     images: string[];
     chapters: IChapterInput[];
+    isPrivate: Boolean
 }
 
 export interface IPurchasedCourse {

@@ -1,11 +1,12 @@
 'use client'
 
 import { useGetCoursesQuery } from '@/services/public/publicCourseApi'
-import { Box, Button, CircularProgress, Grid, Stack, Typography } from '@mui/material'
+import { Box, Grid, Stack, Typography } from '@mui/material'
 import { Be_Vietnam_Pro } from 'next/font/google'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
+import { ICourse } from '../Types/course'
+import CustomLoading from './CustomLoading'
 
 const beVietnamPro = Be_Vietnam_Pro({
     weight: ["400", "500", "600", "700", "800", "900"],
@@ -14,63 +15,8 @@ const beVietnamPro = Be_Vietnam_Pro({
 
 interface Props {
     limit?: number;
-    action?: any;
+    action?: ReactNode;
 }
-
-const courses = [
-    {
-        "thumbnail": "/images/thumbnails/Image1.png",
-        "level": "beginner",
-        "title": "Introduction to Python",
-        "description": "Learn the basics of Python programming, including syntax, variables, and simple data structures.",
-        "time": "4 weeks",
-        "name": "By John Smith"
-    },
-    {
-        "thumbnail": "/images/thumbnails/Image2.png",
-        "level": "beginner",
-        "title": "HTML & CSS Fundamentals",
-        "description": "Build your first web pages by mastering HTML tags and CSS styling techniques.",
-        "time": "3 weeks",
-        "name": "By Emily Johnson"
-    },
-    {
-        "thumbnail": "/images/thumbnails/Image3.png",
-        "level": "intermediate",
-        "title": "JavaScript Essentials",
-        "description": "Deepen your web development skills with JavaScript functions, DOM manipulation, and events.",
-        "time": "2 weeks",
-        "name": "By David Brown"
-
-    },
-    {
-        "thumbnail": "/images/thumbnails/Image4.png",
-        "level": "intermediate",
-        "title": "Data Analysis with Pandas",
-        "description": "Analyze and visualize data efficiently using the Pandas library in Python.",
-        "time": "1 week",
-        "name": "By Sarah Thompson"
-
-    },
-    {
-        "thumbnail": "/images/thumbnails/Image5.png",
-        "level": "advanced",
-        "title": "Machine Learning Foundations",
-        "description": "Explore core machine learning concepts, algorithms, and model evaluation techniques.",
-        "time": "6 days",
-        "name": "By Michael Adams"
-
-    },
-    {
-        "thumbnail": "/images/thumbnails/Image6.png",
-        "level": "advanced",
-        "title": "Full-Stack Web Development",
-        "description": "Master both front-end and back-end technologies to build complete web applications.",
-        "time": "2 days",
-        "name": "By Jennifer Wilson"
-
-    }
-]
 
 const CustomCard = ({ limit, action }: Props) => {
     const [title, setTitle] = useState<string>('');
@@ -89,14 +35,17 @@ const CustomCard = ({ limit, action }: Props) => {
 
         <>
             {isLoading ? (
-                <Box sx={{ mt: 5, textAlign: 'center' }}><CircularProgress /> </Box>
+                <Box sx={{ mt: 5, textAlign: 'center' }}>
+                        <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
+
+                </Box>
             ) : isError ? (
                 <Typography sx={{ mt: 5, textAlign: 'center' }}>Failed to load courses</Typography>
             ) : !data?.courses || data.courses.length === 0 ? (
                 <Typography sx={{ mt: 5, textAlign: 'center' }}>No courses found</Typography>
             ) : (
                 <Grid container spacing={2} sx={{ mt: 5, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
-                    {coursesToShow.map((course: any) => (
+                    {coursesToShow?.map((course: ICourse) => (
                         <Grid
                             key={course._id}
                             size={{ xs: 16, md: 6, sm: 6, lg: 6 }}
@@ -158,7 +107,7 @@ const CustomCard = ({ limit, action }: Props) => {
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        By {course.courseEducator}
+                                        By {course.user_name}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -181,24 +130,6 @@ const CustomCard = ({ limit, action }: Props) => {
                             >
                                 {course.description}
                             </Typography>
-
-                            {/* <Button onClick={() => handelClickCourse(course._id as string)}
-                                    sx={{
-                                        mx: 1,
-                                        bgcolor: "#F1F1F3",
-                                        fontSize: 12,
-                                        width: "50%",
-                                        color: "#262626"
-                                    }}>View</Button>
-                                <Button onClick={() => handelClickCourse(course._id as string)}
-                                    sx={{
-                                        mx: 1,
-                                        '&:hover': { bgcolor: "#e68600" },
-                                        bgcolor: "#F1F1F3",
-                                        fontSize: 12,
-                                        width: "50%",
-                                        color: "#262626"
-                                    }}>Get it Now</Button> */}
 
                             {action && (
                                 <Box width={"100%"}>

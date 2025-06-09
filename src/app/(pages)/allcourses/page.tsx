@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from 'react'
 import GetAdminCourse from '@/components/Courses/GetAdminCourses'
 import GetUserCourses from '@/components/Courses/GetUserCourses'
-import { Box, CircularProgress } from '@mui/material'
+import { Box } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import { UserRole } from '@/server/interfaces'
+import CustomLoading from '@/components/UI/CustomLoading'
 
 const Page = () => {
     const router = useRouter()
@@ -40,7 +41,7 @@ const Page = () => {
                 mt: 20,
                 display: 'flex'
             }}>
-                <CircularProgress size={50} sx={{ margin: 'auto' }} />
+                <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
             </Box>
         )
     }

@@ -24,7 +24,7 @@ export default function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const router = useRouter();
   const theme = useTheme();
-    const pathname = usePathname();
+  const pathname = usePathname();
 
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isAuthenticated, logout, role, isLoading } = useAuth();
@@ -38,9 +38,9 @@ export default function NavBar() {
   };
 
   const handleLogout = () => {
+    router.push('/login');
+    router.refresh()
     logout();
-    localStorage.removeItem("rememberMe");
-    router.replace('/login');
   };
 
   const handleNavigate = (path: string) => {

@@ -1,7 +1,15 @@
 
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, SxProps, Theme } from '@mui/material';
+import { ReactNode } from 'react';
 
-const SectionHeader = ({ title, description, action, sx = {} }: any) => {
+type SectionHeaderProps = {
+    title: string;
+    description: string;
+    action?: ReactNode;
+    sx?: SxProps<Theme>;
+};
+
+const SectionHeader: React.FC<SectionHeaderProps> = ({ title, description, action, sx = {} }) => {
     return (
         <Box sx={{
             marginTop: { xs: 6, md: 10 },

@@ -100,6 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = () => {
         localStorage.removeItem('authToken')
         sessionStorage.removeItem('authToken')
+        localStorage.removeItem("rememberMe");
         setIsAuthenticated(false)
         setRole(null)
         setCurrentUserId(null)

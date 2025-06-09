@@ -1,9 +1,10 @@
 'use client'
 
 import { useAuth } from '@/context/AuthContext'
-import { Box, CircularProgress } from '@mui/material'
+import { Box } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import CustomLoading from './UI/CustomLoading'
 
 export default function PublicOnlyRoute({
     children,
@@ -26,7 +27,7 @@ export default function PublicOnlyRoute({
             mt: 20,
             display: 'flex'
         }}>
-            <CircularProgress size={50} sx={{ margin: 'auto' }} />
+            <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
         </Box>
     }
 

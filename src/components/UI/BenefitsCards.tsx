@@ -3,40 +3,7 @@
 import { Box, Grid, Typography } from '@mui/material'
 import React from 'react'
 import NorthEastIcon from '@mui/icons-material/NorthEast';
-
-const benefits = [
-    {
-        id: 1,
-        name: 'Flexible Learning Schedule',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
-    },
-    {
-        id: 2,
-        name: 'Expert Instruction',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
-    },
-    {
-        id: 3,
-        name: 'Diverse Course Offerings',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
-    },
-    {
-        id: 4,
-        name: 'Updated Curriculum',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
-    },
-    {
-        id: 5,
-        name: 'Practical Projects and Assignments',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
-    },
-    {
-        id: 6,
-        name: 'Interactive Learning Environment',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
-    },
-];
-
+import { benefits } from '../Types/course';
 
 const BenefitsCards = () => {
     return (

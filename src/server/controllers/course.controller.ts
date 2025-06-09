@@ -1,18 +1,98 @@
 import { NextRequest } from "next/server";
 import { IEmailBody, ICourseInput, IPurchasedCourse, UserRole } from "../interfaces";
 import { validateUser } from "../middlewares/validateTokenHandler";
-import mongoose, { Types } from "mongoose";
+import mongoose, { PipelineStage, Types } from "mongoose";
 import { Resend } from "resend";
 import Chapter from "../models/chapterColl.model";
 import Video from "../models/videosColl.model";
 import DBConnection from "../dbConfig/dbConfig";
 import { Course } from "../models/course.model";
 import PurchasedCourse from "../models/purchasedColl.model";
+import cloudinary from 'cloudinary';
+import { extractPublicId } from 'cloudinary-build-url';
+import { handleApi } from "../middlewares/errorHandler";
+
+cloudinary.v2.config({
+    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 DBConnection()
 const courseNotFound = "Course not found"
+type MatchFilter = {
+    user_id: mongoose.Types.ObjectId;
+    title?: { $regex: string; $options: string };
+    level?: string;
+};
 
 //private endpoints
+
+// export async function createCourse(req: NextRequest, courseData: ICourseInput) {
+//     const fieldsRequire = 'All fields are mandatory'
+//     const tokenExpired = 'JWT expired'
+
+//     try {
+//         const {
+//             title,
+//             level,
+//             description,
+//             totalVideosTiming,
+//             images,
+//             chapters,
+//             isPrivate
+//         } = courseData;
+
+//         // if (
+//         //     !title ||
+//         //     !description ||
+//         //     !level ||
+//         //     !totalVideosTiming ||
+//         //     !images?.length ||
+//         //     !chapters?.length
+//         // ) {
+//         //     return { error: fieldsRequire, status: 400 };
+//         // }
+//         const user = validateUser(req);
+//         if (!user?.id) {
+//             return { error: tokenExpired, status: 498 };
+//         }
+//         const course = await Course.create({
+//             user_id: user.id,
+//             title,
+//             description,
+//             level,
+//             totalVideosTiming,
+//             images,
+//             chapters: [],
+//             isPrivate
+//         });
+
+//         for (const _chapter of chapters) {
+//             const chapter = await Chapter.create({
+//                 course_id: course._id,
+//                 title: _chapter.title,
+//                 videos: [],
+//             });
+//             for (const _video of _chapter.videos) {
+//                 const video = await Video.create({
+//                     chapter_id: chapter._id,
+//                     videoTitle: _video.videoTitle,
+//                     description: _video.description,
+//                     videoUri: _video.videoUri,
+//                     videoTiming: _video.videoTiming,
+//                 });
+//                 chapter.videos.push(video._id);
+//             }
+//             await chapter.save();
+//             course.chapters.push(chapter._id);
+//         }
+//         await course.save();
+//         return { course, status: 201 };
+//     } catch (error) {
+//         return { error: (error as Error).message, status: 500 };
+//     }
+// }
 
 export async function createCourse(req: NextRequest, courseData: ICourseInput) {
     const fieldsRequire = 'All fields are mandatory'
@@ -26,18 +106,19 @@ export async function createCourse(req: NextRequest, courseData: ICourseInput) {
             totalVideosTiming,
             images,
             chapters,
+            isPrivate
         } = courseData;
 
-        if (
-            !title ||
-            !description ||
-            !level ||
-            !totalVideosTiming ||
-            !images?.length ||
-            !chapters?.length
-        ) {
-            return { error: fieldsRequire, status: 400 };
-        }
+        // if (
+        //     !title ||
+        //     !description ||
+        //     !level ||
+        //     !totalVideosTiming ||
+        //     !images?.length ||
+        //     !chapters?.length
+        // ) {
+        //     return { error: fieldsRequire, status: 400 };
+        // }
         const user = validateUser(req);
         if (!user?.id) {
             return { error: tokenExpired, status: 498 };
@@ -50,6 +131,7 @@ export async function createCourse(req: NextRequest, courseData: ICourseInput) {
             totalVideosTiming,
             images,
             chapters: [],
+            isPrivate
         });
 
         for (const _chapter of chapters) {
@@ -78,18 +160,29 @@ export async function createCourse(req: NextRequest, courseData: ICourseInput) {
     }
 }
 
+
+// export function createCourse(req: NextRequest, courseData: ICourseInput) {
+//     return handleApi(req, createCourseHandler, courseData);
+// }
+
+
+
 export async function deleteCourse(req: NextRequest, id: string) {
-    const deletedCollections = "Course and all related chapters and videos deleted"
+    const deletedCollections = "Course and all related chapters and videos deleted";
     const invalidUser = "Invalid user";
-    const userIdNotMatch = "The user ID does not match."
-    const notAuthorized = "You're not authorized to delete this course."
+    const userIdNotMatch = "The user ID does not match.";
+    const notAuthorized = "You're not authorized to delete this course.";
 
     try {
         const user = validateUser(req);
         if (!user?.id) {
             return { error: invalidUser, status: 401 };
         }
-        const course = await Course.findById(id);
+        const course = await Course.findById(id).populate({
+            path: 'chapters',
+            populate: { path: 'videos' }
+        });
+
         if (!course) {
             return { message: courseNotFound, status: 404 };
         }
@@ -100,11 +193,36 @@ export async function deleteCourse(req: NextRequest, id: string) {
             return { error: notAuthorized, status: 403 };
         }
 
+        //  Delete course images from Cloudinary
+        if (course.images && course.images.length) {
+            for (const img of course.images) {
+                let imagePublicId = extractPublicId(img);
+                if (imagePublicId) {
+                    await cloudinary.v2.uploader.destroy(imagePublicId, { resource_type: 'image' });
+                }
+            }
+        }
+
+        //  Delete all videos from Cloudinary
+        if (course.chapters && course.chapters.length) {
+            for (const chapter of course.chapters) {
+                if (chapter.videos && chapter.videos.length) {
+                    for (const videoUrl of chapter.videos) {
+                        let videoPublicId = extractPublicId(videoUrl.videoUri);
+                        if (videoPublicId) {
+                            await cloudinary.v2.uploader.destroy(videoPublicId, { resource_type: 'video' });
+                        }
+                    }
+                }
+            }
+        }
+
         const chapters = await Chapter.find({ course_id: id });
         const chapterIds = chapters.map(ch => ch._id);
         await Video.deleteMany({ chapter_id: { $in: chapterIds } });
         await Chapter.deleteMany({ course_id: id });
         await Course.findByIdAndDelete(id);
+
         return { error: deletedCollections, status: 200 };
     } catch (error) {
         return { error: (error as Error).message, status: 500 };
@@ -162,7 +280,8 @@ export async function getUserCourseById(req: NextRequest, id: string) {
                     description: { $first: '$description' },
                     totalVideosTiming: { $first: '$totalVideosTiming' },
                     images: { $first: '$images' },
-                    chapters: { $push: '$chapters' }
+                    chapters: { $push: '$chapters' },
+                    isPrivate: { $first: '$isPrivate' }
                 }
             },
         ]);
@@ -178,18 +297,42 @@ export async function getCoursesByAdmin(req: NextRequest) {
         const _title = searchParams.get('title') || '';
         const sortOrder = searchParams.get('sortOrder') || 'asc';
         const level = searchParams.get('level') || '';
+        const timing = searchParams.get('timing') || '';
+        const minSeconds = searchParams.get('minSeconds');
+        const maxSeconds = searchParams.get('maxSeconds');
         const user = validateUser(req);
-        const matchFilter: any = { user_id: new mongoose.Types.ObjectId(user.id) };
+
+        // Strictly typed match filter
+        const matchFilter: MatchFilter = { user_id: new mongoose.Types.ObjectId(user.id) };
 
         if (_title) {
             matchFilter.title = { $regex: _title, $options: 'i' };
+            // Note: TypeScript can be strict with $regex, so you might need to adjust or use a type assertion
         }
         if (level) {
             matchFilter.level = level;
         }
 
         const sortDirection = sortOrder === 'desc' ? -1 : 1;
-        const coursesWithChaptersAndVideos = await Course.aggregate([
+
+        // Strictly typed timing filter
+        let timingFilter: Record<string, number> = {};
+        if (minSeconds && maxSeconds) {
+            timingFilter = { $gte: Number(minSeconds), $lte: Number(maxSeconds) };
+        } else if (minSeconds) {
+            timingFilter = { $gte: Number(minSeconds) };
+        } else if (maxSeconds) {
+            timingFilter = { $lte: Number(maxSeconds) };
+        } else if (timing === 'short') {
+            timingFilter = { $lte: 60 };
+        } else if (timing === 'medium') {
+            timingFilter = { $gte: 300, $lte: 1200 };
+        } else if (timing === 'long') {
+            timingFilter = { $gt: 1800 };
+        }
+
+        // The pipeline is now typed as PipelineStage[]
+        const pipeline: PipelineStage[] = [
             { $match: matchFilter },
             {
                 $lookup: {
@@ -231,7 +374,7 @@ export async function getCoursesByAdmin(req: NextRequest) {
                 $group: {
                     _id: '$_id',
                     user_id: { $first: '$user_id' },
-                    user_name: { $first: "$username.name" },
+                    user_name: { $first: '$username.name' },
                     title: { $first: '$title' },
                     level: { $first: '$level' },
                     description: { $first: '$description' },
@@ -241,12 +384,44 @@ export async function getCoursesByAdmin(req: NextRequest) {
                 }
             },
             {
-                "$addFields": {
-                    "lowercasedField": { "$toLower": "$title" }
+                $addFields: {
+                    totalVideosTimingSeconds: {
+                        $function: {
+                            body: function (str: string) {
+                                if (!str) return 0;
+                                var parts = str.split(':').map(Number);
+                                if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+                                if (parts.length === 2) return parts[0] * 60 + parts[1];
+                                return 0;
+                            },
+                            args: ['$totalVideosTiming'],
+                            lang: 'js'
+                        }
+                    }
                 }
-            },
-            { $sort: { "lowercasedField": sortDirection } }
-        ]);
+            }
+        ];
+
+        // Add timing filter if needed
+        if (Object.keys(timingFilter).length > 0) {
+            pipeline.push({
+                $match: {
+                    totalVideosTimingSeconds: timingFilter
+                }
+            } as PipelineStage);
+        }
+
+        // Add sorting
+        pipeline.push(
+            {
+                $addFields: {
+                    lowercasedField: { $toLower: '$title' }
+                }
+            } as PipelineStage,
+            { $sort: { lowercasedField: sortDirection } } as PipelineStage
+        );
+
+        const coursesWithChaptersAndVideos = await Course.aggregate(pipeline);
         return { courses: coursesWithChaptersAndVideos, status: 200 };
     } catch (error) {
         return { err: (error as Error).message, status: 500 };
@@ -266,6 +441,7 @@ export async function updateCourse(req: NextRequest, courseId: string, courseDat
             totalVideosTiming,
             images,
             chapters,
+            isPrivate
         } = courseData;
         if (
             !title ||
@@ -288,6 +464,7 @@ export async function updateCourse(req: NextRequest, courseId: string, courseDat
         course.description = description;
         course.totalVideosTiming = totalVideosTiming;
         course.images = images;
+        course.isPrivate = isPrivate;
         course.updatedAt = Date.now();
         const updatedChapterIds: Types.ObjectId[] = [];
         const existingChapters = await Chapter.find({ course_id: course._id });
@@ -414,7 +591,16 @@ export async function getCourses(req: NextRequest) {
         const _title = searchParams.get('title') || '';
         const sortOrder = searchParams.get('sortOrder') || 'asc';
         const level = searchParams.get('level') || '';
-        const matchFilter: Record<string, any> = { isPrivate: false };
+        const timing = searchParams.get('timing') || '';
+        const minSeconds = searchParams.get('minSeconds');
+        const maxSeconds = searchParams.get('maxSeconds');
+
+        type MatchFilter = {
+            isPrivate: boolean;
+            title?: { $regex: string; $options: string };
+            level?: string;
+        };
+        const matchFilter: MatchFilter = { isPrivate: false };
 
         if (_title) {
             matchFilter.title = { $regex: _title, $options: 'i' };
@@ -424,7 +610,28 @@ export async function getCourses(req: NextRequest) {
         }
 
         const sortDirection = sortOrder === 'desc' ? -1 : 1;
-        const coursesWithChaptersAndVideos = await Course.aggregate([
+
+        type TimingFilter = {
+            $gte?: number;
+            $lte?: number;
+            $gt?: number;
+        };
+        let timingFilter: TimingFilter = {};
+        if (minSeconds && maxSeconds) {
+            timingFilter = { $gte: Number(minSeconds), $lte: Number(maxSeconds) };
+        } else if (minSeconds) {
+            timingFilter = { $gte: Number(minSeconds) };
+        } else if (maxSeconds) {
+            timingFilter = { $lte: Number(maxSeconds) };
+        } else if (timing === 'short') {
+            timingFilter = { $lte: 60 };
+        } else if (timing === 'medium') {
+            timingFilter = { $gte: 300, $lte: 1200 };
+        } else if (timing === 'long') {
+            timingFilter = { $gt: 1800 };
+        }
+
+        const pipeline: PipelineStage[] = [
             { $match: matchFilter },
             {
                 $lookup: {
@@ -477,11 +684,41 @@ export async function getCourses(req: NextRequest) {
             },
             {
                 $addFields: {
+                    totalVideosTimingSeconds: {
+                        $function: {
+                            body: function (str: string) {
+                                if (!str) return 0;
+                                var parts = str.split(':').map(Number);
+                                if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+                                if (parts.length === 2) return parts[0] * 60 + parts[1];
+                                return 0;
+                            },
+                            args: ["$totalVideosTiming"],
+                            lang: "js"
+                        }
+                    }
+                }
+            }
+        ];
+
+        if (Object.keys(timingFilter).length > 0) {
+            pipeline.push({
+                $match: {
+                    totalVideosTimingSeconds: timingFilter
+                }
+            } as PipelineStage);
+        }
+
+        pipeline.push(
+            {
+                $addFields: {
                     lowercasedField: { $toLower: '$title' }
                 }
-            },
-            { $sort: { lowercasedField: sortDirection } }
-        ]);
+            } as PipelineStage,
+            { $sort: { lowercasedField: sortDirection } } as PipelineStage
+        );
+
+        const coursesWithChaptersAndVideos = await Course.aggregate(pipeline);
         return { courses: coursesWithChaptersAndVideos, status: 200 };
     } catch (error) {
         return { err: (error as Error).message, status: 500 };
@@ -489,8 +726,19 @@ export async function getCourses(req: NextRequest) {
 }
 
 export async function getCourseById(req: NextRequest, id: string) {
+
     try {
-        const matchFilter: Record<string, any> = { _id: new mongoose.Types.ObjectId(id), isPrivate: false };
+        type MatchFilter = {
+            _id: mongoose.Types.ObjectId;
+            isPrivate: boolean;
+        };
+
+        const matchFilter: MatchFilter = {
+            _id: new mongoose.Types.ObjectId(id),
+            isPrivate: false
+        };
+
+
         const coursesWithChaptersAndVideos = await Course.aggregate([
             { $match: matchFilter },
             {

@@ -1,3 +1,5 @@
+import { SxProps, Theme } from '@mui/material';
+
 export interface IVideo {
     videoTitle: string;
     description: string;
@@ -11,12 +13,15 @@ export interface IChapter {
 }
 
 export interface ICourse {
+    _id: string;
     title: string;
     level: string;
     description: string;
     images: string[];
+    user_name: string;
     totalVideosTiming: string;
     chapters: IChapter[];
+    isPrivate: boolean
 }
 
 export interface IContact {
@@ -28,6 +33,18 @@ export interface IContact {
     email: string
 
 }
+
+export interface IPurchaseCourse {
+    _id: string,
+    title: string
+}
+
+export interface ILoadingProps {
+    sx?: SxProps<Theme>;
+    size?: number | string;
+    color?: 'primary' | 'secondary' | 'inherit' | 'error' | 'info' | 'success' | 'warning';
+}
+
 
 export const Achievements = [
     {
@@ -74,3 +91,51 @@ export const Goals = [
         "description": "The digital landscape is constantly evolving, and we strive to stay at the forefront of industry trends. We regularly update our course content to ensure our students receive the latest knowledge and skills."
     },
 ]
+
+
+export const benefits = [
+    {
+        id: 1,
+        name: 'Flexible Learning Schedule',
+        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
+    },
+    {
+        id: 2,
+        name: 'Expert Instruction',
+        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
+    },
+    {
+        id: 3,
+        name: 'Diverse Course Offerings',
+        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
+    },
+    {
+        id: 4,
+        name: 'Updated Curriculum',
+        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
+    },
+    {
+        id: 5,
+        name: 'Practical Projects and Assignments',
+        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
+    },
+    {
+        id: 6,
+        name: 'Interactive Learning Environment',
+        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam enim tempora optio illo, sed dolor libero inventore doloremque aliquam',
+    },
+];
+
+
+export const levelOptions = [
+    { value: "", label: "No Sort" },
+    { value: "Beginner", label: "Beginner" },
+    { value: "Intermediate", label: "Intermediate" },
+    { value: "Advance", label: "Advance" },
+];
+
+export const sortOrderOptions = [
+    { value: "No Sort", label: "No Sort" },
+    { value: "asc", label: "Sort A-Z" },
+    { value: "desc", label: "Sort Z-A" },
+];

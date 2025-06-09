@@ -1,7 +1,4 @@
 'use client'
-
-
-
 import React, { useState } from 'react'
 import {
     Box,
@@ -10,21 +7,16 @@ import {
     Stack,
     Typography,
     TextField,
-    CircularProgress,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
 } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import { useDeleteCourseMutation, useGetCoursesQuery } from '@/services/courseAPI'
 import { Be_Vietnam_Pro } from 'next/font/google'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ICourse, levelOptions, sortOrderOptions } from '../Types/course'
+import CustomDropDown from '../UI/CustomDropDown'
+import CustomDialog from '../UI/CustomDialog'
+import CustomLoading from '../UI/CustomLoading'
 
 const beVietnamPro = Be_Vietnam_Pro({
     weight: ['400', '500', '600', '700', '800', '900'],
@@ -37,9 +29,18 @@ const GetAdminCourse = () => {
     const [title, setTitle] = useState<string>('')
     const [sortOrder, setSortOrder] = useState<'' | 'asc' | 'desc'>('')
     const [level, setLevel] = useState<string>('')
+    const [minMinutes, setMinMinutes] = useState<number | ''>('');
+    const [maxMinutes, setMaxMinutes] = useState<number | ''>('');
 
-    const { data, isLoading, isError } = useGetCoursesQuery({ title, sortOrder, level })
 
+    const { data, isLoading, isError } = useGetCoursesQuery({
+        title, sortOrder, level, minSeconds: minMinutes === '' ? undefined : minMinutes * 60,
+        maxSeconds: maxMinutes === '' ? undefined : maxMinutes * 60,
+    })
+
+
+
+    
     const [deleteCourse] = useDeleteCourseMutation()
 
     const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -55,7 +56,7 @@ const GetAdminCourse = () => {
         router.push('/addCourse')
     }
 
-    const handleDeleteClick = (course: any) => {
+    const handleDeleteClick = (course: ICourse) => {
         setSelectedCourse(course)
         setShowDeleteModal(true)
     }
@@ -67,8 +68,8 @@ const GetAdminCourse = () => {
             await deleteCourse(selectedCourse._id).unwrap()
             setShowDeleteModal(false)
             setSelectedCourse(null)
-            toast.success("Course deleted successfully!");
             router.refresh()
+            toast.success("Course deleted successfully!", { autoClose: 1000 });
         } catch (error) {
             console.error('Delete error:', error)
         } finally {
@@ -79,6 +80,35 @@ const GetAdminCourse = () => {
     const cancelDelete = () => {
         setShowDeleteModal(false)
         setSelectedCourse(null)
+    }
+
+
+    function formatVideoTiming(totalVideosTiming: string): string {
+
+        let totalSeconds: number;
+
+        if (totalVideosTiming.includes(":")) {
+            const [minutes, seconds] = totalVideosTiming.split(":").map(Number);
+            totalSeconds = minutes * 60 + seconds;
+        } else {
+            totalSeconds = parseInt(totalVideosTiming) || 0;
+        }
+
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = Math.floor(totalSeconds % 60);
+
+        const ss = seconds.toString().padStart(2, '0');
+        const mm = minutes.toString().padStart(2, '0');
+        const hh = hours.toString().padStart(2, '0');
+
+        if (hours > 0) {
+            return `${hh}:${mm} minutes`;
+        } else if (minutes > 0) {
+            return `${mm}:${ss} seconds`;
+        } else {
+            return `00:${ss} seconds`;
+        }
     }
 
     return (
@@ -102,39 +132,47 @@ const GetAdminCourse = () => {
                     sx={{ width: 300 }}
                 />
 
-                <FormControl sx={{ width: '180px' }} size="small">
-                    <InputLabel id="sort-order-label">Sort</InputLabel>
-                    <Select
-                        labelId="sort-order-label"
-                        value={sortOrder}
-                        label="Sort"
-                        onChange={(e) => setSortOrder(e.target.value as '' | 'asc' | 'desc')}
-                    >
-                        <MenuItem value="">No Sort</MenuItem>
-                        <MenuItem value="asc">Sort A-Z</MenuItem>
-                        <MenuItem value="desc">Sort Z-A</MenuItem>
-                    </Select>
-                </FormControl>
+                <CustomDropDown
+                    label="Sort"
+                    value={sortOrder}
+                    setValue={(val: string) => setSortOrder(val as '' | 'asc' | 'desc')}
+                    options={sortOrderOptions}
+                    sx={{ width: '180px' }}
+                />
 
-                <FormControl sx={{ width: '180px' }} size="small">
-                    <InputLabel id="sort-level-label">Sort Level</InputLabel>
-                    <Select
-                        labelId="sort-level-label"
-                        value={level}
-                        label="Sort Level"
-                        onChange={(e) => setLevel(e.target.value)}
-                    >
-                        <MenuItem value="">No Sort</MenuItem>
-                        <MenuItem value="Beginner">Beginner</MenuItem>
-                        <MenuItem value="Intermediate">Intermediate</MenuItem>
-                        <MenuItem value="Advance">Advance</MenuItem>
-                    </Select>
-                </FormControl>
+                <CustomDropDown
+                    label="Sort Level"
+                    value={level}
+                    setValue={setLevel}
+                    options={levelOptions}
+                    sx={{ width: '180px' }}
+                />
+
+                <TextField
+                    label="Min Minutes"
+                    variant="outlined"
+                    size="small"
+                    type="number"
+                    value={minMinutes}
+                    onChange={e => setMinMinutes(e.target.value === '' ? '' : Number(e.target.value))}
+                    sx={{ width: 140 }}
+                />
+                <TextField
+                    label="Max Minutes"
+                    variant="outlined"
+                    size="small"
+                    type="number"
+                    value={maxMinutes}
+                    onChange={e => setMaxMinutes(e.target.value === '' ? '' : Number(e.target.value))}
+                    sx={{ width: 140 }}
+                />
+
             </Box>
 
             {isLoading ? (
                 <Typography sx={{ mt: 5, textAlign: 'center' }}>
-                    <CircularProgress />
+                    <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
+
                 </Typography>
             ) : isError ? (
                 <Typography sx={{ mt: 5, textAlign: 'center' }}>Failed to load courses</Typography>
@@ -142,7 +180,7 @@ const GetAdminCourse = () => {
                 <Typography sx={{ mt: 5, textAlign: 'center' }}>No courses found</Typography>
             ) : (
                 <Grid container spacing={2} sx={{ mt: 5, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
-                    {data.courses.map((course: any) => (
+                    {data.courses.map((course: ICourse) => (
                         <Grid
                             key={course._id}
                             size={{ xs: 16, md: 6, sm: 6, lg: 6 }}
@@ -182,7 +220,7 @@ const GetAdminCourse = () => {
                                             textAlign: 'center',
                                         }}
                                     >
-                                        {course.totalVideosTiming} Minutes
+                                        {formatVideoTiming(course.totalVideosTiming)}
                                     </Typography>
 
                                     <Typography
@@ -260,30 +298,17 @@ const GetAdminCourse = () => {
                 </Grid>
             )}
 
-            <Dialog open={showDeleteModal} onClose={cancelDelete}>
-                <DialogTitle>Delete Confirmation</DialogTitle>
-                <DialogContent>
-                    Are you sure you want to delete the course "{selectedCourse?.title}"?
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={cancelDelete} disabled={isDeletingModal}>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={confirmDelete}
-                        color="error"
-                        disabled={isDeletingModal}
-                        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minWidth: 100 }}
-                    >
-                        {isDeletingModal ? (
-                            <CircularProgress size={24} />
-                        ) : (
-                            'Delete'
-                        )}
-                    </Button>
+            <CustomDialog
+                open={showDeleteModal}
+                onClose={cancelDelete}
+                onConfirm={confirmDelete}
+                title="Delete Confirmation"
+                content={`Are you sure you want to delete the course "${selectedCourse?.title}"?`}
+                confirmText="Delete"
+                confirmColor="error"
+                isLoading={isDeletingModal}
+            />
 
-                </DialogActions>
-            </Dialog>
         </>
     )
 }

@@ -2,12 +2,7 @@
 import { useCreatePurchaseCourseMutation, useGetCoursesQuery } from '@/services/public/publicCourseApi';
 import React, { useState } from 'react';
 import {
-  Box, Button, CircularProgress, FormControl, Grid, InputLabel, MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Select, Stack, TextField, Typography
+  Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Stack, TextField, Typography
 } from '@mui/material'
 import { Be_Vietnam_Pro } from 'next/font/google'
 import { useRouter } from 'next/navigation';
@@ -19,6 +14,10 @@ const beVietnamPro = Be_Vietnam_Pro({
 })
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ICourse, IPurchaseCourse, levelOptions, sortOrderOptions } from '../Types/course';
+import CustomDropDown from '../UI/CustomDropDown';
+import CustomDialog from '../UI/CustomDialog';
+import CustomLoading from '../UI/CustomLoading';
 
 const GetUserCourse = () => {
   const [title, setTitle] = useState<string>('');
@@ -26,32 +25,37 @@ const GetUserCourse = () => {
   const [level, setLevel] = useState<string>('');
 
   const [showPurchaseModal, setShowPurchaseModal] = useState(false)
-  const [selectedCourse, setSelectedCourse] = useState<any>(null)
+  const [selectedCourse, setSelectedCourse] = useState<{ userId: string; courseId: string } | null>(null)
   const [isPurchaseModal, setIsPurchaseModal] = useState(false)
+  const [minMinutes, setMinMinutes] = useState<number | ''>('');
+  const [maxMinutes, setMaxMinutes] = useState<number | ''>('');
 
   const router = useRouter();
-  const { data, isLoading, isError } = useGetCoursesQuery({ title, sortOrder, level });
+  const { data, isLoading, isError } = useGetCoursesQuery({
+    title, sortOrder, level, minSeconds: minMinutes === '' ? undefined : minMinutes * 60,
+    maxSeconds: maxMinutes === '' ? undefined : maxMinutes * 60,
+  });
   const [purchaseCourse] = useCreatePurchaseCourseMutation();
 
   const handelViewClick = (courseId: string) => {
     router.push(`/courses/${courseId}`)
   }
 
-  const { sessionCourseId } = useAuth();
+  const { sessionCourseId, currentUserId } = useAuth();
 
-  if (sessionCourseId) {
-    alert('you have to purchase this')
-  }
+  React.useEffect(() => {
+    if (sessionCourseId && data?.courses) {
+      const courseToPurchase = data.courses.find(c => c._id === sessionCourseId);
+      if (courseToPurchase) {
+        setSelectedCourse({ userId: currentUserId as string, courseId: courseToPurchase._id });
+        setShowPurchaseModal(true);
+      }
+    }
+  }, [sessionCourseId, data?.courses, currentUserId]);
 
-  const { currentUserId } = useAuth()
-
-  interface IPurchaseCourse {
-    _id: string,
-    title: string
-  }
 
   const handlePurchaseClick = (course: IPurchaseCourse) => {
-    setSelectedCourse({ userId: currentUserId, courseId: course._id, })
+    setSelectedCourse({ userId: currentUserId as string, courseId: course._id })
     setShowPurchaseModal(true)
   }
 
@@ -62,10 +66,14 @@ const GetUserCourse = () => {
       const res = await purchaseCourse(selectedCourse).unwrap()
       setShowPurchaseModal(false)
       setSelectedCourse(null)
+      sessionStorage.removeItem('courseId');
       if (res.result.status == 403) {
         return toast.error("This course already purchased.", { autoClose: 1000, });
       } else {
         toast.success("Course purchased successfully!", { autoClose: 1000, });
+        setTimeout(() => {
+          router.push(`/courses/${selectedCourse.courseId}`)
+        }, 1000);
         router.refresh()
       }
     } catch (error) {
@@ -78,11 +86,51 @@ const GetUserCourse = () => {
   const cancelPurchase = () => {
     setShowPurchaseModal(false)
     setSelectedCourse(null)
+
+    sessionStorage.removeItem('courseId');
+
   }
+
+  function formatVideoTiming(totalVideosTiming: string): string {
+
+    let totalSeconds: number;
+
+    if (totalVideosTiming.includes(":")) {
+      const [minutes, seconds] = totalVideosTiming.split(":").map(Number);
+      totalSeconds = minutes * 60 + seconds;
+    } else {
+      totalSeconds = parseInt(totalVideosTiming) || 0;
+    }
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = Math.floor(totalSeconds % 60);
+
+    const ss = seconds.toString().padStart(2, '0');
+    const mm = minutes.toString().padStart(2, '0');
+    const hh = hours.toString().padStart(2, '0');
+
+    if (hours > 0) {
+      return `${hh}:${mm} minutes`;
+    } else if (minutes > 0) {
+      return `${mm}:${ss} seconds`;
+    } else {
+      return `00:${ss} seconds`;
+    }
+  }
+
 
   return (
     <Box className="p-4">
-      <Box className="my-4 flex gap-4" pl={10}>
+      <Box
+        className="my-4 flex gap-4 items-center"
+        pl={10}
+        sx={{
+          width: '100%',
+          overflowX: 'auto',
+          whiteSpace: 'nowrap',
+        }}
+      >
         <h1 className="text-2xl font-semibold">All Courses</h1>
         <TextField
           label="Search by Title"
@@ -92,38 +140,46 @@ const GetUserCourse = () => {
           onChange={(e) => setTitle(e.target.value)}
           sx={{ width: 300 }}
         />
-        <FormControl sx={{ width: '180px' }} size="small">
-          <InputLabel id="sort-order-label">Sort</InputLabel>
-          <Select
-            labelId="sort-order-label"
-            value={sortOrder}
-            label="Sort"
-            onChange={(e) => setSortOrder(e.target.value as '' | 'asc' | 'desc')}
-          >
-            <MenuItem value="No Sort">No Sort</MenuItem>
-            <MenuItem value="asc">Sort A-Z</MenuItem>
-            <MenuItem value="desc">Sort Z-A</MenuItem>
-          </Select>
-        </FormControl>
-
-        <FormControl sx={{ width: '180px' }} size="small">
-          <InputLabel id="sort-level-label">Sort Level</InputLabel>
-          <Select
-            labelId="sort-level-label"
-            value={level}
-            label="Sort Level"
-            onChange={(e) => setLevel(e.target.value)}
-          >
-            <MenuItem value="">No Sort</MenuItem>
-            <MenuItem value="Beginner">Beginner</MenuItem>
-            <MenuItem value="Intermediate">Intermediate</MenuItem>
-            <MenuItem value="Advance">Advance</MenuItem>
-          </Select>
-        </FormControl>
+        <CustomDropDown
+          label="Sort"
+          value={sortOrder}
+          setValue={(val: string) => setSortOrder(val as '' | 'asc' | 'desc')}
+          options={sortOrderOptions}
+          sx={{ width: '180px' }}
+        />
+        <CustomDropDown
+          label="Sort Level"
+          value={level}
+          setValue={setLevel}
+          options={levelOptions}
+          sx={{ width: '180px' }}
+        />
+        <TextField
+          label="Min Minutes"
+          variant="outlined"
+          size="small"
+          type="number"
+          value={minMinutes}
+          onChange={e => setMinMinutes(e.target.value === '' ? '' : Number(e.target.value))}
+          sx={{ width: 140 }}
+        />
+        <TextField
+          label="Max Minutes"
+          variant="outlined"
+          size="small"
+          type="number"
+          value={maxMinutes}
+          onChange={e => setMaxMinutes(e.target.value === '' ? '' : Number(e.target.value))}
+          sx={{ width: 140 }}
+        />
       </Box>
 
+
       {isLoading ? (
-        <Typography sx={{ mt: 5, textAlign: 'center' }}><CircularProgress /></Typography>
+        <Typography sx={{ mt: 5, textAlign: 'center' }}>
+          <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
+
+        </Typography>
       ) : isError ? (
         <Typography sx={{ mt: 5, textAlign: 'center' }}>Failed to load courses</Typography>
       ) : !data?.courses || data.courses.length === 0 ? (
@@ -133,8 +189,7 @@ const GetUserCourse = () => {
           <ToastContainer />
           <Grid container spacing={2} sx={{ mt: 5, px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
 
-            {data.courses.map((course: any) => (
-
+            {data.courses.map((course: ICourse) => (
               <Grid
                 key={course._id}
                 size={{ xs: 16, md: 6, sm: 6, lg: 6 }}
@@ -166,7 +221,7 @@ const GetUserCourse = () => {
                         textAlign: 'center',
                       }}
                     >
-                      {course.totalVideosTiming} Minutes
+                      {formatVideoTiming(course.totalVideosTiming)}
                     </Typography>
 
                     <Typography
@@ -250,35 +305,9 @@ const GetUserCourse = () => {
             ))}
           </Grid>
         </>
-        // <CustomCard action={
-        //   <Box width={"100%"}
-        //     sx={{ px: 2, my: 5, display: "flex", justifyContent: "center" }}>
-        //     <Button
-        //       sx={{
-        //         mx: 1,
-        //         bgcolor: "#F1F1F3",
-        //         fontSize: 12,
-        //         width: "50%",
-        //         fontWeight: 'bold',
-        //         py: 1.5,
-        //         color: "#262626"
-        //       }}>View</Button>
-        //     <Button
-        //       onClick={() => handelModalClick()}
-        //       sx={{
-        //         mx: 1,
-        //         bgcolor: "#FF9500",
-        //         '&:hover': { bgcolor: "#e68600" },
-        //         fontSize: 12,
-        //         width: "50%",
-        //         color: "#fff",
-        //         fontWeight: 'bold',
-        //         py: 1.5
-        //       }}>Purchase</Button>
 
-        //   </Box>
-        // } />
       )}
+
       <Dialog open={showPurchaseModal} onClose={cancelPurchase}
         slotProps={{
           backdrop: {
@@ -288,7 +317,7 @@ const GetUserCourse = () => {
           },
         }}>
         <DialogTitle>Purchase Confirmation</DialogTitle>
-        <DialogContent >
+        <DialogContent>
           Are you sure you want to purchase this course ?
         </DialogContent>
         <DialogActions>
@@ -309,7 +338,6 @@ const GetUserCourse = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
     </Box>
   );
 };
