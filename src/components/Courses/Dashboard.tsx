@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from 'react'
 import UserHomePage from '../UI/UserHomePage'
-import { Box, CircularProgress } from '@mui/material'
+import { Box } from '@mui/material'
 import GetUserCourses from './GetUserCourses'
 import GetAdminCourse from './GetAdminCourses'
 import { useRouter } from 'next/navigation'
+import CustomLoading from '../UI/CustomLoading'
 
 const Dashboard = () => {
     const router = useRouter()
@@ -42,9 +43,10 @@ const Dashboard = () => {
                 mt: 20,
                 display: 'flex'
             }}
-        ><CircularProgress /></Box>;
+        >
+            <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
+        </Box>;
     }
-
     if (role === 'admin') {
         return <GetAdminCourse />
     }

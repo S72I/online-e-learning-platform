@@ -1,9 +1,18 @@
+import { ICourse } from '@/components/Types/course';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 type GetCoursesQueryArg = {
     title?: string;
-    sortOrder?: 'asc' | 'desc' | '';
-    level?: string
+    sortOrder?: string;
+    level?: string;
+    timing?: string;
+    minSeconds?: number;
+    maxSeconds?: number;
+};
+
+type GetCoursesResponse = {
+    courses: ICourse[];
+    status: number;
 };
 
 const apiUrl = "/api/courses";
@@ -13,12 +22,15 @@ export const publicCourseApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: process.env.DOMAIN }),
     tagTypes: ['Courses'],
     endpoints: (builder) => ({
-        getCourses: builder.query<any, GetCoursesQueryArg>({
-            query: ({ title = '', sortOrder = '', level = '' } = {}) => {
+        getCourses: builder.query<GetCoursesResponse, GetCoursesQueryArg>({
+            query: ({ title = '', sortOrder = '', level = '', timing = '', minSeconds, maxSeconds } = {}) => {
                 const params = new URLSearchParams();
                 if (title) params.append('title', title);
                 if (sortOrder) params.append('sortOrder', sortOrder);
                 if (level) params.append('level', level);
+                if (timing) params.append('timing', timing);
+                if (minSeconds !== undefined && minSeconds !== null) params.append('minSeconds', String(minSeconds));
+                if (maxSeconds !== undefined && maxSeconds !== null) params.append('maxSeconds', String(maxSeconds));
                 return {
                     url: `${apiUrl}/allcourses?${params.toString()}`,
                     method: 'GET',

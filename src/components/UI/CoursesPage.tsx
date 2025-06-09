@@ -1,11 +1,13 @@
 'use client'
-import { Box, Button, CircularProgress, Container, Grid, Stack, Typography } from '@mui/material'
+import { Box, Button, Container, Grid, Stack, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import SectionHeader from './SectionHeader'
 import Image from 'next/image'
 import { useGetCoursesQuery, useGetPurchasedCoursesQuery } from '@/services/public/publicCourseApi'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { IChapter, ICourse } from '../Types/course'
+import CustomLoading from './CustomLoading'
 
 
 const CoursesPage = () => {
@@ -21,11 +23,44 @@ const CoursesPage = () => {
         router.push(`/courses/${courseId}`)
     }
 
+
+    function formatVideoTiming(totalVideosTiming: string): string {
+
+        let totalSeconds: number;
+
+        if (totalVideosTiming.includes(":")) {
+            const [minutes, seconds] = totalVideosTiming.split(":").map(Number);
+            totalSeconds = minutes * 60 + seconds;
+        } else {
+            totalSeconds = parseInt(totalVideosTiming) || 0;
+        }
+
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = Math.floor(totalSeconds % 60);
+
+        const ss = seconds.toString().padStart(2, '0');
+        const mm = minutes.toString().padStart(2, '0');
+        const hh = hours.toString().padStart(2, '0');
+
+        if (hours > 0) {
+            return `${hh}:${mm} minutes`;
+        } else if (minutes > 0) {
+            return `${mm}:${ss} seconds`;
+        } else {
+            return `00:${ss} seconds`;
+        }
+    }
+
     return (
         <Container maxWidth={false} >
             <Box >
                 {isLoading ? (
-                    <Typography sx={{ mt: 5, textAlign: 'center' }}><CircularProgress /></Typography>
+                    <Typography sx={{ mt: 5, textAlign: 'center' }}>
+                        {/* <CircularProgress /> */}
+                        <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
+
+                    </Typography>
                 ) : isError ? (
                     <Typography sx={{ mt: 5, textAlign: 'center' }}>Failed to load courses</Typography>
                 ) : !data?.courses || data.courses.length === 0 ? (
@@ -34,7 +69,7 @@ const CoursesPage = () => {
                     <Grid container spacing={2} mt={12} sx={{ px: { md: 4, xs: 2, lg: 6, xl: 6 } }}>
                         {
 
-                            data?.courses.map((course: any, index: number) => (
+                            data?.courses.map((course: ICourse, index: number) => (
                                 <Grid
                                     key={index}
                                     sx={{
@@ -71,7 +106,7 @@ const CoursesPage = () => {
                                     </Stack>
                                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", px: 6, mt: 2 }}>
                                         <Stack direction={'row'} >
-                                            <Typography sx={{ mr: 1, color: "#4C4C4D", borderRadius: 2, px: 2, py: 1, bgcolor: "#FCFCFD", fontSize: 12 }} >{course.totalVideosTiming}</Typography>
+                                            <Typography sx={{ mr: 1, color: "#4C4C4D", borderRadius: 2, px: 2, py: 1, bgcolor: "#FCFCFD", fontSize: 12 }} >{formatVideoTiming(course.totalVideosTiming)}</Typography>
                                             <Typography sx={{ borderRadius: 2, color: "#4C4C4D", textAlign: 'center', px: 2, py: 1, bgcolor: "#FCFCFD", fontSize: 12 }}>{course.level}</Typography>
                                         </Stack>
                                         <Box>
@@ -94,7 +129,7 @@ const CoursesPage = () => {
                                                 justifyContent: 'space-between'
                                             }}>
                                             {
-                                                course.chapters.map((data: any, i: number) => (
+                                                course.chapters.map((data: IChapter, i: number) => (
 
                                                     <Box key={i} sx={{
                                                         borderRight: '0.5px solid',

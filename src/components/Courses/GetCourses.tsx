@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import GetAdminCourses from './GetAdminCourses'
 import GetUserCourses from './GetUserCourses'
-import HomePage from './Home'
+import CustomLoading from '../UI/CustomLoading'
 
 const GetCourses = () => {
     const router = useRouter()
@@ -34,7 +34,7 @@ const GetCourses = () => {
     }, [router])
 
     if (loading) {
-        return <div>Loading...</div>
+        return <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
     }
 
     if (role === 'admin') {

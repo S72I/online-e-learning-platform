@@ -3,7 +3,6 @@
 import React, { useState } from 'react'
 import CustomCard from '../UI/CustomCard'
 import TestimonialsCard from '../UI/TestimonialsCard'
-import Pricing from '../UI/Pricing'
 import { Box, Button, CircularProgress, Container, Typography } from '@mui/material'
 import SectionHeader from '../UI/SectionHeader'
 import BenefitsCards from '../UI/BenefitsCards'
@@ -11,14 +10,15 @@ import Image from 'next/image'
 import Sponsors from '../UI/Sponsors'
 import ElectricBoltSharpIcon from '@mui/icons-material/ElectricBoltSharp';
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/context/AuthContext'
+import CustomPricing from './CustomPricing'
+import CustomLoading from './CustomLoading'
 
 const UserHomePage = () => {
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [billing, setBilling] = useState<"monthly" | "yearly">('monthly');
-  
+
 
   const handlePricingClick = () => {
     const element = document.getElementById('pricing')
@@ -40,7 +40,8 @@ const UserHomePage = () => {
     <> {
       loading ? (
         <Typography sx={{ mt: 5, textAlign: 'center' }}>
-          <CircularProgress />
+          <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
+
         </Typography>) : (
 
         <main>
@@ -217,19 +218,6 @@ const UserHomePage = () => {
                   py: 1.5,
                   color: "#262626"
                 }}>Get it Now</Button>
-              {/* <Button
-                onClick={() => handelViewPurchaseClick()}
-                sx={{
-                  mx: 1,
-                  bgcolor: "#FF9500",
-                  '&:hover': { bgcolor: "#e68600" },
-                  fontSize: 12,
-                  width: "50%",
-                  color: "#fff",
-                  fontWeight: 'bold',
-                  py: 1.5
-                }}>Purchase</Button> */}
-
             </Box>
           } />
 
@@ -290,7 +278,7 @@ const UserHomePage = () => {
               sx={{ mb: { xs: 4, md: 6 } }}
             />
           </Box>
-          <Pricing planType={billing} />
+          <CustomPricing planType={billing} />
         </main >
       )
     }

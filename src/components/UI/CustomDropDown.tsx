@@ -3,7 +3,24 @@ import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import { SxProps, Theme } from "@mui/material";
+
+export type Option = {
+    value: string;
+    label: string;
+};
+
+export type CustomDropDownProps = {
+    label: string;
+    value: string;
+    setValue: (value: string) => void;
+    options: Option[];
+    maxHeightValue?: number | string;
+    error?: boolean;
+    helperText?: string;
+    sx?: SxProps<Theme>;
+};
 
 export default function CustomDropDown({
     label,
@@ -13,14 +30,15 @@ export default function CustomDropDown({
     maxHeightValue,
     error,
     helperText,
-}: any) {
-    const handleChange = (event: any) => {
+    sx,
+}: CustomDropDownProps) {
+    const handleChange = (event: SelectChangeEvent) => {
         setValue(event.target.value);
     };
 
     return (
         <Box sx={{ minWidth: 120, pb: 2, mt: 2 }}>
-            <FormControl fullWidth sx={{ maxHeight: maxHeightValue }} error={error}>
+            <FormControl fullWidth sx={{ maxHeight: maxHeightValue, ...sx }} error={error}>
                 <InputLabel id={`${label}-label`} error={error}>
                     {label}
                 </InputLabel>
@@ -33,7 +51,7 @@ export default function CustomDropDown({
                     onChange={handleChange}
                     error={error}
                 >
-                    {options.map((option: any) => (
+                    {options.map((option: Option) => (
                         <MenuItem key={option.value} value={option.value}>
                             {option.label}
                         </MenuItem>

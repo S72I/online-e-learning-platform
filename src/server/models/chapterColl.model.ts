@@ -4,13 +4,11 @@ const chapterSchema = new mongoose.Schema({
   title:
   {
     type: String,
-    required: true
   },
   course_id:
   {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Course",
-    required: true
   },
   videos: [
     {

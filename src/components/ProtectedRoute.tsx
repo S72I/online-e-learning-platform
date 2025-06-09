@@ -1,9 +1,10 @@
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
-import { Box, CircularProgress } from '@mui/material';
+import { Box } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useEffect, ReactNode } from 'react';
+import CustomLoading from './UI/CustomLoading';
 
 interface ProtectedRouteProps {
     children: ReactNode;
@@ -36,7 +37,9 @@ export default function ProtectedRoute({
                 mt: 20,
                 display: 'flex'
             }}
-        ><CircularProgress /></Box>;
+        >
+            <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
+        </Box>;
     }
 
     if (allowedRoles && role && !allowedRoles.includes(role)) {

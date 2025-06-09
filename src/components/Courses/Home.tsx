@@ -1,11 +1,11 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import AdminHomePage from '../UI/AdminHomePage'
 import UserHomePage from '../UI/UserHomePage'
-import { Box, CircularProgress } from '@mui/material'
+import { Box } from '@mui/material'
 import GetUserCourses from './GetUserCourses'
 import GetAdminCourse from './GetAdminCourses'
+import CustomLoading from '../UI/CustomLoading'
 
 
 const Home = () => {
@@ -42,7 +42,8 @@ const Home = () => {
                 mt: 20,
                 display: 'flex'
             }}>
-                <CircularProgress size={50} sx={{ margin: 'auto' }} />
+                <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
+
             </Box>
         )
     }
