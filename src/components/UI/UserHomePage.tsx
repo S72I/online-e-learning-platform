@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import CustomCard from '../UI/CustomCard'
 import TestimonialsCard from '../UI/TestimonialsCard'
-import { Box, Button, CircularProgress, Container, Typography } from '@mui/material'
+import { Box, Button, Container, Typography } from '@mui/material'
 import SectionHeader from '../UI/SectionHeader'
 import BenefitsCards from '../UI/BenefitsCards'
 import Image from 'next/image'

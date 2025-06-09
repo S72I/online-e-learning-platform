@@ -2,7 +2,7 @@ import { Box, Button, Container, Grid, Typography } from '@mui/material'
 import Image from 'next/image'
 import React from 'react'
 import SectionHeader from './SectionHeader'
-import { Achievements, Goals } from '../Types/course'
+import { Achievements, Goals } from '@/components/Types/course'
 
 const AboutUsPage = () => {
     return (

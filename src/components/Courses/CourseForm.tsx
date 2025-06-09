@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CustomDropDown from '../UI/CustomDropDown';
-import { IChapter, ICourse, IVideo, levelOptions } from '../Types/course';
+import { IChapter, ICourse, IVideo, levelOptions } from '@/components/Types/course';
 import CustomLoading from '../UI/CustomLoading';
 import { Controller, useForm } from "react-hook-form";
 

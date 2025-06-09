@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import { useCreateCourseMutation } from '@/services/courseAPI';
-import { ICourse } from '../Types/course';
+import { ICourse } from '@/components/Types/course';
 import CourseForm from './CourseForm';
 const AddCoursePage: React.FC = () => {
     const [createCourse] = useCreateCourseMutation();
