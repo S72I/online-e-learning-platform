@@ -14,7 +14,6 @@ type GetCoursesQueryArg = {
 };
 
 type GetCoursesResponse = {
-    [x: string]: any;
     courses: ICourse[];
     status: number;
 };

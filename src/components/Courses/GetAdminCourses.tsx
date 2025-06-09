@@ -40,11 +40,11 @@ const GetAdminCourse = () => {
 
 
 
-    
+
     const [deleteCourse] = useDeleteCourseMutation()
 
     const [showDeleteModal, setShowDeleteModal] = useState(false)
-    const [selectedCourse, setSelectedCourse] = useState<any>(null)
+    const [selectedCourse, setSelectedCourse] = useState<ICourse | null>(null)
 
     const [isDeletingModal, setIsDeletingModal] = useState(false)
 
