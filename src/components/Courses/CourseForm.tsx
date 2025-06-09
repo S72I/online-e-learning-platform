@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import {
     Box,
     Button,
-    CircularProgress,
     Container,
     FormControlLabel,
     IconButton,
@@ -67,8 +66,6 @@ function formatDuration(seconds: number): string {
     return `${mins}:${secs.toString().padStart(2, '0')} minutes`;
 }
 
-
-
 const CourseForm = ({
     initialData,
     mode = "add",
@@ -127,30 +124,6 @@ const CourseForm = ({
             reset(initialData);
         }
     }, [initialData, reset]);
-
-    // const handleChange = (field: keyof ICourse, value: string | string[] | IChapter[] | boolean) => {
-    //     if (field === 'chapters') {
-    //         const chapters = value as IChapter[];
-    //         const totalSeconds = chapters.reduce((chapterSum, chapter) => (
-    //             chapterSum + chapter.videos.reduce((videoSum, video) => videoSum + hmsToSeconds(video.videoTiming || "0:00"), 0)
-    //         ), 0);
-    //         const totalVideosTiming = secondsToHms(totalSeconds);
-    //         setCourseData((prev) => ({ ...prev, chapters, totalVideosTiming }));
-    //         setValue('chapters', chapters, { shouldValidate: true });
-    //         setValue('totalVideosTiming', totalVideosTiming, { shouldValidate: true });
-    //     } else {
-    //         setCourseData((prev) => ({ ...prev, [field]: value }));
-    //         setValue(field, value as string, { shouldValidate: true });
-    //     }
-    // };
-
-    // For chapter title
-    // const handleChapterChange = (index: number, value: string) => {
-    //     const updatedChapters = [...courseData.chapters];
-    //     updatedChapters[index].title = value;
-    //     handleChange('chapters', updatedChapters);
-    // };
-
 
     const handleChange = (
         field: keyof ICourse,
