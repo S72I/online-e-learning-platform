@@ -4,7 +4,7 @@ import WatchLaterOutlinedIcon from "@mui/icons-material/WatchLaterOutlined";
 import { useParams, useRouter } from "next/navigation";
 import { useGetCourseQuery } from "@/services/public/publicCourseApi";
 import { useAuth } from "@/context/AuthContext";
-import { IChapter, IVideo } from "../Types/course";
+import { IChapter, IVideo } from "../types/course";
 import CustomLoading from "./CustomLoading";
 
 const CourseDetailPage = () => {

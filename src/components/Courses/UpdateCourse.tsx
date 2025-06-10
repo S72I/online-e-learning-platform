@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import { useGetCourseQuery, useUpdateCourseMutation } from '@/services/courseAPI';
-import { ICourse } from '../Types/course';
+import { ICourse } from '../types/course';
 import CourseForm from './CourseForm';
 import CustomLoading from '../UI/CustomLoading';
 

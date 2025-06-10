@@ -17,7 +17,7 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import { useForm } from 'react-hook-form'
 import { useCreateContactMutation } from '@/services/public/publicCourseApi'
-import { IContact } from '../Types/course'
+import { IContact } from '../types/course'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

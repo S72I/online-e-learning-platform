@@ -1,4 +1,4 @@
-import { ICourse } from '@/components/Types/course';
+import { ICourse } from '@/components/types/course';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 type GetCoursesQueryArg = {

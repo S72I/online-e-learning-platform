@@ -5,7 +5,7 @@ import { Box, Grid, Stack, Typography } from '@mui/material'
 import { Be_Vietnam_Pro } from 'next/font/google'
 import { useRouter } from 'next/navigation'
 import React, { ReactNode, useState } from 'react'
-import { ICourse } from '../Types/course'
+import { ICourse } from '../types/course'
 import CustomLoading from './CustomLoading'
 
 const beVietnamPro = Be_Vietnam_Pro({

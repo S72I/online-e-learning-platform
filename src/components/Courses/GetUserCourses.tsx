@@ -14,7 +14,7 @@ const beVietnamPro = Be_Vietnam_Pro({
 })
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ICourse, IPurchaseCourse, levelOptions, sortOrderOptions } from '@/components/Types/course';
+import { ICourse, IPurchaseCourse, levelOptions, sortOrderOptions } from '@/components/types/course';
 import CustomDropDown from '../UI/CustomDropDown';
 import CustomLoading from '../UI/CustomLoading';
 

@@ -13,7 +13,7 @@ import { useDeleteCourseMutation, useGetCoursesQuery } from '@/services/courseAP
 import { Be_Vietnam_Pro } from 'next/font/google'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ICourse, levelOptions, sortOrderOptions } from '@/components/Types/course'
+import { ICourse, levelOptions, sortOrderOptions } from '@/components/types/course'
 import CustomDropDown from '../UI/CustomDropDown'
 import CustomDialog from '../UI/CustomDialog'
 import CustomLoading from '../UI/CustomLoading'
