@@ -1,3 +1,4 @@
+'use client'
 
 import { Box, Typography, SxProps, Theme } from '@mui/material';
 import { ReactNode } from 'react';
