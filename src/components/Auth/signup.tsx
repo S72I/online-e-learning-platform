@@ -62,15 +62,14 @@ function SignUp() {
                 return;
             }
 
-            // const isAdmin = data.role === "admin";
-            // const payload = {
-            //     ...data,
-            //     isAdmin,
+            // const { role, privacyPolicy, ...payload } = data;
+            // const finalPayload = {
+            //     ...payload,
+            //     isAdmin: role === "admin",
+
             // };
-            // delete (payload as any).role;
-            // delete (payload as any).privacyPolicy;
-            
-            const { role, privacyPolicy, ...payload } = data;
+
+            const { role, ...payload } = data;
             const finalPayload = {
                 ...payload,
                 isAdmin: role === "admin",
