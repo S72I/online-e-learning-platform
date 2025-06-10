@@ -30,7 +30,7 @@ interface LoginFormInputs {
 }
 
 function Login() {
-    const [loginUser, { isLoading, error }] = useLoginUserMutation();
+    const [loginUser, { isLoading }] = useLoginUserMutation();
     const [checkerror, setCheckError] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
 

@@ -26,11 +26,7 @@ const CustomCard = ({ limit, action }: Props) => {
 
     const coursesToShow = limit ? data?.courses?.slice(0, limit) : data?.courses;
 
-    const router = useRouter();
 
-    const handelClickCourse = (courseId: string) => {
-        router.replace(`/courses/${courseId}`)
-    }
     return (
 
         <>
