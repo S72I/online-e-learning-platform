@@ -10,8 +10,11 @@ import CustomLoading from "./CustomLoading";
 
 const CourseDetailPage = () => {
     const params = useParams();
-    const { data, isLoading, isError } = useGetCourseQuery(params.id);
     const router = useRouter();
+    const { data, isLoading, isError } = useGetCourseQuery(params.id);
+
+    console.log("data", data);
+    
     const firstChapter = data?.result?.chapters?.[0];
     const firstVideo = firstChapter?.videos?.[0];
 
