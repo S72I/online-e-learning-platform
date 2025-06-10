@@ -775,7 +775,7 @@ export async function getCourseById(req: NextRequest, id: string) {
         ]);
         return { result: coursesWithChaptersAndVideos[0] || null, status: 200 };
     } catch (error) {
-        return ({ error: (error as Error).message, status: 500 })
+        return ({ error: (error as Error).message, status: 400 })
     }
 }
 
