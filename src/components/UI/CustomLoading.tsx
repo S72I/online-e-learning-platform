@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react';
 import { CircularProgress} from '@mui/material';
 import { ILoadingProps } from '@/components/types/course';

@@ -1,3 +1,5 @@
+'use client'
+
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress } from '@mui/material';
 import CustomLoading from './CustomLoading';
 

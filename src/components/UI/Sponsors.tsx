@@ -1,4 +1,6 @@
-import { Box, Stack } from '@mui/material';
+'use client'
+
+import { Box } from '@mui/material';
 import Image from 'next/image';
 import React from 'react'
 
