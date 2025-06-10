@@ -1,4 +1,5 @@
-import { Box, CircularProgress, Grid, Modal, Stack, Typography } from "@mui/material";
+'use client'
+import { Box, Grid, Modal, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import WatchLaterOutlinedIcon from "@mui/icons-material/WatchLaterOutlined";
 import { useParams, useRouter } from "next/navigation";
