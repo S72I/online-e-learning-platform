@@ -3,8 +3,7 @@
 import { useGetCoursesQuery } from '@/services/public/publicCourseApi'
 import { Box, Grid, Stack, Typography } from '@mui/material'
 import { Be_Vietnam_Pro } from 'next/font/google'
-import { useRouter } from 'next/navigation'
-import React, { ReactNode, useState } from 'react'
+import React, { ReactNode } from 'react'
 import { ICourse } from '../types/course'
 import CustomLoading from './CustomLoading'
 
@@ -19,20 +18,19 @@ interface Props {
 }
 
 const CustomCard = ({ limit, action }: Props) => {
-    const [title, setTitle] = useState<string>('');
-    const [sortOrder, setSortOrder] = useState<'' | 'asc' | 'desc'>('');
+    const title = '';
+    const sortOrder = '';
     const { data, isLoading, isError } = useGetCoursesQuery({ title, sortOrder });
 
 
     const coursesToShow = limit ? data?.courses?.slice(0, limit) : data?.courses;
-
 
     return (
 
         <>
             {isLoading ? (
                 <Box sx={{ mt: 5, textAlign: 'center' }}>
-                        <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
+                    <CustomLoading sx={{ mt: 5, display: 'block', mx: 'auto' }} />
 
                 </Box>
             ) : isError ? (

@@ -228,6 +228,8 @@ const CourseForm = ({
                 }
             } catch (err) {
                 toast.error("Video upload failed.");
+                console.error(err)
+
             } finally {
                 setVideoLoadingIndex(null);
             }
@@ -313,6 +315,7 @@ const CourseForm = ({
             }
         } catch (err) {
             toast.error("Image upload failed.");
+            console.error(err)
         } finally {
             setImageLoading(false);
         }
@@ -366,54 +369,6 @@ const CourseForm = ({
 
         return true;
     };
-
-
-    // const validateCourseData = () => {
-    //     if (
-    //         !courseData.title ||
-    //         !courseData.level ||
-    //         !courseData.description ||
-    //         courseData.images.length === 0 ||
-    //         courseData.images.length > MAX_IMAGES
-    //     ) {
-    //         if (courseData.images.length === 0) {
-    //             toast.error('Please upload at least one image!');
-    //         } else if (courseData.images.length > MAX_IMAGES) {
-    //             toast.error(`You can upload up to ${MAX_IMAGES} images.`);
-    //         } else {
-    //             toast.error('Please fill all required fields!');
-    //         }
-    //         return false;
-    //     }
-
-    //     // Only in update mode: enforce at least one chapter and one video per chapter
-    //     if (mode === "update") {
-    //         if (
-    //             courseData.chapters.length === 0 ||
-    //             courseData.chapters.some(
-    //                 ch => !ch.title || ch.videos.length === 0 ||
-    //                     ch.videos.some(v => !v.videoTitle || !v.videoUri || !v.videoTiming)
-    //             )
-    //         ) {
-    //             toast.error('Please add at least one chapter with at least one complete video!');
-    //             return false;
-    //         }
-    //     } else if (courseData.chapters.length > 0) {
-    //         // In add mode, if chapters exist, validate them
-    //         if (
-    //             courseData.chapters.some(
-    //                 ch => !ch.title || ch.videos.length === 0 ||
-    //                     ch.videos.some(v => !v.videoTitle || !v.videoUri || !v.videoTiming)
-    //             )
-    //         ) {
-    //             toast.error('Please fill all required chapter and video fields!');
-    //             return false;
-    //         }
-    //     }
-
-    //     return true;
-    // };
-
     const onSubmit = async () => {
         if (!validateCourseData()) return;
         setUpdating(true);
@@ -442,6 +397,8 @@ const CourseForm = ({
             reset();
         } catch (err) {
             toast.error(mode === "add" ? "Failed to Add course." : "Failed to Update course.");
+            console.error(err)
+
         }
     };
 

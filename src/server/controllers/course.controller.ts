@@ -10,7 +10,6 @@ import { Course } from "../models/course.model";
 import PurchasedCourse from "../models/purchasedColl.model";
 import cloudinary from 'cloudinary';
 import { extractPublicId } from 'cloudinary-build-url';
-import { handleApi } from "../middlewares/errorHandler";
 
 cloudinary.v2.config({
     cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -28,74 +27,7 @@ type MatchFilter = {
 
 //private endpoints
 
-// export async function createCourse(req: NextRequest, courseData: ICourseInput) {
-//     const fieldsRequire = 'All fields are mandatory'
-//     const tokenExpired = 'JWT expired'
-
-//     try {
-//         const {
-//             title,
-//             level,
-//             description,
-//             totalVideosTiming,
-//             images,
-//             chapters,
-//             isPrivate
-//         } = courseData;
-
-//         // if (
-//         //     !title ||
-//         //     !description ||
-//         //     !level ||
-//         //     !totalVideosTiming ||
-//         //     !images?.length ||
-//         //     !chapters?.length
-//         // ) {
-//         //     return { error: fieldsRequire, status: 400 };
-//         // }
-//         const user = validateUser(req);
-//         if (!user?.id) {
-//             return { error: tokenExpired, status: 498 };
-//         }
-//         const course = await Course.create({
-//             user_id: user.id,
-//             title,
-//             description,
-//             level,
-//             totalVideosTiming,
-//             images,
-//             chapters: [],
-//             isPrivate
-//         });
-
-//         for (const _chapter of chapters) {
-//             const chapter = await Chapter.create({
-//                 course_id: course._id,
-//                 title: _chapter.title,
-//                 videos: [],
-//             });
-//             for (const _video of _chapter.videos) {
-//                 const video = await Video.create({
-//                     chapter_id: chapter._id,
-//                     videoTitle: _video.videoTitle,
-//                     description: _video.description,
-//                     videoUri: _video.videoUri,
-//                     videoTiming: _video.videoTiming,
-//                 });
-//                 chapter.videos.push(video._id);
-//             }
-//             await chapter.save();
-//             course.chapters.push(chapter._id);
-//         }
-//         await course.save();
-//         return { course, status: 201 };
-//     } catch (error) {
-//         return { error: (error as Error).message, status: 500 };
-//     }
-// }
-
 export async function createCourse(req: NextRequest, courseData: ICourseInput) {
-    const fieldsRequire = 'All fields are mandatory'
     const tokenExpired = 'JWT expired'
 
     try {
@@ -161,12 +93,6 @@ export async function createCourse(req: NextRequest, courseData: ICourseInput) {
 }
 
 
-// export function createCourse(req: NextRequest, courseData: ICourseInput) {
-//     return handleApi(req, createCourseHandler, courseData);
-// }
-
-
-
 export async function deleteCourse(req: NextRequest, id: string) {
     const deletedCollections = "Course and all related chapters and videos deleted";
     const invalidUser = "Invalid user";
@@ -193,22 +119,20 @@ export async function deleteCourse(req: NextRequest, id: string) {
             return { error: notAuthorized, status: 403 };
         }
 
-        //  Delete course images from Cloudinary
         if (course.images && course.images.length) {
             for (const img of course.images) {
-                let imagePublicId = extractPublicId(img);
+                const imagePublicId = extractPublicId(img);
                 if (imagePublicId) {
                     await cloudinary.v2.uploader.destroy(imagePublicId, { resource_type: 'image' });
                 }
             }
         }
 
-        //  Delete all videos from Cloudinary
         if (course.chapters && course.chapters.length) {
             for (const chapter of course.chapters) {
                 if (chapter.videos && chapter.videos.length) {
                     for (const videoUrl of chapter.videos) {
-                        let videoPublicId = extractPublicId(videoUrl.videoUri);
+                        const videoPublicId = extractPublicId(videoUrl.videoUri);
                         if (videoPublicId) {
                             await cloudinary.v2.uploader.destroy(videoPublicId, { resource_type: 'video' });
                         }
@@ -302,12 +226,10 @@ export async function getCoursesByAdmin(req: NextRequest) {
         const maxSeconds = searchParams.get('maxSeconds');
         const user = validateUser(req);
 
-        // Strictly typed match filter
         const matchFilter: MatchFilter = { user_id: new mongoose.Types.ObjectId(user.id) };
 
         if (_title) {
             matchFilter.title = { $regex: _title, $options: 'i' };
-            // Note: TypeScript can be strict with $regex, so you might need to adjust or use a type assertion
         }
         if (level) {
             matchFilter.level = level;
@@ -315,7 +237,6 @@ export async function getCoursesByAdmin(req: NextRequest) {
 
         const sortDirection = sortOrder === 'desc' ? -1 : 1;
 
-        // Strictly typed timing filter
         let timingFilter: Record<string, number> = {};
         if (minSeconds && maxSeconds) {
             timingFilter = { $gte: Number(minSeconds), $lte: Number(maxSeconds) };
@@ -331,7 +252,6 @@ export async function getCoursesByAdmin(req: NextRequest) {
             timingFilter = { $gt: 1800 };
         }
 
-        // The pipeline is now typed as PipelineStage[]
         const pipeline: PipelineStage[] = [
             { $match: matchFilter },
             {
@@ -389,7 +309,7 @@ export async function getCoursesByAdmin(req: NextRequest) {
                         $function: {
                             body: function (str: string) {
                                 if (!str) return 0;
-                                var parts = str.split(':').map(Number);
+                                let parts = str.split(':').map(Number);
                                 if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
                                 if (parts.length === 2) return parts[0] * 60 + parts[1];
                                 return 0;
@@ -402,7 +322,6 @@ export async function getCoursesByAdmin(req: NextRequest) {
             }
         ];
 
-        // Add timing filter if needed
         if (Object.keys(timingFilter).length > 0) {
             pipeline.push({
                 $match: {
@@ -411,7 +330,6 @@ export async function getCoursesByAdmin(req: NextRequest) {
             } as PipelineStage);
         }
 
-        // Add sorting
         pipeline.push(
             {
                 $addFields: {
@@ -581,7 +499,7 @@ export const getCoursesBetweenDates = async (req: NextRequest, start: string, en
         });
         return courses;
     } catch (error) {
-        throw new Error("Failed to filter courses by date");
+        throw new Error((error as Error)?.message);
     }
 };
 
@@ -688,7 +606,7 @@ export async function getCourses(req: NextRequest) {
                         $function: {
                             body: function (str: string) {
                                 if (!str) return 0;
-                                var parts = str.split(':').map(Number);
+                                let parts = str.split(':').map(Number);
                                 if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
                                 if (parts.length === 2) return parts[0] * 60 + parts[1];
                                 return 0;

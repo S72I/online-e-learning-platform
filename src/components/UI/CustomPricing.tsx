@@ -44,10 +44,10 @@ const availableFreePlanYearly = [
     "Early access to new courses and updates."
 ];
 
-const notAvailableFreePlanYearly = [
-    "Access to exclusive Pro Plan community forums.",
-    "Early access to new courses and updates."
-];
+// const notAvailableFreePlanYearly = [
+//     "Access to exclusive Pro Plan community forums.",
+//     "Early access to new courses and updates."
+// ];
 
 const proPlanYearly = [
     "Unlimited access to all courses.",
@@ -377,7 +377,7 @@ const CustomPricing: React.FC<subscriptionPlan> = ({ planType }: subscriptionPla
                             borderColor: '#F2F0EF',
                             display: { xs: 'none', md: 'inline-flex' }
                         }}>
-                            See All FAQ's
+                            See All FAQ s
                         </Button>
                     </Box>
 
@@ -471,7 +471,7 @@ const CustomPricing: React.FC<subscriptionPlan> = ({ planType }: subscriptionPla
                                 display: { xs: 'flex', md: 'none' }
                             }}
                         >
-                            See All FAQ's
+                            See All FAQs
                         </Button>
                     </Box>
                 </Container>
