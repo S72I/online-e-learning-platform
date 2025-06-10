@@ -303,23 +303,63 @@ export async function getCoursesByAdmin(req: NextRequest) {
                     chapters: { $push: '$chapters' }
                 }
             },
+            // {
+            //     $addFields: {
+            //         totalVideosTimingSeconds: {
+            //             $function: {
+            //                 body: function (str: string) {
+            //                     if (!str) return 0;
+            //                     const parts = str.split(':').map(Number);
+            //                     if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            //                     if (parts.length === 2) return parts[0] * 60 + parts[1];
+            //                     return 0;
+            //                 },
+            //                 args: ['$totalVideosTiming'],
+            //                 lang: 'js'
+            //             }
+            //         }
+            //     }
+            // }
+
+            {
+                $addFields: {
+                    timeParts: { $split: ['$totalVideosTiming', ':'] }
+                }
+            },
             {
                 $addFields: {
                     totalVideosTimingSeconds: {
-                        $function: {
-                            body: function (str: string) {
-                                if (!str) return 0;
-                                const parts = str.split(':').map(Number);
-                                if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-                                if (parts.length === 2) return parts[0] * 60 + parts[1];
-                                return 0;
-                            },
-                            args: ['$totalVideosTiming'],
-                            lang: 'js'
+                        $switch: {
+                            branches: [
+                                {
+                                    case: { $eq: [{ $size: '$timeParts' }, 3] },
+                                    then: {
+                                        $add: [
+                                            { $multiply: [{ $toInt: { $arrayElemAt: ['$timeParts', 0] } }, 3600] },
+                                            { $multiply: [{ $toInt: { $arrayElemAt: ['$timeParts', 1] } }, 60] },
+                                            { $toInt: { $arrayElemAt: ['$timeParts', 2] } }
+                                        ]
+                                    }
+                                },
+                                {
+                                    case: { $eq: [{ $size: '$timeParts' }, 2] },
+                                    then: {
+                                        $add: [
+                                            { $multiply: [{ $toInt: { $arrayElemAt: ['$timeParts', 0] } }, 60] },
+                                            { $toInt: { $arrayElemAt: ['$timeParts', 1] } }
+                                        ]
+                                    }
+                                }
+                            ],
+                            default: 0
                         }
                     }
                 }
+            },
+            {
+                $project: { timeParts: 0 }
             }
+
         ];
 
         if (Object.keys(timingFilter).length > 0) {
@@ -602,21 +642,60 @@ export async function getCourses(req: NextRequest) {
             },
             {
                 $addFields: {
+                    timeParts: { $split: ["$totalVideosTiming", ":"] }
+                }
+            },
+            {
+                $addFields: {
                     totalVideosTimingSeconds: {
-                        $function: {
-                            body: function (str: string) {
-                                if (!str) return 0;
-                                const parts = str.split(':').map(Number);
-                                if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-                                if (parts.length === 2) return parts[0] * 60 + parts[1];
-                                return 0;
-                            },
-                            args: ["$totalVideosTiming"],
-                            lang: "js"
+                        $switch: {
+                            branches: [
+                                {
+                                    case: { $eq: [{ $size: "$timeParts" }, 3] },
+                                    then: {
+                                        $add: [
+                                            { $multiply: [{ $toInt: { $arrayElemAt: ["$timeParts", 0] } }, 3600] },
+                                            { $multiply: [{ $toInt: { $arrayElemAt: ["$timeParts", 1] } }, 60] },
+                                            { $toInt: { $arrayElemAt: ["$timeParts", 2] } }
+                                        ]
+                                    }
+                                },
+                                {
+                                    case: { $eq: [{ $size: "$timeParts" }, 2] },
+                                    then: {
+                                        $add: [
+                                            { $multiply: [{ $toInt: { $arrayElemAt: ["$timeParts", 0] } }, 60] },
+                                            { $toInt: { $arrayElemAt: ["$timeParts", 1] } }
+                                        ]
+                                    }
+                                }
+                            ],
+                            default: 0
                         }
                     }
                 }
+            },
+            {
+                $project: { timeParts: 0 } // Clean up temp field
             }
+
+            // {
+            //     $addFields: {
+            //         totalVideosTimingSeconds: {
+            //             $function: {
+            //                 body: function (str: string) {
+            //                     if (!str) return 0;
+            //                     const parts = str.split(':').map(Number);
+            //                     if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            //                     if (parts.length === 2) return parts[0] * 60 + parts[1];
+            //                     return 0;
+            //                 },
+            //                 args: ["$totalVideosTiming"],
+            //                 lang: "js"
+            //             }
+            //         }
+            //     }
+            // }
         ];
 
         if (Object.keys(timingFilter).length > 0) {
