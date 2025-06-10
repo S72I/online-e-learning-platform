@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { useGetCoursesQuery, useGetPurchasedCoursesQuery } from '@/services/public/publicCourseApi'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
-import { IChapter, ICourse } from '../Types/course'
+import { IChapter, ICourse } from '../types/course'
 import CustomLoading from './CustomLoading'
 
 

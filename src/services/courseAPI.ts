@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import baseQueryWithReauth from "./baseQueryWithReauth";
-import { ICourse } from "@/components/Types/course";
+import { ICourse } from "@/components/types/course";
 
 const apiUrl = '/api/courses';
 
