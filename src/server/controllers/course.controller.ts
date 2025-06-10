@@ -309,7 +309,7 @@ export async function getCoursesByAdmin(req: NextRequest) {
                         $function: {
                             body: function (str: string) {
                                 if (!str) return 0;
-                                let parts = str.split(':').map(Number);
+                                const parts = str.split(':').map(Number);
                                 if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
                                 if (parts.length === 2) return parts[0] * 60 + parts[1];
                                 return 0;
@@ -606,7 +606,7 @@ export async function getCourses(req: NextRequest) {
                         $function: {
                             body: function (str: string) {
                                 if (!str) return 0;
-                                let parts = str.split(':').map(Number);
+                                const parts = str.split(':').map(Number);
                                 if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
                                 if (parts.length === 2) return parts[0] * 60 + parts[1];
                                 return 0;
