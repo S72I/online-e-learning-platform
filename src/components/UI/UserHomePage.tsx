@@ -15,7 +15,7 @@ import CustomLoading from './CustomLoading'
 
 const UserHomePage = () => {
 
-  const [loading, setLoading] = useState(false);
+  const loading = false;
   const router = useRouter();
   const [billing, setBilling] = useState<"monthly" | "yearly">('monthly');
 

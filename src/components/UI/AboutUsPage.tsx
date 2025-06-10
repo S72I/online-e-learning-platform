@@ -122,7 +122,7 @@ const AboutUsPage = () => {
 
             <Box width={"93%"} display={'flex'} borderRadius={2} marginTop={10} justifySelf={"center"} height={"auto"} bgcolor={"white"} marginBottom={10}>
                 <Box width={"70%"} alignContent={'center'} py={4}>
-                    <Typography sx={{ px: 4, }} fontSize={40}><span style={{ color: "#FF9500" }}>Together</span>, let's shape the future of digital innovation</Typography>
+                    <Typography sx={{ px: 4, }} fontSize={40}><span style={{ color: "#FF9500" }}>Together</span>, lets shape the future of digital innovation</Typography>
                     <Typography sx={{ color: '#4C4C4D', fontSize: 15, px: 4 }}>Join us on this exciting learning journey and unlock your potential in design and development.</Typography>
                 </Box>
                 <Box width={"30%"} overflow={'hidden'} sx={{

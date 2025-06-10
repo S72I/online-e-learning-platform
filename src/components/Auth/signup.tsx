@@ -37,7 +37,6 @@ interface SignUpFormData {
 
 function SignUp() {
     const [registerUser, { isLoading }] = useRegisterUserMutation();
-    const [successMsg, setSuccessMsg] = useState<string>("");
     const router = useRouter();
     const { login, sessionCourseId } = useAuth();
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -63,15 +62,21 @@ function SignUp() {
                 return;
             }
 
-            const isAdmin = data.role === "admin";
-            const payload = {
-                ...data,
-                isAdmin,
+            // const isAdmin = data.role === "admin";
+            // const payload = {
+            //     ...data,
+            //     isAdmin,
+            // };
+            // delete (payload as any).role;
+            // delete (payload as any).privacyPolicy;
+            
+            const { role, privacyPolicy, ...payload } = data;
+            const finalPayload = {
+                ...payload,
+                isAdmin: role === "admin",
             };
-            delete (payload as any).role;
-            delete (payload as any).privacyPolicy;
 
-            const response = await registerUser(payload).unwrap();
+            const response = await registerUser(finalPayload).unwrap();
             if (response.status === 403 && response.error?.toLowerCase().includes("email")) {
                 setError("email", { type: "manual", message: response.error });
                 return;
@@ -89,9 +94,9 @@ function SignUp() {
             router.push("/");
 
         } catch (err: unknown) {
-            setSuccessMsg("");
             setApiError("Registration failed. Please try again.");
             toast.error('siup failed!', { autoClose: 1000 });
+            console.error(err)
         }
     };
 

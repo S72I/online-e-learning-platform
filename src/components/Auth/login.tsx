@@ -69,11 +69,8 @@ function Login() {
                 router.replace("/");
             }, 2000);
             router.refresh();
-        } catch (err: unknown) {
-            const message =
-                typeof err === "object" && err !== null && "data" in err
-                    ? (err as any).data?.message || "Login failed"
-                    : "Login failed";
+        } catch (err) {
+            const message = (err as Error)?.message || "Login Failed"
             setCheckError(message);
             console.error("Login Failed:", message);
         }

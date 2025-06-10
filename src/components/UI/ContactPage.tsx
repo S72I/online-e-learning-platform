@@ -47,6 +47,7 @@ const ContactPage = () => {
             toast.success("Message sent successfully!");
         } catch (err) {
             toast.error("Failed to send message.");
+            console.error(err)
         }
     }
 
@@ -69,7 +70,7 @@ const ContactPage = () => {
                     Contact Us
                 </Typography>
                 <Typography sx={{ width: '50%', color: '#59595A', fontSize: 12 }}>
-                    Welcome to SkillBridge's Pricing Plan page, where we offer two
+                    Welcome to SkillBridges Pricing Plan page, where we offer two
                     comprehensive options to cater to your needs: Free and Pro. We believe
                     in providing flexible and affordable pricing options for our services.
                 </Typography>

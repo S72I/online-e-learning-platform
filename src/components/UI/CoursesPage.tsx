@@ -1,6 +1,6 @@
 'use client'
 import { Box, Button, Container, Grid, Stack, Typography } from '@mui/material'
-import React, { useState } from 'react'
+import React from 'react'
 import SectionHeader from './SectionHeader'
 import Image from 'next/image'
 import { useGetCoursesQuery, useGetPurchasedCoursesQuery } from '@/services/public/publicCourseApi'
@@ -11,18 +11,26 @@ import CustomLoading from './CustomLoading'
 
 
 const CoursesPage = () => {
-    const [title, setTitle] = useState<string>('');
-    const [sortOrder, setSortOrder] = useState<'' | 'asc' | 'desc'>('');
+    const title = '';
+    const sortOrder = ''
     const { currentUserId } = useAuth()
 
-    const { data, isLoading, isError } = currentUserId ? useGetPurchasedCoursesQuery(currentUserId) : useGetCoursesQuery({ title, sortOrder });
+    // const { data, isLoading, isError } = currentUserId ? useGetPurchasedCoursesQuery(currentUserId) : useGetCoursesQuery({ title, sortOrder });
+
+
+    const purchasedCoursesQuery = useGetPurchasedCoursesQuery(currentUserId);
+    const allCoursesQuery = useGetCoursesQuery({ title, sortOrder });
+
+    const data = currentUserId ? purchasedCoursesQuery.data : allCoursesQuery.data;
+    const isLoading = currentUserId ? purchasedCoursesQuery.isLoading : allCoursesQuery.isLoading;
+    const isError = currentUserId ? purchasedCoursesQuery.isError : allCoursesQuery.isError;
+
 
     const router = useRouter();
 
     const handelViewAll = (courseId: string) => {
         router.push(`/courses/${courseId}`)
     }
-
 
     function formatVideoTiming(totalVideosTiming: string): string {
 
