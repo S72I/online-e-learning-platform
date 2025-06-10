@@ -45,13 +45,6 @@ export interface ILoadingProps {
     color?: 'primary' | 'secondary' | 'inherit' | 'error' | 'info' | 'success' | 'warning';
 }
 
-
-
-
-
-
-
-
 export const levelOptions = [
     { value: "", label: "No Sort" },
     { value: "Beginner", label: "Beginner" },

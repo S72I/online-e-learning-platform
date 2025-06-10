@@ -1,6 +1,6 @@
 import React from 'react';
-import { CircularProgress, SxProps, Theme } from '@mui/material';
-import { ILoadingProps } from '../Types/course';
+import { CircularProgress} from '@mui/material';
+import { ILoadingProps } from '@/components/Types/course';
 
 
 
